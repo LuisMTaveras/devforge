@@ -1,0 +1,35 @@
+{
+  "name": "devforge",
+  "version": "1.0.0",
+  "description": "⚡ DEVFORGE: The Universal Architecture & AI Orchestration Toolkit for Modern Developers",
+  "type": "module",
+  "main": "./src/index.js",
+  "bin": {
+    "devforge": "./bin/devforge.js"
+  },
+  "scripts": {
+    "dev": "node ./bin/devforge.js",
+    "test": "node --test"
+  },
+  "keywords": [
+    "devforge",
+    "ai-agents",
+    "claude",
+    "cursor",
+    "codex",
+    "antigravity",
+    "blueprints",
+    "architecture",
+    "vue",
+    "react",
+    "typescript"
+  ],
+  "author": "DEVFORGE Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^26.6.4",
+    "@types/react": "^19.3.0",
+    "typescript": "^7.0.2",
+    "vue": "^3.5.43"
+  }
+}
