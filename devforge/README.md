@@ -15,7 +15,7 @@ AI models are only as good as the context, constraints, and blueprints you give 
 4. **Anti-AI Design Excellence**: Injects UI/UX Pro Max principles (60-30-10 palette, 4px/8px grid, soft-tint badges, no generic purple gradients, zero Spanglish).
 5. **Zero Hardcoded Data & Mandatory Pagination**: Mandates that 100% of data flow through typed services and reactive composables/hooks, always paginated, with zero over-fetching.
 6. **Automatic Localized Formatting**: Built-in formatters for currency, numbers, percentages, dates, relative time, and phone numbers, configured per country (`setFormatCountry('DO')`).
-7. **Light + Dark Themes by Default**: Every project ships Claro / Oscuro / Sistema themes with semantic design tokens (`devforge add theme`).
+7. **Light + Dark Themes by Default**: Every project ships Claro / Oscuro / Sistema themes with semantic design tokens and the "Warm Slate" palette (graphite in light, ivory in dark) (`devforge add theme`).
 8. **Standard UI Components**: Flickerless loading instead of skeletons, `SelectField` combo, `DatePicker` / `DateRangeFilter` and `ListPager` pagination — the same in every project (`.ai/standards/ui-components.md`).
 9. **Battle-Tested Blueprints**: High-leverage architectural patterns (OpenAPI SDK, Zod Schema forms, URL-synced tables, RBAC permissions, In-app devtools, Silent Refresh Auth, and GraphQL Pagination).
 
@@ -43,6 +43,7 @@ your-project/
 │       ├── data-formatting.md     # Currency, numbers, dates, phone rules
 │       ├── theming.md             # Mandatory light + dark themes
 │       ├── module-api.md          # Exact module API (anti-hallucination)
+│       ├── ui-components.md       # Flickerless, SelectField, DatePicker, ListPager
 │       ├── ui-ux-principles.md    # Anti-AI design & UI UX Pro Max rules
 │       ├── project-structure.md   # Greenfield folder & file hierarchy
 │       ├── architecture-standards # Domain-driven feature layout & pagination
@@ -144,14 +145,14 @@ devforge add url-sync
 # Injects Flickerless (skeleton replacement): FlickerlessSurface, FlickerlessValue, FlickerlessTableShell (Vue & React)
 devforge add flickerless
 
-# Injects the standard combo, SelectField.vue (replaces the native <select>)
-devforge add select --vue
+# Injects the standard combo, SelectField (Vue & React; replaces the native <select>)
+devforge add select --vue      # or --react
 
-# Injects DatePicker (Vue & React) (single date / range) + DateRangeFilter.vue (Hoy, Ayer, Este mes… + rango)
-devforge add dates --vue
+# Injects DatePicker (single date / range) + DateRangeFilter (Hoy, Ayer, Este mes… + rango), Vue & React
+devforge add dates --vue       # or --react
 
 # Injects ListPager (Vue & React): «Mostrando 11–20 de 57 facturas» + ‹ 2 / 6 ›
-devforge add pagination --vue
+devforge add pagination --vue  # or --react
 ```
 
 Modules install their dependencies (`dates` -> `theme` + `select`, `pagination` -> `theme` + `formatters` + `flickerless`). `--vue` / `--react` installs only that framework's adapter files.

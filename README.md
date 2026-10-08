@@ -20,13 +20,14 @@ Los modelos de IA generativa suelen ser inconsistentes: inventan estructuras de 
 1. **Un CLI determinista**: Comandos instantáneos para inicializar proyectos (`devforge init`), inyectar módulos de arquitectura (`devforge add <modulo>`) y auditar el código fuente en 1 segundo (`devforge audit`).
 2. **Capa Multi-Agente Universal**: Archivos de contexto y configuración nativos para Antigravity (`AGENTS.md`, `.agents/skills/`), Claude Code (`CLAUDE.md`, `.claude/commands/`), Cursor (`.cursorrules`) y Copilot (`.github/copilot-instructions.md`).
 3. **7 Blueprints de Producción**: Recetas de arquitectura probadas en batalla (OpenAPI SDK, Formularios Zod, Tablas sincronizadas con URL, RBAC CASL, In-App DevTools, Auth Silent Refresh y GraphQL Pagination).
-4. **Estándares de Diseño y Gobernanza**: Reglas estrictas de UI/UX Pro Max, paletas neutrales Zinc, tipografía moderna, formateo localizado de datos y cero Spanglish.
+4. **Estándares de Diseño y Gobernanza**: Reglas estrictas de UI/UX Pro Max, paleta «Warm Slate» (grafito en claro, marfil en oscuro), tipografía moderna, formateo localizado de datos y cero Spanglish.
+5. **Componentes UI estándar (Vue y React)**: Flickerless en lugar de skeletons, combo `SelectField`, selector de fechas `DatePicker` / `DateRangeFilter` y paginación `ListPager`, iguales en todos los proyectos.
 
 ---
 
-## 🚨 Los 6 Mandamientos DEVFORGE (Pre-Flight Checklist)
+## 🚨 Los 9 Mandamientos DEVFORGE (Pre-Flight Checklist)
 
-Cada agente de IA que opere en un repositorio configurado con DEVFORGE tiene la obligación contractual de verificar estos 6 puntos antes de generar o editar cualquier archivo:
+Cada agente de IA que opere en un repositorio configurado con DEVFORGE tiene la obligación contractual de verificar estos 9 puntos antes de generar o editar cualquier archivo:
 
 | # | Mandamiento | Regla Estricta | Alternativa Requerida |
 | :-: | :--- | :--- | :--- |
@@ -34,8 +35,11 @@ Cada agente de IA que opere en un repositorio configurado con DEVFORGE tiene la 
 | **2** | **Paginación Obligatoria** | Prohibido consultar listas completas sin parámetros de página (`SELECT *` o `GET /items`). | Paginación obligatoria por cursor o desplazamiento (`page`, `pageSize`, `first`, `after`). Cero sobreconsulta. |
 | **3** | **Formateo Localizado** | Prohibido imprimir números brutos como moneda (`"$ " + valor`) o fechas ISO (`2026-10-05T15:50:00Z`). | Usar formateadores oficiales: `formatCurrency()`, `formatDate()`, `formatPhoneNumber()`. Nulos se renderizan con em-dash `—`. |
 | **4** | **Cero Spanglish (100% Español)** | Si la interfaz está en español, prohibida cualquier palabra en inglés en UI, botones o estados. | `Cerrar`, `Guardar`, `Estado`, `Monto`, `Acciones`, `Observado`, `Completado`, `Pendiente`. |
-| **5** | **Cero Cyberpunk / Paleta Anti-AI** | Prohibidos los colores cian/teal fluorescentes (`cyan-*`, `#00ff9d`), degradados morados o badges radioactivos. | Paleta neutral pura (`zinc-950`, `zinc-900`, `border-zinc-800`) con badges translúcidos al 10% (`bg-emerald-500/10 text-emerald-400`). |
+| **5** | **Cero Cyberpunk / Paleta Anti-AI** | Prohibidos los colores cian/teal fluorescentes (`cyan-*`, `#00ff9d`), degradados morados o badges radioactivos. | Paleta «Warm Slate» por tokens (`bg-surface`, `text-foreground`, `border-border`) con badges translúcidos al 10% (`bg-emerald-500/10 text-emerald-700 dark:text-emerald-400`). |
 | **6** | **Seguridad Lógica y Tipado** | Prohibido el uso de `any` y mutaciones directas de `props`. | Encadenamiento opcional `record?.cliente?.nombre`, emisión de eventos (`emit`), tipos estrictos y esquemas Zod. |
+| **7** | **Tema Claro + Oscuro** | Prohibidas las interfaces de un solo tema y los colores hex dentro de componentes. | Tokens semánticos de `tokens.css` (`bg-surface`, `text-foreground`, `border-border`), `initTheme()` y selector Claro / Oscuro / Sistema. |
+| **8** | **Cero Alucinación** | Prohibido inventar funciones, paquetes, endpoints o variables de entorno. | Solo lo que lista `.ai/standards/module-api.md`; si falta, `devforge add <módulo>` o preguntar. |
+| **9** | **Componentes UI Estándar** | Prohibidos los skeletons, `animate-pulse`, el `<select>` nativo, `<input type="date">` y pies de paginación hechos a mano. | `FlickerlessSurface` / `FlickerlessValue`, `SelectField`, `DatePicker` / `DateRangeFilter` y `ListPager` (`.ai/standards/ui-components.md`). |
 
 ---
 
@@ -63,6 +67,7 @@ tu-proyecto/
 │       ├── data-formatting.md            # Moneda, números, fechas, teléfonos y manejo de nulos
 │       ├── theming.md                    # Tema claro + oscuro obligatorio con tokens semánticos
 │       ├── module-api.md                 # API exacta de cada módulo (evita que la IA invente funciones)
+│       ├── ui-components.md              # Flickerless, combo, selector de fechas y paginación
 │       ├── ui-ux-principles.md           # Diseño Anti-AI, regla 60-30-10 y espaciado
 │       ├── project-structure.md          # Estructura de carpetas guiada por dominio
 │       ├── architecture-standards.md     # Capas de servicio, desacoplamiento y paginación
@@ -266,8 +271,8 @@ Ubicados en `.ai/blueprints/`, estos documentos son recetas canónicas que instr
 DEVFORGE destierra la estética predecible y sobrecargada que suelen generar los modelos de IA, aplicando principios visuales de nivel enterprise (inspirados en Linear, Stripe y Vercel):
 
 ### 1. Regla de Color 60-30-10
-- **60% Superficie Neutra**: Fondos profundos y sobrios con escala Zinc (`bg-zinc-950`, `bg-zinc-900`, `border-zinc-800`).
-- **30% Jerarquía Tipográfica**: Textos contrastados y legibles (`text-zinc-100`, `text-zinc-400`, `text-zinc-500`).
+- **60% Superficie Neutra**: Paleta «Warm Slate» heredada de Snowlr: grafito en Claro y marfil en Oscuro, en OKLCH, siempre por tokens (`bg-background`, `bg-surface`, `bg-surface-raised`, `border-border`).
+- **30% Jerarquía Tipográfica**: `text-foreground`, `text-muted-foreground`, `text-dim-foreground`, con la escala cerrada `text-caption` · `text-small` · `text-body` · `text-title`.
 - **10% Acento Funcional**: Color de acción enfocado exclusivamente en llamadas a la acción primarias (CTA) e indicadores de estado.
 
 ### 2. Badges Suaves (Soft-Tint Badges)
@@ -280,7 +285,32 @@ DEVFORGE destierra la estética predecible y sobrecargada que suelen generar los
   </span>
   ```
 
-### 3. Cero Spanglish en la Interfaz
+### 3. Componentes Estándar (Vue y React)
+Las mismas piezas en todos los proyectos, instaladas con `devforge add` (reglas en `.ai/standards/ui-components.md`):
+- **Carga sin skeleton (Flickerless)**: lo que ya estaba se queda atenuado bajo una barra de 2 px; lo que aún no se sabe es «—» (nunca `RD$0.00` mientras carga); la primera carga pinta la tabla real con `FlickerlessTableShell`.
+- **Combo `SelectField`**: reemplaza al `<select>` nativo; el menú no se recorta en modales y sigue el tema.
+- **Fechas `DatePicker` / `DateRangeFilter`**: fecha o rango (dos meses lado a lado, `dd/mm/aaaa`) y filtro de período con atajos (Hoy, Ayer, Este mes…). «Hoy» se calcula en la hora de RD.
+- **Paginación `ListPager`**: «Mostrando 11–20 de 57 facturas» y ‹ 2 / 6 ›.
+
+```vue
+<!-- Vue -->
+<DateRangeFilter v-model="periodo" @change="cargar" />
+<FlickerlessSurface :loading="loading">
+  <table>…</table>
+  <ListPager v-model:page="page" :page-size="20" :total="meta?.total" singular="factura" plural="facturas" />
+</FlickerlessSurface>
+```
+
+```tsx
+// React
+<DateRangeFilter value={periodo} onChange={setPeriodo} onCommit={cargar} />
+<FlickerlessSurface loading={isFetching}>
+  <table>…</table>
+  <ListPager page={page} onPageChange={setPage} pageSize={20} total={data?.meta.total} singular="factura" plural="facturas" />
+</FlickerlessSurface>
+```
+
+### 4. Cero Spanglish en la Interfaz
 Toda aplicación en español debe mantener consistencia lingüística absoluta:
 - `Close` ➔ **Cerrar**
 - `Save` ➔ **Guardar**
