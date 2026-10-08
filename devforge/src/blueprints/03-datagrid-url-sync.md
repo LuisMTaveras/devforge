@@ -21,38 +21,20 @@ Keep data tables completely synchronized with the browser URL (`?page=2&search=a
 
 ### 1. The Agnostic URL State Logic (`src/core/url-sync/url-state.ts`)
 
+Install it with `devforge add url-sync` — **do not rewrite it**. Its exact API (see `.ai/standards/module-api.md` §7):
+
 ```typescript
 export interface TableParams {
-  page: number;
-  pageSize: number;
-  search: string;
+  page: number;               // default 1
+  pageSize: number;           // default 10
+  search: string;             // default ''
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
-  [key: string]: unknown;
+  filters?: Record<string, string>; // any other query key, e.g. ?estado=activo
 }
 
-export function parseSearchParams(searchString: string): TableParams {
-  const params = new URLSearchParams(searchString);
-  return {
-    page: Math.max(1, parseInt(params.get('page') || '1', 10)),
-    pageSize: Math.max(10, parseInt(params.get('pageSize') || '10', 10)),
-    search: params.get('search') || '',
-    sortBy: params.get('sortBy') || undefined,
-    sortOrder: (params.get('sortOrder') as 'asc' | 'desc') || undefined,
-  };
-}
-
-export function serializeSearchParams(params: Partial<TableParams>): string {
-  const searchParams = new URLSearchParams();
-  if (params.page && params.page > 1) searchParams.set('page', String(params.page));
-  if (params.pageSize && params.pageSize !== 10) searchParams.set('pageSize', String(params.pageSize));
-  if (params.search) searchParams.set('search', params.search);
-  if (params.sortBy) searchParams.set('sortBy', params.sortBy);
-  if (params.sortOrder) searchParams.set('sortOrder', params.sortOrder);
-  
-  const query = searchParams.toString();
-  return query ? `?${query}` : '';
-}
+export function parseSearchParams(searchString: string): TableParams;
+export function serializeSearchParams(params: Partial<TableParams>): string; // '' or '?page=2&...'
 ```
 
 ---
@@ -62,7 +44,7 @@ export function serializeSearchParams(params: Partial<TableParams>): string {
 ```tsx
 import { useSearchParams } from 'react-router-dom';
 import { useCallback, useMemo } from 'react';
-import { parseSearchParams, serializeSearchParams, TableParams } from '@/core/url-sync/url-state';
+import { parseSearchParams, serializeSearchParams, type TableParams } from '@/core/url-sync/url-state';
 
 export function useURLTableState() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -92,14 +74,19 @@ export function useURLTableState() {
 ```typescript
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { parseSearchParams, serializeSearchParams, TableParams } from '@/core/url-sync/url-state';
+import { parseSearchParams, serializeSearchParams, type TableParams } from '@/core/url-sync/url-state';
 
 export function useURLTableState() {
   const route = useRoute();
   const router = useRouter();
 
+  // Derived from route.query (reactive). Never read window.location here: it does not re-render.
   const state = computed<TableParams>(() => {
-    return parseSearchParams(window.location.search);
+    const query = new URLSearchParams();
+    for (const [key, value] of Object.entries(route.query)) {
+      if (typeof value === 'string') query.set(key, value);
+    }
+    return parseSearchParams(query.toString());
   });
 
   const updateState = (newParams: Partial<TableParams>) => {
@@ -131,3 +118,6 @@ Whenever instantiating a TanStack Table instance:
 
 - When creating any data listing or admin table, NEVER store pagination or filters solely in component `useState` or `ref()`.
 - Always implement the URL synchronization pattern so the user can refresh and share the page without losing state.
+- `useURLTableState()` is **not** shipped by `devforge add`: create it in `src/shared/hooks/` (React, needs `react-router-dom`) or `src/shared/composables/` (Vue, needs `vue-router`) from the code above. If the project uses another router (e.g. Next.js), adapt it and tell the user.
+- Send `state.page` and `state.pageSize` to the service on every request (`.ai/blueprints/07-graphql-pagination.md`).
+- Format every cell with `@/core/formatters/formatters` (money right-aligned with `text-right tabular-nums`, `—` for empty values).

@@ -8,10 +8,10 @@ Every user-facing data point must pass through localized, standardized formatter
 
 ### 1.1 Country Preset (Configured Once at Scaffold Time)
 
-The country chosen during the kickoff (`.ai/standards/project-kickoff.md`) sets locale, currency, number separators and phone mask **for the whole project** in a single call:
+**Default country: República Dominicana** (`es-DO`, `DOP`, `(809) 578-1234`). The country chosen during the kickoff (`.ai/standards/project-kickoff.md`) sets locale, currency, number separators and phone mask **for the whole project** in a single call. Always write the call explicitly, even for República Dominicana, so the choice is visible in the code:
 
 ```typescript
-// main.ts / main.tsx (scaffolded with `npx devforge add formatters`)
+// main.ts / main.tsx (scaffolded with `devforge add formatters`)
 import { setFormatCountry } from '@/core/formatters/formatters';
 
 setFormatCountry('DO'); // es-DO · DOP · (809) 578-1234
@@ -31,6 +31,8 @@ setFormatCountry('DO'); // es-DO · DOP · (809) 578-1234
 
 - **Banned**: Choosing separators by hand (`toFixed(2)`, `.replace('.', ',')`, regex thousands separators).
 - **Required**: Separators (comma vs. dot) always come from the locale via `Intl.NumberFormat`.
+- **Never** pass `locale` / `currency` in each call "just in case": rely on the project default. Pass them only when one specific value must differ (e.g. a USD amount in a DOP app: `formatCurrency(amount, { currency: 'USD' })`).
+- The exact signatures are in `.ai/standards/module-api.md` §1. Do not use functions that are not listed there.
 
 ---
 

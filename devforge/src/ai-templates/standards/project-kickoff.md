@@ -29,7 +29,7 @@ Before recommending technical architecture, ask the user:
 
 ### 3. Country, Currency & Localization Defaults
 
-- What country and region will this application primarily target?
+- What country and region will this application primarily target? (If the user does not answer, use **República Dominicana** — the DEVFORGE default — and say so.)
   - This automatically establishes formatting defaults so the user never has to configure them manually:
     - **Default Currency**: (e.g. `DOP`, `USD`, `COP`, `MXN`, `EUR`)
     - **Date & Number Locale**: (e.g. `es-DO`, `es-CO`, `es-MX`, `es-ES`, `en-US`) — defines thousands/decimal separators (`1,234.56` vs `1.234,56`)
@@ -76,8 +76,8 @@ Once the user answers the discovery questions:
 2. Initialize the project using the standard directory structure defined in `.ai/standards/project-structure.md`.
 3. Install the foundation modules **before building any screen** so the project is ready from the first commit:
    ```bash
-   npx devforge add formatters   # currency, numbers, percents, dates, phones, "—" fallback
-   npx devforge add theme        # light + dark tokens, initTheme(), useTheme()
+   devforge add formatters   # currency, numbers, percents, dates, phones, "—" fallback
+   devforge add theme        # light + dark tokens, initTheme(), useTheme()
    ```
 4. Wire them in the entrypoint (`main.ts` / `main.tsx`): `setFormatCountry('<CODE>')` and `initTheme()`; add the no-flash script to `index.html` and the theme selector (Claro / Oscuro / Sistema) to the app shell.
 5. Apply the data formatting defaults (`.ai/standards/data-formatting.md`) and theming rules (`.ai/standards/theming.md`).

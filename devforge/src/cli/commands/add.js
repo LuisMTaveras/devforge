@@ -84,7 +84,16 @@ export async function addCommand(moduleKey, options = {}) {
       if (!fs.existsSync(destDir)) {
         fs.mkdirSync(destDir, { recursive: true });
       }
-      fs.copyFileSync(srcPath, destPath);
+      if (/\.(ts|tsx)$/.test(srcPath)) {
+        // Source modules use relative imports so this package typechecks on its own.
+        // In the target project they live elsewhere, so rewrite them to the `@/` alias
+        // mandated by .ai/standards/project-structure.md.
+        const content = fs.readFileSync(srcPath, 'utf8')
+          .replace(/from '(?:\.\.\/)+core\/([^']+?)\.js'/g, "from '@/core/$1'");
+        fs.writeFileSync(destPath, content, 'utf8');
+      } else {
+        fs.copyFileSync(srcPath, destPath);
+      }
       logger.success(`Created: ${f.dest}`);
     }
   });

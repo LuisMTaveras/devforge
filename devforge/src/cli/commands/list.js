@@ -32,6 +32,7 @@ export function listCommand() {
     'project-kickoff.md      -> Step 0: Developer Calibration, Stack Advisory & Scoping',
     'data-formatting.md      -> Localized Currency, Number, Date, Phone & Null Fallback Rules',
     'theming.md              -> Mandatory Light + Dark themes with semantic design tokens',
+    'module-api.md           -> Exact API of every module (anti-hallucination source of truth)',
     'ui-ux-principles.md     -> Anti-AI Design System (UI/UX Pro Max & Zero Spanglish)',
     'project-structure.md    -> Production Greenfield Folder & File Hierarchy (Vue 3 / React)',
     'architecture-standards  -> Zero Hardcoded Data & Domain-Driven architecture',

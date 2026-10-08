@@ -6,7 +6,6 @@ import {
   formatPercent,
   formatPhoneNumber,
   setFormatCountry,
-  setFormatDefaults,
 } from '../src/core/formatters/formatters.ts';
 
 test('phone: República Dominicana national and international', () => {
@@ -39,10 +38,20 @@ test('numbers use the country separators', () => {
   assert.equal(formatNumber('abc'), '—');
 });
 
-test('setFormatCountry applies the DO preset', () => {
+test('defaults to República Dominicana', () => {
+  assert.equal(formatCurrency(17870000), 'RD$17,870,000.00');
+  assert.equal(formatNumber(1500.5), '1,500.5');
+  assert.equal(formatPhoneNumber('8095781234'), '(809) 578-1234');
+});
+
+test('setFormatCountry switches the whole project', () => {
+  setFormatCountry('CO');
+  // es-CO separates the symbol with a non-breaking space (U+00A0)
+  assert.equal(formatCurrency(17870000), '$\u00a017.870.000,00');
+  assert.equal(formatNumber(1500.5), '1.500,5');
+  assert.equal(formatPhoneNumber('3001234567'), '(300) 123-4567');
   setFormatCountry('DO');
   assert.equal(formatCurrency(17870000), 'RD$17,870,000.00');
   assert.equal(formatNumber(1500.5), '1,500.5');
   assert.equal(formatPhoneNumber('8095781234'), '(809) 578-1234');
-  setFormatDefaults({ defaultLocale: 'es-CO', defaultCurrency: 'USD', defaultCountry: 'CO' });
 });

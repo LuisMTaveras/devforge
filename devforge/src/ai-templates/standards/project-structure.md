@@ -16,7 +16,7 @@ my-project/
 │   ├── AGENTS.md                   # Codex / Antigravity / Gemini instructions
 │   ├── CLAUDE.md                   # Claude Code instructions
 │   ├── .cursorrules                # Cursor instructions
-│   ├── blueprints/                 # 5 Architectural Recipes
+│   ├── blueprints/                 # 7 Architectural Recipes
 │   └── standards/                  # UI/UX, Kickoff, TypeScript standards
 │
 ├── public/                         # Static assets (favicons, robots.txt)

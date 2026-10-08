@@ -35,11 +35,12 @@ export const COUNTRY_PRESETS: Record<CountryCode, CountryPreset> = {
   AR: { name: 'Argentina', locale: 'es-AR', currency: 'ARS', dialCode: '54' },
 };
 
-// Global project defaults (can be updated via setFormatDefaults / setFormatCountry)
+// Global project defaults: República Dominicana (es-DO, DOP, (809) 578-1234).
+// Change them once at startup with setFormatCountry('<CODE>') or setFormatDefaults().
 export const formatConfig = {
-  defaultLocale: 'es-CO',
-  defaultCurrency: 'USD',
-  defaultCountry: 'CO',
+  defaultLocale: 'es-DO',
+  defaultCurrency: 'DOP',
+  defaultCountry: 'DO' as string,
   phoneDisplay: 'national' as PhoneDisplay,
   fallbackString: '—',
 };
@@ -128,7 +129,7 @@ export function formatCurrency(
 }
 
 /**
- * Formats a date into localized string (e.g., "11 sept 2026").
+ * Formats a date into localized string (e.g., "11 sept 2026", es-DO).
  */
 export function formatDate(
   dateInput: string | number | Date | null | undefined,

@@ -26,15 +26,15 @@ import { z } from 'zod';
 export const CreateUserSchema = z.object({
   fullName: z.string().min(3, 'El nombre debe tener al menos 3 caracteres'),
   email: z.string().email('Correo electrónico inválido'),
-  role: z.enum(['admin', 'editor', 'viewer'], {
-    errorMap: () => ({ message: 'Selecciona un rol válido' })
-  }),
+  role: z.enum(['admin', 'editor', 'viewer'], { message: 'Selecciona un rol válido' }),
   notificationsEnabled: z.boolean().default(true),
   bio: z.string().max(200).optional(),
 });
 
 export type CreateUserInput = z.infer<typeof CreateUserSchema>;
 ```
+
+> Check the `zod` major version in `package.json` before writing schemas. `{ message: '...' }` works in Zod 3 and 4; `errorMap` is Zod 3 only and `error` is Zod 4 only.
 
 ---
 
@@ -87,12 +87,12 @@ export function DynamicForm<T extends FieldValues>({
 
         return (
           <div key={String(fieldName)} className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700">{config.label}</label>
+            <label className="text-sm font-medium text-foreground">{config.label}</label>
 
             {config.type === 'select' ? (
               <select
                 {...register(fieldName as Path<T>)}
-                className="border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                className="rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 {config.options?.map(opt => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -102,18 +102,18 @@ export function DynamicForm<T extends FieldValues>({
               <textarea
                 {...register(fieldName as Path<T>)}
                 placeholder={config.placeholder}
-                className="border rounded-md px-3 py-2 text-sm"
+                className="rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               />
             ) : (
               <input
                 type={config.type || 'text'}
                 {...register(fieldName as Path<T>)}
                 placeholder={config.placeholder}
-                className="border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                className="rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               />
             )}
 
-            {error && <span className="text-xs text-red-500">{error}</span>}
+            {error && <span className="text-xs text-danger">{error}</span>}
           </div>
         );
       })}
@@ -121,7 +121,7 @@ export function DynamicForm<T extends FieldValues>({
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50"
+        className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:pointer-events-none disabled:opacity-50"
       >
         {isSubmitting ? 'Enviando...' : submitLabel}
       </button>
@@ -140,8 +140,8 @@ npm install vee-validate @vee-validate/zod zod
 
 ```vue
 <!-- src/shared/components/DynamicForm.vue -->
-<script setup lang="ts" generic="T extends Record<string, any>">
-import { useForm } from 'vee-validate';
+<script setup lang="ts" generic="T extends Record<string, unknown>">
+import { Field, useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import type { ZodObject, ZodRawShape } from 'zod';
 
@@ -149,7 +149,7 @@ const props = defineProps<{
   schema: ZodObject<ZodRawShape>;
   fields: Record<string, {
     label: string;
-    type?: string;
+    type?: 'text' | 'email' | 'password' | 'select' | 'textarea';
     options?: { label: string; value: string }[];
     placeholder?: string;
   }>;
@@ -160,29 +160,45 @@ const emit = defineEmits<{
   (e: 'submit', values: T): void;
 }>();
 
-const { handleSubmit, errors, isSubmitting } = useForm<T>({
+const { handleSubmit, errors, isSubmitting } = useForm({
   validationSchema: toTypedSchema(props.schema),
 });
 
 const onSubmit = handleSubmit((values) => {
   emit('submit', values as T);
 });
+
+const inputClass =
+  'rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
 </script>
 
 <template>
-  <form @submit.prevent="onSubmit" class="space-y-4">
+  <form class="space-y-4" @submit="onSubmit">
     <div v-for="(config, fieldKey) in fields" :key="fieldKey" class="flex flex-col gap-1">
-      <label class="text-sm font-medium text-gray-700">{{ config.label }}</label>
-      
-      <!-- Input handling with VeeValidate Field Binding -->
-      <input
-        v-if="!config.type || ['text', 'email', 'password'].includes(config.type)"
+      <label :for="String(fieldKey)" class="text-sm font-medium text-foreground">{{ config.label }}</label>
+
+      <!-- <Field> binds each control to VeeValidate (value, blur, validation) -->
+      <Field v-if="config.type === 'select'" :id="String(fieldKey)" :name="String(fieldKey)" as="select" :class="inputClass">
+        <option v-for="opt in config.options" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+      </Field>
+      <Field
+        v-else-if="config.type === 'textarea'"
+        :id="String(fieldKey)"
+        :name="String(fieldKey)"
+        as="textarea"
+        :placeholder="config.placeholder"
+        :class="inputClass"
+      />
+      <Field
+        v-else
+        :id="String(fieldKey)"
+        :name="String(fieldKey)"
         :type="config.type || 'text'"
         :placeholder="config.placeholder"
-        class="border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+        :class="inputClass"
       />
-      
-      <span v-if="errors[fieldKey]" class="text-xs text-red-500">
+
+      <span v-if="errors[fieldKey]" class="text-xs text-danger">
         {{ errors[fieldKey] }}
       </span>
     </div>
@@ -190,7 +206,7 @@ const onSubmit = handleSubmit((values) => {
     <button
       type="submit"
       :disabled="isSubmitting"
-      class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50"
+      class="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:pointer-events-none disabled:opacity-50"
     >
       {{ isSubmitting ? 'Enviando...' : (submitLabel || 'Guardar') }}
     </button>
@@ -206,3 +222,6 @@ const onSubmit = handleSubmit((values) => {
 2. Define the Zod schema first in `types.ts` of the feature module.
 3. Infer the submit type with `z.infer<typeof Schema>`.
 4. Keep validation client-side and server-side synced with the same schema.
+5. Colors come from the theme tokens (`text-foreground`, `border-input`, `bg-primary`, `text-danger`) so the form works in light and dark themes. Never `text-gray-700`, `bg-blue-600` or `text-red-500`.
+6. All labels, placeholders, buttons and error messages in Spanish when the project is in Spanish.
+7. Use the libraries in this blueprint only if they are in `package.json` or the user approves installing them.

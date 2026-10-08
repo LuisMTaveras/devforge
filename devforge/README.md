@@ -41,6 +41,7 @@ your-project/
 │       ├── project-kickoff.md     # Discovery interview & stack advisory
 │       ├── data-formatting.md     # Currency, numbers, dates, phone rules
 │       ├── theming.md             # Mandatory light + dark themes
+│       ├── module-api.md          # Exact module API (anti-hallucination)
 │       ├── ui-ux-principles.md    # Anti-AI design & UI UX Pro Max rules
 │       ├── project-structure.md   # Greenfield folder & file hierarchy
 │       ├── architecture-standards # Domain-driven feature layout & pagination
@@ -165,7 +166,7 @@ If the project is in Spanish, 100% of UI text, headers, and statuses must be in 
 
 ### 3. Localized Data Formatters
 
-- **Country Preset**: `setFormatCountry('DO')` ➔ locale `es-DO`, currency `DOP`, phone mask `(809) 578-1234`.
+- **Country Preset**: República Dominicana by default (`es-DO`, `DOP`, `(809) 578-1234`); switch with `setFormatCountry('CO')`.
 - **Currency**: `formatCurrency(17870000)` ➔ `"RD$17,870,000.00"` (es-DO) or `"$ 17.870.000,00"` (es-CO).
 - **Numbers & Percentages**: `formatNumber(1234567.891)` ➔ `"1,234,567.89"` (es-DO) / `"1.234.567,89"` (es-CO); `formatPercent(0.125)` ➔ `"12.5%"`.
 - **Dates**: `formatDate(date, 'medium')` ➔ `"11 sept 2026, 07:51"` or `formatRelativeTime(date)` ➔ `"hace 5 minutos"`.

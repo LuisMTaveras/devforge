@@ -17,8 +17,8 @@ Every project built under DEVFORGE **must ship with two themes: Claro (light) an
 ## 2. Scaffold Checklist (Done Before the First Screen)
 
 ```bash
-npx devforge add theme        # core/theme/theme.ts, shared/styles/tokens.css, useTheme()
-npx devforge add formatters   # localized currency, numbers, dates and phones
+devforge add theme        # core/theme/theme.ts, shared/styles/tokens.css, useTheme()
+devforge add formatters   # localized currency, numbers, dates and phones
 ```
 
 1. **Tokens**: Import `src/shared/styles/tokens.css` from the global stylesheet (Tailwind CSS v4).
@@ -127,3 +127,45 @@ const { preference, labels, setPreference } = useTheme();
 - Charts read colors from CSS variables (`getComputedStyle(document.documentElement).getPropertyValue('--foreground')`) and re-render when `useTheme().theme` changes.
 - Logos and illustrations need a variant for each theme (or use `currentColor` SVGs).
 - Third-party widgets (date pickers, editors) must be configured for both themes before being accepted into the project.
+
+---
+
+## 7. Tailwind CSS v3 Projects
+
+`tokens.css` uses Tailwind **v4** syntax. Check the `tailwindcss` version in `package.json` before using it. On **v3**:
+
+1. Delete the first three blocks (`@import 'tailwindcss'`, `@custom-variant`, `@theme inline`) and keep `:root`, `.dark` and `@layer base`; put `@tailwind base; @tailwind components; @tailwind utilities;` at the top.
+2. In `tailwind.config.ts` set `darkMode: 'class'` and map each token:
+
+```typescript
+export default {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        background: 'var(--background)',
+        foreground: 'var(--foreground)',
+        surface: { DEFAULT: 'var(--surface)', hover: 'var(--surface-hover)' },
+        'muted-foreground': 'var(--muted-foreground)',
+        border: 'var(--border)',
+        input: 'var(--input)',
+        ring: 'var(--ring)',
+        primary: { DEFAULT: 'var(--primary)', foreground: 'var(--primary-foreground)' },
+        success: 'var(--success)',
+        warning: 'var(--warning)',
+        danger: 'var(--danger)',
+      },
+    },
+  },
+};
+```
+
+> Opacity modifiers (`bg-surface/50`) do not work with hex variables on v3. Use them only on v4, or with the regular palette (`bg-zinc-500/10`).
+
+---
+
+## 8. What NOT to Invent
+
+- The only tokens are the ones in §3 (`background`, `foreground`, `surface`, `surface-hover`, `muted-foreground`, `border`, `input`, `ring`, `primary`, `primary-foreground`, `success`, `warning`, `danger`). Classes like `bg-card`, `text-muted`, `bg-accent` or `bg-secondary` **do not exist** unless you add the token to `tokens.css` first (in both `:root` and `.dark`).
+- The only theme API is the one listed in `.ai/standards/module-api.md` §2.
+- Do not install `next-themes`, `@vueuse/core`'s `useDark` or similar libraries: the theme engine is already in `src/core/theme/theme.ts`.

@@ -4,7 +4,7 @@
 
 ## 🚨 MANDATORY PRE-FLIGHT CHECKLIST (DO NOT SKIP)
 
-Before generating ANY component, file, or view, you MUST mentally verify and strictly enforce these 7 checkpoints:
+Before generating ANY component, file, or view, you MUST mentally verify and strictly enforce these 8 checkpoints:
 
 1. **[ ] ZERO HARDCODED DATA**:
    - Strictly banned: `const items = [ ... ]`, `const records = [ ... ]` or dummy metrics written statically inside `.vue` or `.tsx`.
@@ -30,9 +30,23 @@ Before generating ANY component, file, or view, you MUST mentally verify and str
    - Protect all nullables: Always use optional chaining `record?.cliente?.nombre` to prevent `Cannot read properties of null` crashes.
    - Never mutate props directly: Emit events `emit('close')` or `emit('update:modelValue', val)`.
 7. **[ ] DUAL THEME: LIGHT + DARK (MANDATORY)**:
-   - Every project ships **Claro** and **Oscuro** themes plus **Sistema** (OS preference) from the first commit (`npx devforge add theme`).
+   - Every project ships **Claro** and **Oscuro** themes plus **Sistema** (OS preference) from the first commit (`devforge add theme`).
    - Banned: Dark-only or light-only UIs, a color class without its other-theme pair (`bg-white` alone, `text-zinc-100` alone), hex colors inside components.
    - Required: Semantic tokens from `tokens.css`, `initTheme()` in the entrypoint, no-flash script in `index.html`, and a Claro / Oscuro / Sistema selector. Rules: `.ai/standards/theming.md`.
+8. **[ ] ZERO HALLUCINATION (VERIFY, NEVER GUESS)**:
+   - DEVFORGE functions: use only what `.ai/standards/module-api.md` lists. Check the file exists in `src/` before importing it; if it is missing, tell the user to run `devforge add <module>` — never rewrite a module from memory.
+   - Never invent npm packages, versions, API endpoints, GraphQL fields, DB columns or env vars. Read `package.json`, `src/core/api/v1.d.ts` (or the GraphQL schema) and `.env.example` first. If it is not there, ASK the user (or, with their approval, mock it in MSW and say so explicitly).
+   - Only run scripts that exist in `package.json`. The DEVFORGE CLI is the globally linked `devforge` command — **never `npx devforge`** (that npm package is an unrelated project).
+   - Blueprint code is a reference pattern: adapt names to the real code. If a blueprint and an installed module disagree, the installed module wins.
+   - If you are not sure, say so and ask. A short question is always better than plausible-looking invented code.
+
+## Order of Truth (When Sources Disagree)
+
+1. The user's explicit instruction in the current conversation.
+2. The code actually installed in the project (`src/`, `package.json`).
+3. `.ai/standards/module-api.md` (exact API of DEVFORGE modules).
+4. `.ai/standards/*.md` (rules).
+5. `.ai/blueprints/*.md` (reference patterns, adapt them — never paste blindly).
 
 ---
 
@@ -65,6 +79,7 @@ You are operating in a **DEVFORGE** enabled repository. Code generated or modifi
 
 Consult the standards under `.ai/standards/`:
 
+- **Module API Reference (Source of Truth)**: `.ai/standards/module-api.md` (Exact exports of every `devforge add` module — nothing else exists)
 - **Interactive Kickoff & Discovery**: `.ai/standards/project-kickoff.md` (Developer calibration & stack advisory)
 - **Data Formatting & Localization**: `.ai/standards/data-formatting.md` (Currency, numbers, dates, phone numbers, null fallbacks)
 - **Theming (Light + Dark)**: `.ai/standards/theming.md` (Semantic tokens, theme engine, Claro / Oscuro / Sistema selector)
