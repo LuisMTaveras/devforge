@@ -21,7 +21,9 @@ async function main() {
     }
     case 'add': {
       const moduleName = args[1];
-      await addCommand(moduleName);
+      // --vue / --react: install only that framework's adapter files.
+      const framework = args.includes('--vue') ? 'vue' : args.includes('--react') ? 'react' : undefined;
+      await addCommand(moduleName, { framework });
       break;
     }
     case 'audit': {
@@ -40,7 +42,8 @@ Commands:
   \x1b[36minit\x1b[0m              Initialize DEVFORGE Universal AI Protocol & Blueprints in current repo
   \x1b[36maudit\x1b[0m             Audit current repo for hardcoded data, neon classes, and Spanglish
   \x1b[36mlist\x1b[0m              List all available architectural blueprints and modules
-  \x1b[36madd <module>\x1b[0m      Inject a ready-to-run module (auth, errors, export, formatters, rbac, theme, url-sync)
+  \x1b[36madd <module>\x1b[0m      Inject a ready-to-run module (theme, dates, select, pagination, flickerless, ...)
+                    [--vue | --react] installs only that framework's adapter
   \x1b[36mhelp\x1b[0m              Show this help screen
 
 Examples:
@@ -49,6 +52,8 @@ Examples:
   \x1b[32mdevforge add auth\x1b[0m
   \x1b[32mdevforge add formatters\x1b[0m
   \x1b[32mdevforge add theme\x1b[0m
+  \x1b[32mdevforge add dates --vue\x1b[0m
+  \x1b[32mdevforge add pagination --vue\x1b[0m
 `);
       break;
     }

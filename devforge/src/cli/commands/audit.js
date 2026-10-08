@@ -66,6 +66,36 @@ const AUDIT_RULES = [
     }
   },
   {
+    id: 'NO_SKELETON',
+    name: 'Flickerless Loading (Zero Skeletons)',
+    check: (content, line, lineNum, ext) => {
+      if (!['.vue', '.tsx', '.jsx'].includes(ext)) return null;
+      const match = line.match(/<\w*Skeleton\b|\bclass(?:Name)?="[^"]*\b(?:skeleton|animate-pulse)\b/);
+      if (match) {
+        return {
+          rule: 'Flickerless Loading (Zero Skeletons)',
+          message: `Skeleton '${match[0]}'. Usa <FlickerlessSurface> (conserva lo que había) y <FlickerlessValue> / <FlickerlessTableShell> («—» hasta saber).`,
+        };
+      }
+      return null;
+    }
+  },
+  {
+    id: 'NATIVE_CONTROLS',
+    name: 'Standard Form Controls',
+    check: (content, line, lineNum, ext) => {
+      if (!['.vue', '.tsx', '.jsx'].includes(ext)) return null;
+      const match = line.match(/<select\b|<input[^>]*type=["{']*(?:date|datetime-local|month)\b/);
+      if (match) {
+        return {
+          rule: 'Standard Form Controls',
+          message: `Control nativo '${match[0]}' (ignora el tema). Usa <SelectField> o <DatePicker> (devforge add select | dates).`,
+        };
+      }
+      return null;
+    }
+  },
+  {
     id: 'UNFORMATTED_PHONE',
     name: 'Automatic Localized Formatting',
     check: (content, line, lineNum, ext) => {

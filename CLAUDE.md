@@ -35,6 +35,9 @@ This repository is powered by **DEVFORGE**. You are expected to operate as a Pri
    - Only run scripts that exist in `package.json`. The DEVFORGE CLI is the globally linked `devforge` command — **never `npx devforge`** (that npm package is an unrelated project).
    - Blueprint code is a reference pattern: adapt names to the real code. If a blueprint and an installed module disagree, the installed module wins.
    - If you are not sure, say so and ask. A short question is always better than plausible-looking invented code.
+9. **[ ] STANDARD UI COMPONENTS: FLICKERLESS, COMBO, DATES, PAGER**:
+   - Banned: Skeletons (`<Skeleton>`, `skeleton`, `animate-pulse`), full-screen spinners, native `<select>`, `<input type="date">`, ad-hoc pagination footers, and `0` / "Sin resultados" before the first response.
+   - Required: `<FlickerlessSurface>` + `<FlickerlessValue>` / `<FlickerlessTableShell>` (`devforge add flickerless`), `<SelectField>` (`devforge add select`), `<DatePicker>` / `<DateRangeFilter>` (`devforge add dates`), `<ListPager>` at the end of every paginated list (`devforge add pagination`). Rules: `.ai/standards/ui-components.md`.
 
 ## Order of Truth (When Sources Disagree)
 
@@ -50,6 +53,7 @@ This repository is powered by **DEVFORGE**. You are expected to operate as a Pri
 - **Developer Calibration & Stack Advisory**: Execute `.ai/standards/project-kickoff.md` (Junior/Intermediate/Senior calibration).
 - **Anti-AI Design Excellence**: Follow `.ai/standards/ui-ux-principles.md` (Linear/Stripe aesthetic).
 - **Light + Dark Themes**: Follow `.ai/standards/theming.md`. Every screen must work in both themes.
+- **Standard UI Components**: Follow `.ai/standards/ui-components.md` (Flickerless loading, SelectField, DatePicker, ListPager).
 - **Localized Formatting**: Follow `.ai/standards/data-formatting.md` (currency, numbers, dates, phones per country). Default country: República Dominicana.
 - **Module API**: `.ai/standards/module-api.md` is the exact list of DEVFORGE functions. Nothing else exists.
 - **Strict Adherence to Blueprints**: Check `.ai/blueprints/` before coding.

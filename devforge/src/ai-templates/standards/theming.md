@@ -52,17 +52,25 @@ setFormatCountry('DO'); // country chosen during the kickoff
 
 Components use **semantic** classes. The token decides the color for each theme, so components never need to know which theme is active.
 
-| Token (Tailwind class)     | Claro (light)        | Oscuro (dark)        | Use                               |
-| -------------------------- | -------------------- | -------------------- | --------------------------------- |
-| `bg-background`            | `#ffffff`            | `#09090b` zinc-950   | App canvas                        |
-| `bg-surface`               | `#fafafa` zinc-50    | `#18181b` zinc-900   | Cards, drawers, table headers     |
-| `hover:bg-surface-hover`   | `#f4f4f5` zinc-100   | `#27272a` zinc-800   | Row / item hover                  |
-| `text-foreground`          | `#18181b` zinc-900   | `#f4f4f5` zinc-100   | Primary text                      |
-| `text-muted-foreground`    | `#71717a` zinc-500   | `#a1a1aa` zinc-400   | Secondary text, labels, `—`       |
-| `border-border`            | `#e4e4e7` zinc-200   | `#27272a` zinc-800   | 1px dividers, card borders        |
-| `border-input`             | `#e4e4e7` zinc-200   | `#3f3f46` zinc-700   | Form fields                       |
-| `ring-ring`                | `#18181b` zinc-900   | `#d4d4d8` zinc-300   | Focus-visible rings               |
-| `bg-primary` / `text-primary-foreground` | zinc-900 / zinc-50 | zinc-50 / zinc-900 | Primary buttons     |
+Palette "Warm Slate" (from Snowlr): graphite in Claro, ivory in Oscuro, defined in OKLCH so contrast holds in both modes. Monochrome on purpose: emphasis comes from fill and weight, not hue.
+
+| Token (Tailwind class)     | Claro (light)          | Oscuro (dark)          | Use                                       |
+| -------------------------- | ---------------------- | ---------------------- | ----------------------------------------- |
+| `bg-background`            | warm off-white         | near-black             | App canvas                                |
+| `bg-surface`               | almost white           | charcoal               | Cards, tables, form fields                |
+| `bg-surface-raised`        | white                  | lighter charcoal       | Popovers, menus, modals, pager buttons    |
+| `hover:bg-surface-hover`   | light grey             | 5% white veil          | Row / item hover                          |
+| `text-foreground`          | graphite               | ivory                  | Primary text                              |
+| `text-muted-foreground`    | mid grey               | light grey             | Secondary text, labels                    |
+| `text-dim-foreground`      | grey                   | dim grey               | Placeholders, `—`, days outside the month |
+| `border-border`            | graphite 12%           | white 9%               | 1px dividers, card borders                |
+| `border-input`             | graphite 16%           | white 16%              | Form fields                               |
+| `ring-ring`                | graphite 24%           | white 28%              | Focus-visible rings                       |
+| `bg-primary` / `text-primary-foreground` / `hover:bg-primary-hover` | graphite / ivory | ivory / graphite | Primary buttons, selected day |
+| `bg-primary-subtle` / `border-primary-border` | graphite 7% / 16% | white 9% / 16% | Selected option, range in the calendar, open field |
+| `text-success` / `text-warning` / `text-danger` | 600-level | 400-level | Semantic states                    |
+
+Shape and type scale (same in both themes): `rounded-control` (inputs, buttons), `rounded-card` (cards, popovers), `rounded-panel`; `text-caption` 11px, `text-small` 12px, `text-body` 13px, `text-title` 16px, `text-display` 24px; `shadow-popover`.
 
 ```vue
 <!-- ✅ Correct: works in both themes -->
@@ -166,6 +174,6 @@ export default {
 
 ## 8. What NOT to Invent
 
-- The only tokens are the ones in §3 (`background`, `foreground`, `surface`, `surface-hover`, `muted-foreground`, `border`, `input`, `ring`, `primary`, `primary-foreground`, `success`, `warning`, `danger`). Classes like `bg-card`, `text-muted`, `bg-accent` or `bg-secondary` **do not exist** unless you add the token to `tokens.css` first (in both `:root` and `.dark`).
+- The only tokens are the ones in §3 (`background`, `foreground`, `surface`, `surface-raised`, `surface-hover`, `muted-foreground`, `dim-foreground`, `border`, `input`, `ring`, `primary`, `primary-hover`, `primary-foreground`, `primary-subtle`, `primary-border`, `success`, `warning`, `danger`). Classes like `bg-card`, `text-muted`, `bg-accent` or `bg-secondary` **do not exist** unless you add the token to `tokens.css` first (in both `:root` and `.dark`).
 - The only theme API is the one listed in `.ai/standards/module-api.md` §2.
 - Do not install `next-themes`, `@vueuse/core`'s `useDark` or similar libraries: the theme engine is already in `src/core/theme/theme.ts`.

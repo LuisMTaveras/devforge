@@ -1,0 +1,238 @@
+/* Colores neutros: la app los sustituye redefiniendo estas variables. */
+:root {
+  --flickerless-stream-color: #18181b;
+  --flickerless-stream-bg: rgba(228, 228, 231, 0.45);
+  --flickerless-muted-color: #71717a;
+  --flickerless-unknown-color: #a1a1aa;
+  --flickerless-danger-color: #ef4444;
+  --flickerless-saving-beam: rgba(16, 185, 129, 0.18);
+  --flickerless-stream-height: 2px;
+  --flickerless-stream-duration: 1.35s;
+  --flickerless-attenuation-opacity: 0.52;
+  --flickerless-transition: opacity 180ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --flickerless-stream-color: #f4f4f5;
+    --flickerless-stream-bg: rgba(63, 63, 70, 0.35);
+    --flickerless-unknown-color: #71717a;
+  }
+}
+
+.dark {
+  --flickerless-stream-color: #f4f4f5;
+  --flickerless-stream-bg: rgba(63, 63, 70, 0.35);
+  --flickerless-unknown-color: #71717a;
+}
+
+/* Base surface container */
+.flickerless-surface {
+  position: relative;
+  width: 100%;
+  display: block;
+}
+
+/* 2px Glide Stream Bar */
+.flickerless-stream {
+  position: relative;
+  width: 100%;
+  height: var(--flickerless-stream-height);
+  overflow: hidden;
+  background-color: transparent;
+  opacity: 0;
+  transition: opacity 160ms ease;
+  z-index: 10;
+}
+
+.flickerless-surface[data-loading="true"] .flickerless-stream {
+  opacity: 1;
+  background-color: var(--flickerless-stream-bg);
+}
+
+.flickerless-surface[data-loading="true"] .flickerless-stream::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 32%;
+  background: var(--flickerless-stream-color);
+  border-radius: 9999px;
+  will-change: transform;
+  animation: flickerless-stream-glide var(--flickerless-stream-duration) cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes flickerless-stream-glide {
+  0% {
+    transform: translate3d(-100%, 0, 0);
+  }
+  100% {
+    transform: translate3d(360%, 0, 0);
+  }
+}
+
+/* Haz de la fila guardando (v-flickerless-saving) y avance de la barra. */
+
+@keyframes shimmer-beam-sweep {
+  0% {
+    transform: translateX(-160%) rotate(15deg);
+  }
+  100% {
+    transform: translateX(260%) rotate(15deg);
+  }
+}
+
+@keyframes linear-progress-slide {
+  0% {
+    transform: translate3d(-100%, 0, 0);
+  }
+  100% {
+    transform: translate3d(320%, 0, 0);
+  }
+}
+
+/* Barra lineal de progreso (2px bajo el encabezado) */
+.linear-progress-bar,
+.flickerless-progress-bar {
+  position: relative;
+  width: 100%;
+  height: var(--flickerless-stream-height, 2px);
+  overflow: hidden;
+  background-color: var(--flickerless-stream-bg);
+}
+
+.linear-progress-bar::after,
+.flickerless-progress-bar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 35%;
+  background: var(--flickerless-stream-color);
+  border-radius: 9999px;
+  animation: linear-progress-slide 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  box-shadow: 0 0 10px var(--flickerless-stream-color);
+}
+
+/* Surface body (tables, card feeds, grids) */
+.flickerless-body {
+  width: 100%;
+  transition: var(--flickerless-transition);
+}
+
+/* Attenuation when refetching */
+.flickerless-surface[data-loading="true"] .flickerless-body {
+  opacity: var(--flickerless-attenuation-opacity);
+  pointer-events: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Cold / Initial loading state */
+.flickerless-initial-load {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3.5rem 1.5rem;
+  text-align: center;
+  color: var(--flickerless-muted-color);
+  gap: 0.75rem;
+}
+
+/* Empty state container */
+.flickerless-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3.5rem 1.5rem;
+  text-align: center;
+  color: var(--flickerless-muted-color);
+  gap: 0.5rem;
+}
+
+/* Error state container */
+.flickerless-error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  color: var(--flickerless-danger-color);
+  gap: 0.75rem;
+}
+
+/* ==========================================================================
+   📏 Zero-CLS Height Preservation
+   ========================================================================== */
+.flickerless-preserve-height {
+  transition: min-height 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: min-height;
+}
+
+/* ==========================================================================
+   ✍️ Inline Mutation Saving (Fila o celda guardando datos)
+   ========================================================================== */
+.flickerless-saving {
+  position: relative;
+  pointer-events: none;
+  opacity: 0.65;
+  transition: opacity 0.2s ease;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.flickerless-saving::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--flickerless-saving-beam) 50%,
+    transparent 100%
+  );
+  animation: shimmer-beam-sweep 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* ==========================================================================
+   ♿ Accesibilidad Universal (Screen Readers & Reduced Motion)
+   ========================================================================== */
+.sr-only,
+.flickerless-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .linear-progress-bar::after,
+  .flickerless-progress-bar::after,
+  .flickerless-stream::after,
+  .flickerless-saving::after {
+    animation: none !important;
+    opacity: 0.5 !important;
+  }
+
+  .flickerless-body,
+  .flickerless-preserve-height {
+    transition: none !important;
+  }
+}
+
+/* Dato desconocido (aún sin respuesta): «—» atenuado, nunca un cero. */
+.flickerless-unknown {
+  color: var(--flickerless-unknown-color);
+}

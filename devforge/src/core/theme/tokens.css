@@ -2,6 +2,10 @@
  * ⚡ DEVFORGE Design Tokens: Light + Dark (Tailwind CSS v4)
  * Import once from src/shared/styles/main.css:  @import './tokens.css';
  *
+ * Paleta "Warm Slate" (heredada de Snowlr): grafito en claro, marfil en oscuro.
+ * Un sistema monocromo: el énfasis lo cargan el relleno y el peso, no el tono.
+ * Colores en OKLCH para que el contraste se mantenga entre modos.
+ *
  * Components use SEMANTIC classes (bg-background, text-foreground, border-border,
  * bg-surface, text-muted-foreground...) so they work in both themes without
  * repeating `dark:` on every element.
@@ -13,53 +17,83 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #ffffff;           /* zinc-50 alt: #fafafa */
-  --foreground: #18181b;           /* zinc-900 */
-  --surface: #fafafa;              /* zinc-50: cards, drawers, table headers */
-  --surface-hover: #f4f4f5;        /* zinc-100 */
-  --muted-foreground: #71717a;     /* zinc-500 */
-  --border: #e4e4e7;               /* zinc-200 */
-  --input: #e4e4e7;                /* zinc-200 */
-  --ring: #18181b;                 /* zinc-900 */
-  --primary: #18181b;              /* zinc-900 */
-  --primary-foreground: #fafafa;   /* zinc-50 */
+  --background: oklch(96.2% 0.006 88);          /* lienzo de la app */
+  --foreground: oklch(20.8% 0.006 88);          /* texto principal */
+  --surface: oklch(99% 0.002 88);               /* tarjetas, tablas, campos */
+  --surface-raised: oklch(100% 0 0);            /* popovers, menús, modales */
+  --surface-hover: oklch(93% 0.006 88);
+  --muted-foreground: oklch(44.6% 0.009 88);    /* texto secundario */
+  --dim-foreground: oklch(55.4% 0.01 88);       /* placeholders, días fuera del mes */
+  --border: oklch(20.8% 0.006 88 / 0.12);
+  --input: oklch(20.8% 0.006 88 / 0.16);
+  --ring: oklch(20.8% 0.006 88 / 0.24);         /* anillo de foco */
+  --primary: oklch(20.8% 0.006 88);             /* acción principal: grafito */
+  --primary-hover: oklch(12.9% 0.004 88);
+  --primary-foreground: oklch(98.4% 0.002 88);
+  --primary-subtle: oklch(20.8% 0.006 88 / 0.07);  /* opción elegida, rango del calendario */
+  --primary-border: oklch(20.8% 0.006 88 / 0.16);
+  --shadow-popover: 0 18px 48px -28px oklch(13% 0.004 88 / 0.24), 0 2px 8px oklch(13% 0.004 88 / 0.08);
 
-  --success: #047857;              /* emerald-700 */
-  --warning: #b45309;              /* amber-700 */
-  --danger: #be123c;               /* rose-700 */
+  --success: oklch(59.6% 0.145 163.2);
+  --warning: oklch(66.6% 0.179 58.3);
+  --danger: oklch(58.6% 0.253 17.5);
 }
 
 .dark {
-  --background: #09090b;           /* zinc-950 */
-  --foreground: #f4f4f5;           /* zinc-100 */
-  --surface: #18181b;              /* zinc-900 */
-  --surface-hover: #27272a;        /* zinc-800 */
-  --muted-foreground: #a1a1aa;     /* zinc-400 */
-  --border: #27272a;               /* zinc-800 */
-  --input: #3f3f46;                /* zinc-700 */
-  --ring: #d4d4d8;                 /* zinc-300 */
-  --primary: #fafafa;              /* zinc-50 */
-  --primary-foreground: #18181b;   /* zinc-900 */
+  --background: oklch(15.5% 0.004 88);
+  --foreground: oklch(96.3% 0.006 88);
+  --surface: oklch(17.3% 0.003 88);
+  --surface-raised: oklch(21.5% 0.004 88);      /* en oscuro, elevado es más claro */
+  --surface-hover: oklch(100% 0 0 / 0.05);
+  --muted-foreground: oklch(72.1% 0.009 88);
+  --dim-foreground: oklch(56.4% 0.009 88);
+  --border: oklch(100% 0 0 / 0.09);
+  --input: oklch(100% 0 0 / 0.16);
+  --ring: oklch(100% 0 0 / 0.28);
+  --primary: oklch(96.3% 0.006 88);             /* acción principal: marfil */
+  --primary-hover: oklch(100% 0 0);
+  --primary-foreground: oklch(12.9% 0.004 88);
+  --primary-subtle: oklch(100% 0 0 / 0.09);
+  --primary-border: oklch(100% 0 0 / 0.16);
+  --shadow-popover: 0 36px 90px -28px oklch(0% 0 0 / 0.86);
 
-  --success: #34d399;              /* emerald-400 */
-  --warning: #fbbf24;              /* amber-400 */
-  --danger: #fb7185;               /* rose-400 */
+  --success: oklch(76.5% 0.177 163.2);
+  --warning: oklch(76.9% 0.188 70.1);
+  --danger: oklch(71.2% 0.194 13.4);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
   --color-surface-hover: var(--surface-hover);
   --color-muted-foreground: var(--muted-foreground);
+  --color-dim-foreground: var(--dim-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-subtle: var(--primary-subtle);
+  --color-primary-border: var(--primary-border);
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-danger: var(--danger);
+  --shadow-popover: var(--shadow-popover);
+}
+
+/* Escala cerrada de forma y tipografía: rounded-control, text-caption... */
+@theme {
+  --radius-control: 0.75rem;
+  --radius-card: 1rem;
+  --radius-panel: 1.5rem;
+  --text-caption: 11px;
+  --text-small: 12px;
+  --text-body: 13px;
+  --text-title: 16px;
+  --text-display: 24px;
 }
 
 @layer base {
