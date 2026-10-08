@@ -4,7 +4,7 @@
 
 ## 🚨 MANDATORY PRE-FLIGHT CHECKLIST (DO NOT SKIP)
 
-Before generating ANY component, file, or view, you MUST mentally verify and strictly enforce these 6 checkpoints:
+Before generating ANY component, file, or view, you MUST mentally verify and strictly enforce these 7 checkpoints:
 
 1. **[ ] ZERO HARDCODED DATA**:
    - Strictly banned: `const items = [ ... ]`, `const records = [ ... ]` or dummy metrics written statically inside `.vue` or `.tsx`.
@@ -14,8 +14,10 @@ Before generating ANY component, file, or view, you MUST mentally verify and str
    - Strictly banned: Requesting database fields not displayed on screen. In GraphQL, use strict field queries/fragments. In REST, request sparse fieldsets (`?fields=...`).
 3. **[ ] AUTOMATIC LOCALIZED FORMATTING**:
    - Never render raw numbers as currency (`17870000` or `"$ " + amount`). Use `formatCurrency(amount)` from `@/core/formatters/formatters` or `Intl.NumberFormat`.
+   - Never render raw quantities or percentages (`1234567.891`, `toFixed(2)`, `value + "%"`). Use `formatNumber(value)` and `formatPercent(value)`; commas and dots follow the country locale (`es-DO` -> `1,234,567.89`, `es-CO` -> `1.234.567,89`).
    - Never display raw ISO date strings (`"2026-10-05T15:50:00Z"`). Use `formatDate(date)` or `formatRelativeTime(date)`.
-   - Never display unformatted phone digits (`3001234567`). Use `formatPhoneNumber(phone, country)`.
+   - Never display unformatted phone digits (`8095781234`). Use `formatPhoneNumber(phone, country)` -> `(809) 578-1234` (national) or `+1 (809) 578-1234` (international).
+   - Configure the country once with `setFormatCountry('<CODE>')` in the entrypoint.
    - Fallback for null/undefined/empty: always render `—` (em-dash), never `"null"`, `"undefined"` or blank spaces.
 4. **[ ] ZERO SPANGLISH / 100% SPANISH**:
    - If the user/app is in Spanish, NOT A SINGLE English word is permitted in UI text, table headers, buttons, or statuses.
@@ -23,10 +25,14 @@ Before generating ANY component, file, or view, you MUST mentally verify and str
    - Required: `Cerrar`, `Guardar`, `Estado`, `Monto`, `Acciones`, `Observado`, `Completado`, `Pendiente`.
 5. **[ ] ZERO CYBERPUNK / ZERO NEON GAMER**:
    - Strictly banned Tailwind classes: `cyan-*`, `teal-*`, `neon-*`, glowing borders, radioactive greens (`#00ff9d`), or deep cyan backgrounds.
-   - Required palette: Pure neutral darks (`bg-zinc-950`, `bg-zinc-900`, `border-zinc-800`, `text-zinc-100`, `text-zinc-400`) and soft-tint badges (`bg-emerald-500/10 text-emerald-400 border-emerald-500/20`).
+   - Required palette: Neutral zinc in both themes via semantic tokens (`bg-background`, `bg-surface`, `text-foreground`, `text-muted-foreground`, `border-border`) and soft-tint badges (`bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20`).
 6. **[ ] VUE 3 / REACT LOGIC SAFETY**:
    - Protect all nullables: Always use optional chaining `record?.cliente?.nombre` to prevent `Cannot read properties of null` crashes.
    - Never mutate props directly: Emit events `emit('close')` or `emit('update:modelValue', val)`.
+7. **[ ] DUAL THEME: LIGHT + DARK (MANDATORY)**:
+   - Every project ships **Claro** and **Oscuro** themes plus **Sistema** (OS preference) from the first commit (`npx devforge add theme`).
+   - Banned: Dark-only or light-only UIs, a color class without its other-theme pair (`bg-white` alone, `text-zinc-100` alone), hex colors inside components.
+   - Required: Semantic tokens from `tokens.css`, `initTheme()` in the entrypoint, no-flash script in `index.html`, and a Claro / Oscuro / Sistema selector. Rules: `.ai/standards/theming.md`.
 
 ---
 
@@ -44,6 +50,7 @@ You are operating in a **DEVFORGE** enabled repository. Code generated or modifi
 3. **Anti-AI Design Excellence (Enterprise SaaS Vibe)**:
    - All UI code must strictly adhere to `.ai/standards/ui-ux-principles.md`.
    - Follow Linear, Stripe, and Vercel aesthetics: quiet, clean, high-density, and highly legible.
+   - Every project ships **light and dark themes** from day one. Follow `.ai/standards/theming.md`.
 4. **Zero Hardcoded Data Directive**:
    - All data must flow asynchronously through the Service Layer (`modules/[domain]/services/`) and hooks/composables (`useQuery`, `useTransactions`).
    - If backend endpoints are pending, use **MSW (Mock Service Worker)** or a dedicated mock service adapter simulating async delay and pagination. The UI component code must be identical to production.
@@ -59,7 +66,8 @@ You are operating in a **DEVFORGE** enabled repository. Code generated or modifi
 Consult the standards under `.ai/standards/`:
 
 - **Interactive Kickoff & Discovery**: `.ai/standards/project-kickoff.md` (Developer calibration & stack advisory)
-- **Data Formatting & Localization**: `.ai/standards/data-formatting.md` (Currency, dates, phone numbers, null fallbacks)
+- **Data Formatting & Localization**: `.ai/standards/data-formatting.md` (Currency, numbers, dates, phone numbers, null fallbacks)
+- **Theming (Light + Dark)**: `.ai/standards/theming.md` (Semantic tokens, theme engine, Claro / Oscuro / Sistema selector)
 - **UI/UX Design System**: `.ai/standards/ui-ux-principles.md` (Anti-AI rules, Zero-Spanglish, Soft-tint badges)
 - **Complete Project Structure**: `.ai/standards/project-structure.md` (Domain-driven folder hierarchy)
 - **Architecture Standards**: `.ai/standards/architecture-standards.md` (Zero hardcoded data, pagination, service layers)
@@ -88,8 +96,9 @@ src/
 │   ├── auth/          # Silent refresh queue & token storage
 │   ├── errors/        # normalizeApiError
 │   ├── export/        # exportToCSV
-│   ├── formatters/    # Localized currency, date, phone formatters
+│   ├── formatters/    # Localized currency, number, date, phone formatters
 │   ├── permissions/   # RBAC ability engine
+│   ├── theme/         # Light/Dark theme engine (initTheme, setThemePreference)
 │   └── url-sync/      # URL query param synchronizer
 ├── modules/           # Business feature domains (self-contained)
 │   └── [feature]/
@@ -99,4 +108,5 @@ src/
 │       ├── types/
 │       └── index.ts
 └── shared/            # Design-system primitives (Button, Modal, Input, DataTable)
+    └── styles/        # tokens.css (light + dark semantic tokens)
 ```

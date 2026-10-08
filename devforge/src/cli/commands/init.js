@@ -95,10 +95,15 @@ export async function initCommand(options = {}) {
     'Antigravity / Gemini / Codex -> AGENTS.md & .ai/AGENTS.md',
     'Cursor IDE Rules             -> .cursorrules',
     'GitHub Copilot               -> .github/copilot-instructions.md',
-    'Battle-Tested Blueprints     -> .ai/blueprints/ (5 recipes installed)'
+    'Battle-Tested Blueprints     -> .ai/blueprints/ (7 recipes installed)',
+    'Standards                    -> .ai/standards/ (formatting, light + dark theming, UI/UX)'
   ]);
 
   logger.info('Slash Commands ready:');
   console.log('  - Type \x1b[32m/kickoff\x1b[0m in Claude Code or Antigravity to start the discovery interview.');
   console.log('  - Type \x1b[32m/devforge\x1b[0m to consult architectural blueprints and UI/UX standards.\n');
+
+  logger.info('Foundation modules (install before the first screen):');
+  console.log('  - \x1b[32mdevforge add formatters\x1b[0m -> currency, numbers, dates & phones per country, e.g. (809) 578-1234');
+  console.log('  - \x1b[32mdevforge add theme\x1b[0m      -> light + dark themes (Claro / Oscuro / Sistema)\n');
 }

@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "node ./bin/devforge.js",
-    "test": "node --test"
+    "test": "node --experimental-strip-types --no-warnings --test test/*.test.ts"
   },
   "keywords": [
     "devforge",

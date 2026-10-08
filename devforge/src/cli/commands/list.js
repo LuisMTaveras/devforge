@@ -30,7 +30,8 @@ export function listCommand() {
 
   logger.card('Standards & Governance Protocols (.ai/standards/)', [
     'project-kickoff.md      -> Step 0: Developer Calibration, Stack Advisory & Scoping',
-    'data-formatting.md      -> Localized Currency, Date, Phone & Null Fallback Rules',
+    'data-formatting.md      -> Localized Currency, Number, Date, Phone & Null Fallback Rules',
+    'theming.md              -> Mandatory Light + Dark themes with semantic design tokens',
     'ui-ux-principles.md     -> Anti-AI Design System (UI/UX Pro Max & Zero Spanglish)',
     'project-structure.md    -> Production Greenfield Folder & File Hierarchy (Vue 3 / React)',
     'architecture-standards  -> Zero Hardcoded Data & Domain-Driven architecture',
@@ -41,8 +42,9 @@ export function listCommand() {
     'auth       -> Silent Refresh Token Queue, tokenStorage & auth.store.ts',
     'errors     -> normalizeApiError() for Laravel, Express, NestJS, FastAPI',
     'export     -> exportToCSV() with UTF-8 BOM encoding for Excel',
-    'formatters -> formatCurrency(), formatDate(), formatPhoneNumber()',
+    'formatters -> formatCurrency(), formatNumber(), formatDate(), formatPhoneNumber()',
     'rbac       -> Pure TS CASL-style Ability engine, <Can /> & v-can',
+    'theme      -> Light/Dark tokens.css, initTheme(), useTheme() for Vue & React',
     'url-sync   -> Bidirectional URL Search Params table synchronizer',
   ]);
 
@@ -52,6 +54,7 @@ export function listCommand() {
   console.log('  \x1b[32mdevforge add export\x1b[0m       -> Injects CSV/Excel export engine');
   console.log('  \x1b[32mdevforge add formatters\x1b[0m   -> Injects localized formatting engine');
   console.log('  \x1b[32mdevforge add rbac\x1b[0m         -> Injects permissions engine');
+  console.log('  \x1b[32mdevforge add theme\x1b[0m        -> Injects light/dark theme engine & tokens');
   console.log('  \x1b[32mdevforge add url-sync\x1b[0m     -> Injects URL state synchronizer\n');
 
   console.log('To audit your project for AI compliance:');

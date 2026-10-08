@@ -15,6 +15,8 @@ When this skill is activated:
 - Strictly follow `.ai/standards/ui-ux-principles.md`.
 - No generic purple gradients, no floating blur orbs, no low-density cards.
 - Follow the 60-30-10 color rule and 4px/8px spatial rhythm.
+- Ship light and dark themes from the first commit (`.ai/standards/theming.md`, `npx devforge add theme`).
+- Format currency, numbers, dates and phones per country (`.ai/standards/data-formatting.md`, `npx devforge add formatters`).
 
 ## 3. Production Blueprints
 - Follow the canonical patterns in `.ai/blueprints/` for forms, data tables, permissions, and API clients.

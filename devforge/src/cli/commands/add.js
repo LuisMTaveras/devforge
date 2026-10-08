@@ -29,7 +29,7 @@ const MODULE_REGISTRY = {
     ]
   },
   'formatters': {
-    name: 'Localized Data Formatters (Currency, Dates, Phones, Fallbacks)',
+    name: 'Localized Data Formatters (Currency, Numbers, Percents, Dates, Phones, Fallbacks)',
     files: [
       { src: 'src/core/formatters/formatters.ts', dest: 'src/core/formatters/formatters.ts' },
     ]
@@ -40,6 +40,15 @@ const MODULE_REGISTRY = {
       { src: 'src/core/permissions/ability.ts', dest: 'src/core/permissions/ability.ts' },
       { src: 'src/adapters/react/Can.tsx', dest: 'src/shared/components/Can.tsx' },
       { src: 'src/adapters/vue/v-can.ts', dest: 'src/shared/directives/v-can.ts' },
+    ]
+  },
+  'theme': {
+    name: 'Light / Dark Theme Engine (Tokens, Vue & React hooks, no-flash script)',
+    files: [
+      { src: 'src/core/theme/theme.ts', dest: 'src/core/theme/theme.ts' },
+      { src: 'src/core/theme/tokens.css', dest: 'src/shared/styles/tokens.css' },
+      { src: 'src/adapters/vue/useTheme.ts', dest: 'src/shared/composables/useTheme.ts' },
+      { src: 'src/adapters/react/useTheme.ts', dest: 'src/shared/hooks/useTheme.ts' },
     ]
   },
   'url-sync': {

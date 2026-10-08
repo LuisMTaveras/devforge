@@ -14,8 +14,9 @@ AI models are only as good as the context, constraints, and blueprints you give 
 3. **Interactive Discovery First**: Forces AI agents to calibrate developer level (Junior/Intermediate/Senior) and recommend the ideal stack before writing code.
 4. **Anti-AI Design Excellence**: Injects UI/UX Pro Max principles (60-30-10 palette, 4px/8px grid, soft-tint badges, no generic purple gradients, zero Spanglish).
 5. **Zero Hardcoded Data & Mandatory Pagination**: Mandates that 100% of data flow through typed services and reactive composables/hooks, always paginated, with zero over-fetching.
-6. **Automatic Localized Formatting**: Built-in formatters for currency, dates, relative time, and phone numbers.
-7. **Battle-Tested Blueprints**: High-leverage architectural patterns (OpenAPI SDK, Zod Schema forms, URL-synced tables, RBAC permissions, In-app devtools, Silent Refresh Auth, and GraphQL Pagination).
+6. **Automatic Localized Formatting**: Built-in formatters for currency, numbers, percentages, dates, relative time, and phone numbers, configured per country (`setFormatCountry('DO')`).
+7. **Light + Dark Themes by Default**: Every project ships Claro / Oscuro / Sistema themes with semantic design tokens (`devforge add theme`).
+8. **Battle-Tested Blueprints**: High-leverage architectural patterns (OpenAPI SDK, Zod Schema forms, URL-synced tables, RBAC permissions, In-app devtools, Silent Refresh Auth, and GraphQL Pagination).
 
 ---
 
@@ -38,7 +39,8 @@ your-project/
 │   │   └── 07-graphql-pagination.md
 │   └── standards/            # Governance & Design System
 │       ├── project-kickoff.md     # Discovery interview & stack advisory
-│       ├── data-formatting.md     # Currency, dates, phone rules
+│       ├── data-formatting.md     # Currency, numbers, dates, phone rules
+│       ├── theming.md             # Mandatory light + dark themes
 │       ├── ui-ux-principles.md    # Anti-AI design & UI UX Pro Max rules
 │       ├── project-structure.md   # Greenfield folder & file hierarchy
 │       ├── architecture-standards # Domain-driven feature layout & pagination
@@ -125,8 +127,11 @@ devforge add errors
 # Injects UTF-8 BOM CSV & Excel data export utility
 devforge add export
 
-# Injects localized currency, dates, and phone formatters
+# Injects localized currency, number, date, and phone formatters
 devforge add formatters
+
+# Injects light/dark theme engine, tokens.css and useTheme() (Vue & React)
+devforge add theme
 
 # Injects pure TypeScript RBAC engine + <Can /> (React) + v-can (Vue)
 devforge add rbac
@@ -142,8 +147,9 @@ devforge add url-sync
 ### 1. The Anti-AI Aesthetic Protocol
 
 - **Strictly Banned**: Saturated neon cyan/green accents (`cyan-*`, `teal-*`, `#00ff9d`), dark-teal sci-fi backgrounds, purple/indigo gradients, floating blur orbs, and emoji spam in headers.
-- **The 60-30-10 Palette**: 60% pure neutral surfaces (`zinc-950` / `zinc-900`), 30% crisp white/gray typography hierarchy, and 10% functional accent for actions.
-- **Soft-Tint Badges**: Translucent 10% backgrounds (`bg-emerald-500/10 text-emerald-400 border border-emerald-500/20`), never eye-straining radioactive pills.
+- **Light + Dark Themes (Mandatory)**: Every project ships both themes. Components use semantic tokens (`bg-background`, `bg-surface`, `text-foreground`, `border-border`) defined in `tokens.css`.
+- **The 60-30-10 Palette**: 60% pure neutral surfaces (white / zinc-50 on light, `zinc-950` / `zinc-900` on dark), 30% crisp typography hierarchy, and 10% functional accent for actions.
+- **Soft-Tint Badges**: Translucent 10% backgrounds (`bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20`), never eye-straining radioactive pills.
 
 ### 2. Zero-Spanglish Rule
 
@@ -159,9 +165,11 @@ If the project is in Spanish, 100% of UI text, headers, and statuses must be in 
 
 ### 3. Localized Data Formatters
 
-- **Currency**: `formatCurrency(17870000)` ➔ `"$ 17.870.000,00"` (Intl.NumberFormat with 2 decimals).
+- **Country Preset**: `setFormatCountry('DO')` ➔ locale `es-DO`, currency `DOP`, phone mask `(809) 578-1234`.
+- **Currency**: `formatCurrency(17870000)` ➔ `"RD$17,870,000.00"` (es-DO) or `"$ 17.870.000,00"` (es-CO).
+- **Numbers & Percentages**: `formatNumber(1234567.891)` ➔ `"1,234,567.89"` (es-DO) / `"1.234.567,89"` (es-CO); `formatPercent(0.125)` ➔ `"12.5%"`.
 - **Dates**: `formatDate(date, 'medium')` ➔ `"11 sept 2026, 07:51"` or `formatRelativeTime(date)` ➔ `"hace 5 minutos"`.
-- **Phone Numbers**: `formatPhoneNumber('3001234567', 'CO')` ➔ `"+57 (300) 123-4567"`.
+- **Phone Numbers**: `formatPhoneNumber('8095781234', 'DO')` ➔ `"(809) 578-1234"`; with `'international'` ➔ `"+1 (809) 578-1234"`.
 - **Null Fallbacks**: Always render an em-dash `—` for empty data, never `"null"` or `"undefined"`.
 
 ### 4. Mandatory Pagination & Zero Over-Fetching

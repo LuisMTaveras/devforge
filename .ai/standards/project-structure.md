@@ -31,6 +31,8 @@ my-project/
 │   │   ├── api/                    # HTTP client, interceptors, OpenAPI types
 │   │   │   ├── client.ts           # Axios or openapi-fetch wrapper
 │   │   │   └── v1.d.ts             # Auto-generated backend contracts
+│   │   ├── formatters/             # Localized currency, number, date & phone formatters
+│   │   ├── theme/                  # Light/Dark theme engine (theme.ts)
 │   │   ├── permissions/            # RBAC/ABAC engine (ability.ts)
 │   │   ├── storage/                # Type-safe localStorage / sessionStorage
 │   │   └── url-sync/               # URL query param synchronizer (url-state.ts)
@@ -48,9 +50,9 @@ my-project/
 │   ├── shared/                     # Reusable UI Design System & Utilities
 │   │   ├── components/             # Primitives: Button, Modal, DataTable, Input
 │   │   ├── directives/             # Vue directives (v-can) or React wrappers (<Can />)
-│   │   ├── hooks/                  # Universal custom hooks / composables
+│   │   ├── composables/ (or hooks/) # Universal composables / hooks (useTheme.ts)
 │   │   ├── lib/                    # Helper functions (cn / clsx, formatters, date)
-│   │   └── styles/                 # Global design tokens, font definitions, CSS
+│   │   └── styles/                 # tokens.css (light + dark), main.css, fonts
 │   │
 │   ├── main.ts / main.tsx          # Application entrypoint
 │   └── env.d.ts                    # Vite / framework environment types
@@ -60,7 +62,7 @@ my-project/
 ├── .gitignore                      # Standard git ignores
 ├── package.json                    # Dependencies & execution scripts
 ├── README.md                       # Project overview & developer guide
-├── tailwind.config.ts / css        # Design tokens & color system
+├── index.html                      # Includes the theme no-flash <script> in <head>
 ├── tsconfig.json                   # Strict TypeScript compiler options
 └── vite.config.ts                  # Bundler configuration & path aliases (@/ -> src/)
 ```

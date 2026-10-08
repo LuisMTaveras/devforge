@@ -31,9 +31,11 @@ Before recommending technical architecture, ask the user:
 
 - What country and region will this application primarily target?
   - This automatically establishes formatting defaults so the user never has to configure them manually:
-    - **Default Currency**: (e.g. `USD`, `COP`, `MXN`, `EUR`)
-    - **Date & Number Locale**: (e.g. `es-CO`, `es-MX`, `es-ES`, `en-US`)
-    - **Phone Country Mask**: (e.g. Colombia `+57`, México `+52`, USA `+1`, España `+34`)
+    - **Default Currency**: (e.g. `DOP`, `USD`, `COP`, `MXN`, `EUR`)
+    - **Date & Number Locale**: (e.g. `es-DO`, `es-CO`, `es-MX`, `es-ES`, `en-US`) — defines thousands/decimal separators (`1,234.56` vs `1.234,56`)
+    - **Phone Country Mask**: (e.g. República Dominicana `(809) 578-1234`, Colombia `(300) 123-4567`, México `(55) 1234-5678`)
+    - **Phone Display**: national `(809) 578-1234` (default) or international `+1 (809) 578-1234` for multi-country apps
+  - All of this is applied with a single `setFormatCountry('<CODE>')` call (see `.ai/standards/data-formatting.md`).
 
 ### 4. Proactive Stack Recommendation (With User Autonomy)
 
@@ -55,9 +57,9 @@ Once the stack and developer profile are established, finalize the functional sc
 
 - What brand aesthetic or mood are you aiming for?
   - Modern Minimalist (clean zinc/slate, subtle 1px borders, quiet elegance)
-  - Dark Mode First / OLED (deep zinc-950, crisp white typography, soft-tint badges)
   - Enterprise / Fintech (trustworthy slate with emerald accents)
   - Brutalist / Industrial (bold borders, monospace typography, high contrast)
+- **Light and dark themes are NOT optional**: every project ships both (Claro / Oscuro / Sistema). Only ask which one is the **default** for first-time visitors (recommended: `Sistema`, follows the OS). See `.ai/standards/theming.md`.
 
 ### 7. Initial Scope & Key MVP Workflows
 
@@ -70,8 +72,14 @@ Once the stack and developer profile are established, finalize the functional sc
 
 Once the user answers the discovery questions:
 
-1. Confirm the agreed architecture, stack, country localization, and visual theme.
+1. Confirm the agreed architecture, stack, country localization, and visual identity.
 2. Initialize the project using the standard directory structure defined in `.ai/standards/project-structure.md`.
-3. Apply the data formatting defaults (`.ai/standards/data-formatting.md`).
-4. Apply the design directives from `.ai/standards/ui-ux-principles.md`.
-5. Proceed incrementally with user feedback checkpoints at each step.
+3. Install the foundation modules **before building any screen** so the project is ready from the first commit:
+   ```bash
+   npx devforge add formatters   # currency, numbers, percents, dates, phones, "—" fallback
+   npx devforge add theme        # light + dark tokens, initTheme(), useTheme()
+   ```
+4. Wire them in the entrypoint (`main.ts` / `main.tsx`): `setFormatCountry('<CODE>')` and `initTheme()`; add the no-flash script to `index.html` and the theme selector (Claro / Oscuro / Sistema) to the app shell.
+5. Apply the data formatting defaults (`.ai/standards/data-formatting.md`) and theming rules (`.ai/standards/theming.md`).
+6. Apply the design directives from `.ai/standards/ui-ux-principles.md`.
+7. Proceed incrementally with user feedback checkpoints at each step. Every screen is reviewed in **both themes** before it is considered done.
