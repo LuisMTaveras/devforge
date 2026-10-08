@@ -5,7 +5,7 @@
 Every listing, form and filter bar uses the same four building blocks. They are installed, not rewritten:
 
 ```bash
-devforge add flickerless          # carga sin skeleton (Vue y React)
+devforge add flickerless --vue    # carga sin skeleton           (o --react)
 devforge add select --vue         # SelectField: el combo
 devforge add dates --vue          # DatePicker + DateRangeFilter
 devforge add pagination --vue     # ListPager: el pie del listado
@@ -20,9 +20,8 @@ Import the CSS once in the global stylesheet, after `tokens.css`:
 @import '../flickerless/flickerless.css';
 ```
 
-> The combo, date picker and pager are **Vue 3** components. There is no React version yet: in a React project use
-> the framework-agnostic cores (`@/core/dates/date-range`, `@/core/pagination/pagination`) and Flickerless React, and
-> ask the user before building the React component.
+> Every component exists in **Vue 3** (`.vue`, `v-model`) and **React** (`.tsx`, `value` + `onChange`). Same props,
+> same look, same rules. Use `--vue` / `--react` to install only your framework's files.
 
 ---
 
@@ -81,6 +80,7 @@ The native `<select>` is drawn by the browser: it ignores Claro/Oscuro and gets 
   service, never a hardcoded array in the component (checklist §1). Spanish labels only.
 - A disabled option is **shown dimmed, not hidden**. `group` replaces `<optgroup>`.
 - For a filter's "Todos", add an option `{ value: '', label: 'Todos' }`.
+- React: `<SelectField value={estado} onChange={setEstado} label="Estado" options={estadoOptions} compact />`.
 - ⚠️ The trigger is a `<button>`: the native `required` no longer blocks submit. Validate the field in `submit()`
   (Zod schema per `typescript-rules.md`).
 
@@ -95,6 +95,12 @@ The native `<select>` is drawn by the browser: it ignores Claro/Oscuro and gets 
 ```vue
 <DatePicker v-model="form.vencimiento" label="Vencimiento" :min="todayKey()" />
 <DatePicker v-model="rango" range />
+```
+
+```tsx
+<DatePicker value={vencimiento} onChange={setVencimiento} label="Vencimiento" min={todayKey()} />
+<DatePicker range value={rango} onChange={setRango} />
+<DateRangeFilter value={periodo} onChange={setPeriodo} onCommit={cargar} />   {/* onCommit = Vue's @change */}
 ```
 
 **Listing filters use `DateRangeFilter`** (atajos Hoy · Ayer · Últimos 7 días · Este mes · Este trimestre · Este año ·
@@ -123,4 +129,5 @@ Every paginated list ends with `ListPager`: **"Mostrando 11–20 de 57 facturas"
 - Total pages are **derived** from `total` and `pageSize`; never pass them separately. If the backend returns
   `hasMore`, pass it: the server knows whether there is a next page.
 - Numbers use the project country's separators (`formatNumber`).
+- React: `<ListPager page={page} onPageChange={setPage} pageSize={pageSize} total={data?.meta.total} hasMore={data?.meta.hasMore} singular="factura" plural="facturas" />` (`note` prop instead of the slot).
 - Changing a filter resets `page` to 1.

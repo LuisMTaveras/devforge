@@ -49,9 +49,9 @@ export function listCommand() {
     'theme      -> Light/Dark tokens.css, initTheme(), useTheme() for Vue & React',
     'url-sync   -> Bidirectional URL Search Params table synchronizer',
     'flickerless-> Carga sin skeleton: FlickerlessSurface, FlickerlessValue, TableShell',
-    'select     -> SelectField.vue: combo estándar (reemplaza <select>)',
-    'dates      -> DatePicker.vue + DateRangeFilter.vue + date-range.ts',
-    'pagination -> ListPager.vue + pagination.ts («Mostrando 11–20 de 57»)',
+    'select     -> SelectField (.vue / .tsx): combo estándar (reemplaza <select>)',
+    'dates      -> DatePicker + DateRangeFilter (.vue / .tsx) + date-range.ts',
+    'pagination -> ListPager (.vue / .tsx) + pagination.ts («Mostrando 11–20 de 57»)',
   ]);
 
   console.log('To add any module to your current project:');
@@ -63,9 +63,9 @@ export function listCommand() {
   console.log('  \x1b[32mdevforge add theme\x1b[0m        -> Injects light/dark theme engine & tokens');
   console.log('  \x1b[32mdevforge add url-sync\x1b[0m     -> Injects URL state synchronizer');
   console.log('  \x1b[32mdevforge add flickerless\x1b[0m  -> Injects skeleton-free loading (Vue & React)');
-  console.log('  \x1b[32mdevforge add select\x1b[0m       -> Injects the standard combo (Vue)');
-  console.log('  \x1b[32mdevforge add dates\x1b[0m        -> Injects date picker & period filter (Vue)');
-  console.log('  \x1b[32mdevforge add pagination\x1b[0m   -> Injects the standard list pager (Vue)\n');
+  console.log('  \x1b[32mdevforge add select\x1b[0m       -> Injects the standard combo (Vue & React)');
+  console.log('  \x1b[32mdevforge add dates\x1b[0m        -> Injects date picker & period filter (Vue & React)');
+  console.log('  \x1b[32mdevforge add pagination\x1b[0m   -> Injects the standard list pager (Vue & React)\n');
 
   console.log('To audit your project for AI compliance:');
   console.log('  \x1b[32mdevforge audit\x1b[0m            -> Scans code for hardcoded arrays, neon colors, and Spanglish\n');

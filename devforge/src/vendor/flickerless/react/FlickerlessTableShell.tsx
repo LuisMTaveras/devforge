@@ -1,4 +1,4 @@
-import React from 'react';
+// (sin import de React: jsx 'react-jsx' no lo necesita y noUnusedLocals lo rechaza)
 import { FlickerlessValue } from './FlickerlessValue';
 
 export interface FlickerlessTableShellProps {

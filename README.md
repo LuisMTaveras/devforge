@@ -138,7 +138,7 @@ Una vez ejecutado `devforge init`, la capa de IA ya está activa. Ahora abre tu 
    devforge add theme        # Tema claro + oscuro (tokens, initTheme, useTheme)
    devforge add auth         # Autenticación segura con cola de refresco
    devforge add rbac         # Permisos por rol y directivas UI
-   devforge add dates --vue       # Selector de fecha/rango y filtro de período (instala select)
+   devforge add dates --vue       # (o --react) Selector de fecha/rango y filtro de período (instala select)
    devforge add pagination --vue  # Pie de paginación estándar (instala flickerless)
    ```
 4. **Comienza a codificar asistido por los blueprints** en `.ai/blueprints/`.
@@ -225,9 +225,9 @@ Inyecta módulos de código limpios, probados y con TypeScript estricto en la es
 | **Permisos RBAC** | `devforge add rbac` | `src/core/permissions/ability.ts`<br>`src/shared/components/Can.tsx` (React)<br>`src/shared/directives/v-can.ts` (Vue) | Motor de permisos declarativo basado en habilidades (estilo CASL), directiva `v-can` para Vue 3 y componente `<Can />` para React. |
 | **Sincronización URL** | `devforge add url-sync` | `src/core/url-sync/url-state.ts` | Sincronización bidireccional entre estados de filtros/paginación y los `URLSearchParams` del navegador. |
 | **Flickerless** | `devforge add flickerless` | `src/shared/flickerless/core/*`<br>`src/shared/flickerless/vue/*`<br>`src/shared/flickerless/react/*`<br>`src/shared/flickerless/flickerless.css` | Reemplazo del skeleton ([github.com/LuisMTaveras/flickerless](https://github.com/LuisMTaveras/flickerless)): lo que estaba se queda atenuado con una barra de 2 px, lo que no se sabe es «—», y la carga en frío pinta la tabla real. |
-| **Combo** | `devforge add select` | `src/shared/components/SelectField.vue` | Desplegable estándar que reemplaza al `<select>` nativo: menú teleportado (no se recorta en modales), tema claro/oscuro, grupos, opciones deshabilitadas y teclado. |
-| **Fechas** | `devforge add dates` | `src/core/dates/date-range.ts`<br>`src/shared/components/DatePicker.vue`<br>`src/shared/components/DateRangeFilter.vue` | Selector de fecha o rango (dos meses lado a lado, `dd/mm/aaaa`) y filtro de período con atajos (Hoy, Ayer, Este mes…), flechas de día y rango personalizado. «Hoy» se calcula en la zona de RD. |
-| **Paginación** | `devforge add pagination` | `src/core/pagination/pagination.ts`<br>`src/shared/components/ListPager.vue` | Pie de listado estándar: «Mostrando 11–20 de 57 facturas» y ‹ 2 / 6 ›, con «—» hasta la primera respuesta. |
+| **Combo** | `devforge add select` | `src/shared/components/SelectField.vue` (Vue)<br>`src/shared/components/SelectField.tsx` (React) | Desplegable estándar que reemplaza al `<select>` nativo: menú teleportado (no se recorta en modales), tema claro/oscuro, grupos, opciones deshabilitadas y teclado. |
+| **Fechas** | `devforge add dates` | `src/core/dates/date-range.ts`<br>`src/shared/components/DatePicker.vue`<br>`src/shared/components/DateRangeFilter.vue`<br>`DatePicker.tsx` / `DateRangeFilter.tsx` (React) | Selector de fecha o rango (dos meses lado a lado, `dd/mm/aaaa`) y filtro de período con atajos (Hoy, Ayer, Este mes…), flechas de día y rango personalizado. «Hoy» se calcula en la zona de RD. |
+| **Paginación** | `devforge add pagination` | `src/core/pagination/pagination.ts`<br>`src/shared/components/ListPager.vue`<br>`ListPager.tsx` (React) | Pie de listado estándar: «Mostrando 11–20 de 57 facturas» y ‹ 2 / 6 ›, con «—» hasta la primera respuesta. |
 
 ---
 

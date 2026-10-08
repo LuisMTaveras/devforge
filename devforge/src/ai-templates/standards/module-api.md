@@ -20,11 +20,11 @@
 | rbac         | `devforge add rbac`       | `src/core/permissions/ability.ts`, `src/shared/components/Can.tsx` (React), `src/shared/directives/v-can.ts` (Vue) |
 | url-sync     | `devforge add url-sync`   | `src/core/url-sync/url-state.ts` |
 | flickerless  | `devforge add flickerless` | `src/shared/flickerless/core/*`, `src/shared/flickerless/vue/*`, `src/shared/flickerless/react/*`, `src/shared/flickerless/flickerless.css` |
-| select       | `devforge add select`     | `src/shared/components/SelectField.vue` (Vue only) |
-| dates        | `devforge add dates`      | `src/core/dates/date-range.ts`, `src/shared/components/DatePicker.vue`, `src/shared/components/DateRangeFilter.vue` (Vue only) |
-| pagination   | `devforge add pagination` | `src/core/pagination/pagination.ts`, `src/shared/components/ListPager.vue` (Vue only) |
+| select       | `devforge add select`     | `src/shared/components/SelectField.vue` (Vue) · `SelectField.tsx`, `usePopover.ts`, `icons.tsx` (React) |
+| dates        | `devforge add dates`      | `src/core/dates/date-range.ts`, `src/shared/components/DatePicker.vue`, `src/shared/components/DateRangeFilter.vue` (Vue) · `DatePicker.tsx`, `DateRangeFilter.tsx` (React) |
+| pagination   | `devforge add pagination` | `src/core/pagination/pagination.ts`, `src/shared/components/ListPager.vue` (Vue) · `ListPager.tsx`, `icons.tsx` (React) |
 
-> `theme`, `rbac` and `flickerless` install both the Vue and the React adapter. Pass `--vue` or `--react` to install only one.
+> `theme`, `rbac`, `flickerless`, `select`, `dates` and `pagination` install both the Vue and the React adapter. Pass `--vue` or `--react` to install only one.
 > Modules install their dependencies: `dates` ➔ `theme`, `select` · `pagination` ➔ `theme`, `formatters`, `flickerless`.
 > Usage rules for the four UI modules: `.ai/standards/ui-components.md`.
 
@@ -117,22 +117,25 @@ Copy of [github.com/LuisMTaveras/flickerless](https://github.com/LuisMTaveras/fl
 - React: `FlickerlessSurface` (props: `FlickerlessOptions` + `settled?`, `children` (node or `({ settled }) => node`), `emptyState`, `errorState`, `announceText`, `className`, `style`), `FlickerlessValue` (`value`, `children?: (value) => node`, `placeholder`, `unknownLabel`), `FlickerlessTableShell` (`cols`, `rows?`, `rowClassName?`, `cellClassName?`), `useFlickerless(options)`, `useSettled()`.
 - Core `@/shared/flickerless/core`: `FlickerlessController`, types `FlickerlessOptions`, `FlickerlessStatus` (`'idle' | 'loading' | 'error' | 'empty'`).
 
-## 9. `select` — `@/shared/components/SelectField.vue`
+## 9. `select` — `@/shared/components/SelectField.vue` · `@/shared/components/SelectField` (React)
 
 - Props: `modelValue: string | number | null`, `options: (SelectOption | string | number)[]`, `label?`, `placeholder?` (= `'Seleccionar…'`), `compact?`, `disabled?`. Extra attributes (`id`, `aria-*`, `class`) go to the trigger.
 - Emits: `update:modelValue`, `change`. Exposes `focus()`.
 - Types (exported from the SFC): `SelectOption = { value, label, disabled?, group?, hint? }`, `SelectValue`.
+- React (named export `SelectField`): props `value`, `onChange(value)`, `options`, `label?`, `placeholder?`, `compact?`, `disabled?`, plus any `<button>` attribute (`id`, `aria-*`, `className`). Exports `SelectOption`, `SelectValue`, `SelectFieldProps`. Internal helpers `usePopover`, `cx` (`usePopover.ts`) and `Icon` (`icons.tsx`, names `chevronDown | chevronLeft | chevronRight | check | close | calendar`).
 - There is **no** search/filter-as-you-type, multi-select or async loading. Ask before adding them.
 
 ## 10. `dates` — `@/core/dates/date-range` + `DatePicker.vue` + `DateRangeFilter.vue`
 
 - `DatePicker`: props `modelValue` (`'YYYY-MM-DD'`, `Date`, or `[from, to]` with `range`), `range?`, `label?`, `placeholder?`, `min?`, `max?` (day keys), `compact?`, `disabled?`, `clearable?` (= true). Emits `update:modelValue` / `change` with a day key or `string[]` (0, 1 or 2 keys). Exposes `focus()`.
 - `DateRangeFilter`: props `modelValue: DateRange`, `allowAll?` (= true). Emits `update:modelValue` and `change` (only when usable).
+- React (named exports `DatePicker`, `DateRangeFilter`): `DatePicker` takes `value` + `onChange` (`string` single, `string[]` with `range`) and the same other props; `DateRangeFilter` takes `value`, `onChange`, `onCommit?` (fires only when usable, like Vue's `change`), `allowAll?`.
 - Core exports: `DayKey`, `RangePreset` (`'today' | 'yesterday' | 'week' | 'month' | 'quarter' | 'year' | 'custom' | 'all'`), `DateRange` (`{ preset, from, to }`), `CalendarCell`, `dateConfig`, `setDateTimeZone(tz)`, `todayKey(tz?)`, `dayKeyOf(date, tz?)`, `toDayKey(value)`, `isDayKey(value)`, `shiftDayKey(key, days)`, `formatDayKey(key, fallback = '—')` (➔ `05/10/2026`), `parseYearMonth(key)`, `buildCalendar(year, month0, { min?, max? })`, `makeRange(preset, current?)`, `defaultRange(preset = 'today')`, `resolveRange(range)` (➔ `{ from?, to? }`), `isSingleDay`, `stepRangeDay(range, delta)`, `normalizeRange`, `rangeLabel`, `RANGE_OPTIONS`, `MONTH_NAMES`, `MONTH_NAMES_SHORT`, `WEEK_DAYS`.
 - Default time zone: `America/Santo_Domingo`. There is no time picker.
 
 ## 11. `pagination` — `@/core/pagination/pagination` + `ListPager.vue`
 
 - `ListPager`: props `page`, `pageSize`, `total?` (`undefined` until the first response ➔ `—`), `hasMore?`, `singular?` (= `'registro'`), `plural?` (= `'registros'`); emits `update:page` (use `v-model:page`); slot `note`.
+- React (named export `ListPager`): `page`, `onPageChange(page)`, `pageSize`, `total?`, `hasMore?`, `singular?`, `plural?`, `note?: ReactNode`.
 - Core: `PageMeta` (`{ page, pageSize, total, hasMore? }`), `PageState`, `totalPages(total, pageSize)`, `pageState(meta)` ➔ `{ page, pages, hasPrev, hasNext, from, to }`, `pageSummary(meta, { singular?, plural?, format? })` ➔ `'Mostrando 11–20 de 57 facturas'`.
 - There is no page-size selector and no numbered page list.

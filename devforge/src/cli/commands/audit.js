@@ -84,8 +84,8 @@ const AUDIT_RULES = [
     id: 'NATIVE_CONTROLS',
     name: 'Standard Form Controls',
     check: (content, line, lineNum, ext) => {
-      if (ext !== '.vue') return null;
-      const match = line.match(/<select\b|<input[^>]*type="(?:date|datetime-local|month)"/);
+      if (!['.vue', '.tsx', '.jsx'].includes(ext)) return null;
+      const match = line.match(/<select\b|<input[^>]*type=["{']*(?:date|datetime-local|month)\b/);
       if (match) {
         return {
           rule: 'Standard Form Controls',

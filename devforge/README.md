@@ -147,10 +147,10 @@ devforge add flickerless
 # Injects the standard combo, SelectField.vue (replaces the native <select>)
 devforge add select --vue
 
-# Injects DatePicker.vue (single date / range) + DateRangeFilter.vue (Hoy, Ayer, Este mes… + rango)
+# Injects DatePicker (Vue & React) (single date / range) + DateRangeFilter.vue (Hoy, Ayer, Este mes… + rango)
 devforge add dates --vue
 
-# Injects ListPager.vue: «Mostrando 11–20 de 57 facturas» + ‹ 2 / 6 ›
+# Injects ListPager (Vue & React): «Mostrando 11–20 de 57 facturas» + ‹ 2 / 6 ›
 devforge add pagination --vue
 ```
 

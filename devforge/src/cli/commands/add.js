@@ -70,27 +70,34 @@ const MODULE_REGISTRY = {
     ]
   },
   'select': {
-    name: 'SelectField: combo estándar que reemplaza al <select> nativo',
+    name: 'SelectField: combo estándar que reemplaza al <select> nativo (Vue & React)',
     requires: ['theme'],
     files: [
       { src: 'src/adapters/vue/components/SelectField.vue', dest: 'src/shared/components/SelectField.vue', framework: 'vue' },
+      { src: 'src/adapters/react/components/SelectField.tsx', dest: 'src/shared/components/SelectField.tsx', framework: 'react' },
+      { src: 'src/adapters/react/components/usePopover.ts', dest: 'src/shared/components/usePopover.ts', framework: 'react' },
+      { src: 'src/adapters/react/components/icons.tsx', dest: 'src/shared/components/icons.tsx', framework: 'react' },
     ]
   },
   'dates': {
-    name: 'DatePicker + DateRangeFilter: selector de fecha/rango y filtro de período',
+    name: 'DatePicker + DateRangeFilter: selector de fecha/rango y filtro de período (Vue & React)',
     requires: ['theme', 'select'],
     files: [
       { src: 'src/core/dates/date-range.ts', dest: 'src/core/dates/date-range.ts' },
       { src: 'src/adapters/vue/components/DatePicker.vue', dest: 'src/shared/components/DatePicker.vue', framework: 'vue' },
       { src: 'src/adapters/vue/components/DateRangeFilter.vue', dest: 'src/shared/components/DateRangeFilter.vue', framework: 'vue' },
+      { src: 'src/adapters/react/components/DatePicker.tsx', dest: 'src/shared/components/DatePicker.tsx', framework: 'react' },
+      { src: 'src/adapters/react/components/DateRangeFilter.tsx', dest: 'src/shared/components/DateRangeFilter.tsx', framework: 'react' },
     ]
   },
   'pagination': {
-    name: 'ListPager: pie de listado paginado («Mostrando 11–20 de 57» + ‹ 2 / 6 ›)',
+    name: 'ListPager: pie de listado paginado («Mostrando 11–20 de 57» + ‹ 2 / 6 ›) (Vue & React)',
     requires: ['theme', 'formatters', 'flickerless'],
     files: [
       { src: 'src/core/pagination/pagination.ts', dest: 'src/core/pagination/pagination.ts' },
       { src: 'src/adapters/vue/components/ListPager.vue', dest: 'src/shared/components/ListPager.vue', framework: 'vue' },
+      { src: 'src/adapters/react/components/ListPager.tsx', dest: 'src/shared/components/ListPager.tsx', framework: 'react' },
+      { src: 'src/adapters/react/components/icons.tsx', dest: 'src/shared/components/icons.tsx', framework: 'react' },
     ]
   },
   'url-sync': {
