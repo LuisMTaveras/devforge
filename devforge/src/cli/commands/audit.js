@@ -50,6 +50,37 @@ const AUDIT_RULES = [
     }
   },
   {
+    id: 'DUAL_THEME',
+    name: 'Mandatory Light + Dark Theme',
+    check: (content, line, lineNum, ext) => {
+      if (!['.vue', '.tsx', '.jsx', '.html'].includes(ext)) return null;
+      if (line.includes('dark:')) return null;
+      const match = line.match(/(?<![\w:-])(?:bg|text|border)-(?:white|black|(?:zinc|slate|gray|neutral|stone)-\d{2,3})\b/);
+      if (match) {
+        return {
+          rule: 'Mandatory Light + Dark Theme',
+          message: `Color fijo '${match[0]}' sin variante dark:. Usa tokens semánticos (bg-background, text-foreground, border-border) o agrega dark:.`,
+        };
+      }
+      return null;
+    }
+  },
+  {
+    id: 'UNFORMATTED_PHONE',
+    name: 'Automatic Localized Formatting',
+    check: (content, line, lineNum, ext) => {
+      if (!['.vue', '.tsx', '.jsx'].includes(ext)) return null;
+      const match = line.match(/(?:\{\{\s*|>\s*\{\s*)[\w.?]*(?:telefono|phone|celular|movil|móvil)\w*\s*\}/i);
+      if (match) {
+        return {
+          rule: 'Automatic Localized Formatting',
+          message: 'Teléfono sin formato. Usa formatPhoneNumber() -> (809) 578-1234.',
+        };
+      }
+      return null;
+    }
+  },
+  {
     id: 'UNFORMATTED_CURRENCY',
     name: 'Automatic Localized Formatting',
     check: (content, line, lineNum, ext) => {
@@ -116,6 +147,7 @@ export async function auditCommand(options = {}) {
     logger.success('✔ ¡AUDITORÍA IMPECABLE! Cero violaciones detectadas.');
     console.log('  - Cero arrays de datos hardcodeados');
     console.log('  - Cero colores cian/neón tipo hacker');
+    console.log('  - Tema claro y oscuro en cada color');
     console.log('  - 100% español sin Spanglish');
     console.log('  - Formatos localizados correctos\n');
     return;

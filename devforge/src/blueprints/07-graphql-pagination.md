@@ -14,6 +14,8 @@ Every list, table, or collection MUST implement server-side pagination with a se
 
 ### Standard Offset Pagination Contract (TypeScript)
 
+Create this file yourself at `src/core/types/pagination.ts` (no `devforge add` module ships it). If the backend returns other field names, map them in the service layer to this contract:
+
 ```typescript
 export interface PaginatedResult<T> {
   items: T[];
@@ -92,6 +94,7 @@ import { computed, type Ref } from 'vue';
 import { useQuery } from '@tanstack/vue-query';
 import { request, gql } from 'graphql-request';
 import type { PaginatedResult } from '@/core/types/pagination';
+import { tokenStorage } from '@/core/auth/auth-token'; // devforge add auth
 
 const GRAPHQL_ENDPOINT = import.meta.env.VITE_GRAPHQL_URL || '/graphql';
 
@@ -137,7 +140,7 @@ export function useClientesQuery(
           search: search.value || undefined,
         },
         {
-          Authorization: `Bearer ${localStorage.getItem('devforge_access_token') || ''}`,
+          Authorization: `Bearer ${tokenStorage.getAccessToken() ?? ''}`,
         }
       );
       return response.clientes;
@@ -159,7 +162,7 @@ apiClient.GET('/api/v1/clientes', {
   params: {
     query: {
       page: 1,
-      limit: 10,
+      pageSize: 10, // use the param names defined by YOUR backend (see v1.d.ts)
       fields: 'id,nombre,montoTotal,estado,fechaCreacion', // Sparse fieldset
     }
   }
@@ -173,3 +176,4 @@ apiClient.GET('/api/v1/clientes', {
 1. **Never generate un-paginated queries**: Every collection endpoint must accept `page` & `pageSize` (or `first` & `after`).
 2. **Never query unused fields**: In GraphQL queries, only write the specific fields displayed in the component. Never add heavy sub-resources (`logs`, `auditTrails`, `documents`) to listing queries.
 3. **Smooth Transitions**: Always use `placeholderData: (prev) => prev` (TanStack Query) to maintain previous data while loading the next page without layout jumps.
+4. **Do not invent the schema**: the `clientes` query, its arguments and its fields above are examples. Use only types and fields that exist in the GraphQL schema or `v1.d.ts`. If you cannot see the schema, ask the user for it.

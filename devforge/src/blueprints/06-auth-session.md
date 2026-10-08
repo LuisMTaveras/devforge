@@ -28,6 +28,10 @@ Implement robust session management with automatic, silent token refresh. When a
 
 ## 📋 Implementation Guide
 
+> Install `tokenStorage` and `refreshQueue` with `devforge add auth` (API: `.ai/standards/module-api.md` §3). The interceptor below is NOT installed: you write it.
+>
+> **Use ONE HTTP client per project.** If the project uses `openapi-fetch` (`.ai/blueprints/01-openapi-sdk.md`), implement the same logic inside its `onResponse` middleware instead of creating an Axios instance. Use Axios only if it is already in `package.json` or the user chose it. The refresh endpoint (`/auth/refresh`) and its body/response fields are examples: confirm them in the API contract.
+
 ### 1. The Axios Interceptor Setup (`src/core/api/http.ts`)
 
 ```typescript
@@ -161,3 +165,4 @@ router.beforeEach((to, from, next) => {
 
 - Always use `tokenStorage` for session management; never use raw `localStorage.getItem('token')` across UI components.
 - Always implement the `refreshQueue` pattern in HTTP client wrappers to avoid dropped sessions during parallel dashboard requests.
+- Login, logout and error messages shown to the user are in Spanish (e.g. "Tu sesión expiró. Inicia sesión de nuevo.").

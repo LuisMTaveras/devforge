@@ -4,9 +4,11 @@
 
 Eliminate messy `if (user.role === 'admin' || user.permissions.includes('edit'))` checks littered throughout templates. Implement a clean, declarative permission system inspired by **CASL**:
 
-- React: `<Can I="update" an="Invoice">`
-- Vue: `v-can:update="invoice"` or `<Can I="update" :an="invoice">`
+- React: `<Can I="update" a="Invoice">`
+- Vue: `v-can:update="'Invoice'"` (directive only — there is no Vue `<Can>` component)
 - Router: Navigation guards based on defined abilities.
+
+> Install with `devforge add rbac`. The code below is a summary for understanding; the installed files are the source of truth and their exact API is in `.ai/standards/module-api.md` §6.
 
 ---
 
@@ -72,6 +74,7 @@ import { Action, Subject, globalAbility } from '@/core/permissions/ability';
 
 interface CanProps {
   I: Action;
+  a?: Subject;
   an?: Subject;
   this?: Subject;
   data?: Record<string, unknown>;
@@ -79,24 +82,24 @@ interface CanProps {
   fallback?: ReactNode;
 }
 
-export function Can({ I, an, this: thisSubject, data, children, fallback = null }: CanProps) {
-  const subject = an || thisSubject || 'all';
+export function Can({ I, a, an, this: thisSubject, data, children, fallback = null }: CanProps) {
+  const subject = a || an || thisSubject || 'all';
   const allowed = globalAbility.can(I, subject, data);
 
   return allowed ? <>{children}</> : <>{fallback}</>;
 }
 ```
 
-### Vue 3 `v-can` Directive & `<Can>` Component (`src/shared/directives/v-can.ts`)
+### Vue 3 `v-can` Directive (`src/shared/directives/v-can.ts`)
 
 ```typescript
-import { App, DirectiveBinding } from 'vue';
-import { globalAbility, Action } from '@/core/permissions/ability';
+import type { App, DirectiveBinding } from 'vue';
+import { globalAbility, type Action } from '@/core/permissions/ability';
 
 export const canDirective = {
   mounted(el: HTMLElement, binding: DirectiveBinding) {
-    const action = binding.arg as Action;
-    const subject = binding.value;
+    const action = (binding.arg || 'read') as Action;
+    const subject = binding.value || 'all';
 
     const allowed = globalAbility.can(action, subject);
     if (!allowed) {
@@ -105,7 +108,8 @@ export const canDirective = {
   }
 };
 
-export function registerPermissions(app: App) {
+// main.ts: installPermissions(app);
+export function installPermissions(app: App) {
   app.directive('can', canDirective);
 }
 ```
@@ -135,4 +139,6 @@ router.beforeEach((to, from, next) => {
 
 1. Never check user role strings (`user.role === 'admin'`) inside buttons or UI components.
 2. Always map user permissions at login into `Rule[]` and load them into `globalAbility.updateRules()`.
-3. Wrap protected actions with `<Can />` or `v-can`.
+3. Wrap protected actions with `<Can />` (React) or `v-can` (Vue).
+4. Hiding a button is UX, not security: the backend must also reject the action.
+5. Subjects are strings agreed with the backend (`'Invoice'`, `'Cliente'`). Do not invent permission names: ask the user for the real list if it is not in the code.

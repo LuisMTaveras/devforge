@@ -2,7 +2,7 @@
 
 ## 🎯 Goal
 
-Provide a floating developer toolbar (active only in `NODE_ENV === 'development'`) to:
+Provide a floating developer toolbar (active only in development: `import.meta.env.DEV` in Vite) to:
 
 1. Switch active user/role in one click without logging out.
 2. Inject simulated network latency (e.g. 1.5s 3G throttle).
@@ -60,7 +60,7 @@ export async function devToolsNetworkInterceptor(config: RequestInit) {
 ```tsx
 // Active only in development:
 export function DevToolsCockpit() {
-  if (process.env.NODE_ENV !== 'development') return null;
+  if (!import.meta.env.DEV) return null;
 
   return (
     <div style={{ position: 'fixed', bottom: 16, right: 16, zIndex: 99999 }}>
@@ -74,5 +74,7 @@ export function DevToolsCockpit() {
 
 ## 🤖 Instructions for AI Agents
 
-- Ensure this component is never bundled or rendered in production builds (`if (import.meta.env.DEV)` or `process.env.NODE_ENV === 'development'`).
+- Ensure this component is never bundled or rendered in production builds: in Vite use `import.meta.env.DEV`; use `process.env.NODE_ENV === 'development'` only in Next.js / Node-based setups.
+- This blueprint is a pattern, not an installable module: there is no `devforge add devtools`. Build it only if the user asks for it.
+- The widget must work in light and dark themes (tokens from `.ai/standards/theming.md`) and its labels must be in Spanish (Rol, Latencia, Forzar error).
 - Connect role switching directly to `globalAbility.updateRules()`.

@@ -37,17 +37,18 @@ Language consistency must be absolute:
 
 ## 3. Sophisticated Enterprise Color Palette (Soft Tints, No Neon)
 
-- **Dark Mode Architecture**:
-  - Background: Neutral zinc or slate (`#09090b` or `#0f172a`), NOT saturated cyan or teal.
-  - Surfaces: Subtle contrast (`#18181b` / `#1e293b`), borders clean 1px (`#27272a` / `#334155`).
-- **Status Badges (Subdued Tints, Never Saturated Neon)**:
-  - *Success*: Soft emerald background (`bg-emerald-500/10 text-emerald-400 border border-emerald-500/20`).
-  - *Warning*: Soft amber background (`bg-amber-500/10 text-amber-400 border border-amber-500/20`).
-  - *Destructive / Error*: Soft rose background (`bg-rose-500/10 text-rose-400 border border-rose-500/20`).
-  - *Neutral / Secondary*: Soft zinc background (`bg-zinc-500/10 text-zinc-400 border border-zinc-500/20`).
+- **Dual Theme Architecture (Claro + Oscuro, Mandatory)**: Every project ships both themes. Full rules in `.ai/standards/theming.md`.
+  - **Light**: Background white / zinc-50 (`#ffffff` / `#fafafa`), text zinc-900 (`#18181b`), borders 1px zinc-200 (`#e4e4e7`).
+  - **Dark**: Background neutral zinc or slate (`#09090b` or `#0f172a`), NOT saturated cyan or teal. Surfaces (`#18181b` / `#1e293b`), borders 1px (`#27272a` / `#334155`).
+  - Use semantic tokens (`bg-background`, `bg-surface`, `text-foreground`, `text-muted-foreground`, `border-border`) so components work in both themes.
+- **Status Badges (Subdued Tints, Never Saturated Neon, Readable in Both Themes)**:
+  - *Success*: Soft emerald background (`bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20`).
+  - *Warning*: Soft amber background (`bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20`).
+  - *Destructive / Error*: Soft rose background (`bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20`).
+  - *Neutral / Secondary*: Soft zinc background (`bg-zinc-500/10 text-zinc-700 dark:text-zinc-400 border border-zinc-500/20`).
 - **The 60-30-10 Rule**:
   - **60%**: Neutral background surfaces.
-  - **30%**: Crisp white/gray typography hierarchy.
+  - **30%**: Crisp typography hierarchy (zinc-900 on light, zinc-100 on dark).
   - **10%**: Single functional accent color (e.g. clean enterprise blue or emerald for actions).
 
 ---
@@ -67,7 +68,7 @@ All layouts must follow an intentional **4px / 8px grid**:
 
 - **Title/Display**: Bold or semibold, tight letter-spacing (`tracking-tight`), distinct size hierarchy (`text-2xl` to `text-4xl`).
 - **Body**: Normal weight, relaxed line-height (`leading-relaxed`), high contrast against background.
-- **Data & Metrics**: Always monospace for codes, IDs, monetary amounts, and timestamps (`font-mono text-xs tabular-nums text-zinc-400`).
+- **Data & Metrics**: Always monospace for codes, IDs, monetary amounts, and timestamps (`font-mono text-xs tabular-nums text-muted-foreground`), always rendered through the localized formatters (`formatCurrency`, `formatNumber`, `formatDate`, `formatPhoneNumber`).
 
 ---
 
@@ -76,7 +77,7 @@ All layouts must follow an intentional **4px / 8px grid**:
 Every interactive component (buttons, inputs, cards, rows) must have all 5 states explicitly designed:
 
 1. **Default**: Crisp border, balanced background.
-2. **Hover**: Subtle contrast increase (e.g. `hover:bg-zinc-800`), 150ms transition.
+2. **Hover**: Subtle contrast increase (e.g. `hover:bg-surface-hover`, or `hover:bg-zinc-100 dark:hover:bg-zinc-800`), 150ms transition.
 3. **Active / Pressed**: Subtle scale down (`active:scale-[0.98]`) or deeper background shade.
 4. **Focus-Visible**: High-contrast, accessible 2px focus ring with offset (`focus-visible:ring-2 focus-visible:ring-offset-2`).
 5. **Disabled**: Reduced opacity (`opacity-50 pointer-events-none cursor-not-allowed`).

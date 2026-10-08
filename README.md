@@ -60,7 +60,9 @@ tu-proyecto/
 │   │   └── 07-graphql-pagination.md      # Paginación estricta y colocación de fragmentos
 │   └── standards/                        # 📋 Estándares de Ingeniería y Diseño
 │       ├── project-kickoff.md            # Protocolo de descubrimiento y calibración
-│       ├── data-formatting.md            # Moneda, fechas, teléfonos y manejo de nulos
+│       ├── data-formatting.md            # Moneda, números, fechas, teléfonos y manejo de nulos
+│       ├── theming.md                    # Tema claro + oscuro obligatorio con tokens semánticos
+│       ├── module-api.md                 # API exacta de cada módulo (evita que la IA invente funciones)
 │       ├── ui-ux-principles.md           # Diseño Anti-AI, regla 60-30-10 y espaciado
 │       ├── project-structure.md          # Estructura de carpetas guiada por dominio
 │       ├── architecture-standards.md     # Capas de servicio, desacoplamiento y paginación
@@ -127,11 +129,13 @@ Una vez ejecutado `devforge init`, la capa de IA ya está activa. Ahora abre tu 
 2. **¿Qué hará la IA durante el Kickoff?**
    - **Calibración del Desarrollador**: Preguntará tu nivel de experiencia (Junior / Semi-Senior / Senior) para adaptar explicaciones y complejidad técnica.
    - **Asesoramiento de Stack**: Recomendará la mejor combinación tecnológica (Vue 3 + Vite + Tailwind + Pinia o React + Next.js + Zustand + TanStack Query) dándote siempre la decisión final.
-   - **Configuración de Localización**: Definirá país, moneda (`DOP`, `USD`, `COP`, `EUR`), formato de fecha y huso horario.
+   - **Configuración de Localización**: Definirá país, moneda (`DOP`, `USD`, `COP`, `EUR`), separadores de miles y decimales (`1,234.56` vs `1.234,56`), máscara de teléfono (`(809) 578-1234`), formato de fecha y huso horario.
+   - **Temas Claro y Oscuro**: Todo proyecto se construye con ambos temas (Claro / Oscuro / Sistema). Solo se elige cuál es el predeterminado.
    - **Delimitación del MVP**: Definirá el alcance funcional mínimo antes de escribir una sola línea de código.
 3. **Inyecta los módulos iniciales requeridos**:
    ```bash
-   devforge add formatters   # Formateadores oficiales de moneda y fechas
+   devforge add formatters   # Moneda, números, porcentajes, fechas y teléfonos por país
+   devforge add theme        # Tema claro + oscuro (tokens, initTheme, useTheme)
    devforge add auth         # Autenticación segura con cola de refresco
    devforge add rbac         # Permisos por rol y directivas UI
    ```
@@ -214,7 +218,8 @@ Inyecta módulos de código limpios, probados y con TypeScript estricto en la es
 | **Autenticación** | `devforge add auth` | `src/core/auth/auth-token.ts`<br>`src/core/auth/silent-refresh-queue.ts`<br>`src/modules/auth/stores/auth.store.ts` | Gestión de tokens JWT, almacenamiento seguro y cola anti-colisión para refresco de sesión en peticiones paralelas. |
 | **Errores de API** | `devforge add errors` | `src/core/errors/api-error.ts` | Normalizador universal de errores HTTP compatible con Laravel, Express, NestJS, FastAPI y Spring. |
 | **Exportación** | `devforge add export` | `src/core/export/export-engine.ts` | Exportación de datos a CSV y Excel con cabecera UTF-8 BOM para soporte total de tildes y caracteres especiales. |
-| **Formateadores** | `devforge add formatters` | `src/core/formatters/formatters.ts` | Motores de formato localizado para moneda con `Intl`, fechas relativas, teléfonos internacionales y reemplazo de nulos por `—`. |
+| **Formateadores** | `devforge add formatters` | `src/core/formatters/formatters.ts` | Motores de formato localizado por país (República Dominicana por defecto; `setFormatCountry('CO')` para cambiarlo): moneda (`RD$1,500.00`), números con comas y puntos (`1,234,567.89`), porcentajes, fechas relativas, teléfonos (`(809) 578-1234`) y reemplazo de nulos por `—`. |
+| **Tema Claro / Oscuro** | `devforge add theme` | `src/core/theme/theme.ts`<br>`src/shared/styles/tokens.css`<br>`src/shared/composables/useTheme.ts` (Vue)<br>`src/shared/hooks/useTheme.ts` (React) | Motor de temas Claro / Oscuro / Sistema con persistencia, tokens semánticos para Tailwind v4 y script anti-parpadeo. |
 | **Permisos RBAC** | `devforge add rbac` | `src/core/permissions/ability.ts`<br>`src/shared/components/Can.tsx` (React)<br>`src/shared/directives/v-can.ts` (Vue) | Motor de permisos declarativo basado en habilidades (estilo CASL), directiva `v-can` para Vue 3 y componente `<Can />` para React. |
 | **Sincronización URL** | `devforge add url-sync` | `src/core/url-sync/url-state.ts` | Sincronización bidireccional entre estados de filtros/paginación y los `URLSearchParams` del navegador. |
 
@@ -297,6 +302,22 @@ DEVFORGE funciona de forma nativa e integrada con los principales entornos y asi
 
 ---
 
+## 🛡️ Cómo Evita DEVFORGE que la IA Alucine
+
+Las instrucciones (`CLAUDE.md`, `AGENTS.md`, `.cursorrules`, Copilot) incluyen el punto **ZERO HALLUCINATION** y un **orden de verdad** para cuando las fuentes no coinciden:
+
+1. Lo que el usuario pide explícitamente en la conversación.
+2. El código instalado en el proyecto (`src/`, `package.json`).
+3. `.ai/standards/module-api.md`: la lista **exacta** de funciones de cada módulo. Si algo no está ahí, no existe.
+4. Los estándares de `.ai/standards/`.
+5. Los blueprints de `.ai/blueprints/`, que son patrones de referencia que se adaptan, no se copian a ciegas.
+
+Además, la IA tiene prohibido inventar paquetes, endpoints, campos de GraphQL o variables de entorno. Antes debe leer `package.json`, `v1.d.ts` y `.env.example`, y si algo no está, preguntar.
+
+> ⚠️ Usa siempre el comando `devforge` enlazado con `npm link`. **No uses `npx devforge`**: en npm existe otro paquete con ese nombre que no tiene relación con este proyecto.
+
+---
+
 ## 🏗️ Estructura de Código Recomendada para tus Proyectos
 
 Cuando desarrolles una aplicación con DEVFORGE, la estructura de carpetas en `src/` seguirá el estándar de Arquitectura Orientada a Dominios:
@@ -308,8 +329,9 @@ src/
 │   ├── auth/                   # Cola de refresco silencioso y tokens
 │   ├── errors/                 # Normalizador de errores de API
 │   ├── export/                 # Motores de exportación a CSV/Excel
-│   ├── formatters/             # Formato localizado de moneda, fechas y teléfonos
+│   ├── formatters/             # Formato localizado de moneda, números, fechas y teléfonos
 │   ├── permissions/            # Motor de habilidades RBAC (Ability)
+│   ├── theme/                  # Motor de tema claro / oscuro
 │   └── url-sync/               # Sincronizador de parámetros de URL
 ├── modules/                    # Dominios de negocio independientes (Modular)
 │   └── [modulo]/               # Ej: clientes, facturas, productos

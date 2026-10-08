@@ -1,0 +1,78 @@
+/**
+ * ⚡ DEVFORGE Design Tokens: Light + Dark (Tailwind CSS v4)
+ * Import once from src/shared/styles/main.css:  @import './tokens.css';
+ *
+ * Components use SEMANTIC classes (bg-background, text-foreground, border-border,
+ * bg-surface, text-muted-foreground...) so they work in both themes without
+ * repeating `dark:` on every element.
+ */
+
+@import 'tailwindcss';
+
+/* Class-based dark mode, driven by core/theme/theme.ts */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #ffffff;           /* zinc-50 alt: #fafafa */
+  --foreground: #18181b;           /* zinc-900 */
+  --surface: #fafafa;              /* zinc-50: cards, drawers, table headers */
+  --surface-hover: #f4f4f5;        /* zinc-100 */
+  --muted-foreground: #71717a;     /* zinc-500 */
+  --border: #e4e4e7;               /* zinc-200 */
+  --input: #e4e4e7;                /* zinc-200 */
+  --ring: #18181b;                 /* zinc-900 */
+  --primary: #18181b;              /* zinc-900 */
+  --primary-foreground: #fafafa;   /* zinc-50 */
+
+  --success: #047857;              /* emerald-700 */
+  --warning: #b45309;              /* amber-700 */
+  --danger: #be123c;               /* rose-700 */
+}
+
+.dark {
+  --background: #09090b;           /* zinc-950 */
+  --foreground: #f4f4f5;           /* zinc-100 */
+  --surface: #18181b;              /* zinc-900 */
+  --surface-hover: #27272a;        /* zinc-800 */
+  --muted-foreground: #a1a1aa;     /* zinc-400 */
+  --border: #27272a;               /* zinc-800 */
+  --input: #3f3f46;                /* zinc-700 */
+  --ring: #d4d4d8;                 /* zinc-300 */
+  --primary: #fafafa;              /* zinc-50 */
+  --primary-foreground: #18181b;   /* zinc-900 */
+
+  --success: #34d399;              /* emerald-400 */
+  --warning: #fbbf24;              /* amber-400 */
+  --danger: #fb7185;               /* rose-400 */
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+  * {
+    @apply border-border;
+  }
+}
