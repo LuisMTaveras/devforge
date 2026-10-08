@@ -16,7 +16,8 @@ AI models are only as good as the context, constraints, and blueprints you give 
 5. **Zero Hardcoded Data & Mandatory Pagination**: Mandates that 100% of data flow through typed services and reactive composables/hooks, always paginated, with zero over-fetching.
 6. **Automatic Localized Formatting**: Built-in formatters for currency, numbers, percentages, dates, relative time, and phone numbers, configured per country (`setFormatCountry('DO')`).
 7. **Light + Dark Themes by Default**: Every project ships Claro / Oscuro / Sistema themes with semantic design tokens (`devforge add theme`).
-8. **Battle-Tested Blueprints**: High-leverage architectural patterns (OpenAPI SDK, Zod Schema forms, URL-synced tables, RBAC permissions, In-app devtools, Silent Refresh Auth, and GraphQL Pagination).
+8. **Standard UI Components**: Flickerless loading instead of skeletons, `SelectField` combo, `DatePicker` / `DateRangeFilter` and `ListPager` pagination — the same in every project (`.ai/standards/ui-components.md`).
+9. **Battle-Tested Blueprints**: High-leverage architectural patterns (OpenAPI SDK, Zod Schema forms, URL-synced tables, RBAC permissions, In-app devtools, Silent Refresh Auth, and GraphQL Pagination).
 
 ---
 
@@ -139,7 +140,21 @@ devforge add rbac
 
 # Injects bidirectional URL query param synchronizer
 devforge add url-sync
+
+# Injects Flickerless (skeleton replacement): FlickerlessSurface, FlickerlessValue, FlickerlessTableShell (Vue & React)
+devforge add flickerless
+
+# Injects the standard combo, SelectField.vue (replaces the native <select>)
+devforge add select --vue
+
+# Injects DatePicker.vue (single date / range) + DateRangeFilter.vue (Hoy, Ayer, Este mes… + rango)
+devforge add dates --vue
+
+# Injects ListPager.vue: «Mostrando 11–20 de 57 facturas» + ‹ 2 / 6 ›
+devforge add pagination --vue
 ```
+
+Modules install their dependencies (`dates` -> `theme` + `select`, `pagination` -> `theme` + `formatters` + `flickerless`). `--vue` / `--react` installs only that framework's adapter files.
 
 ---
 

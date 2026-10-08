@@ -1,0 +1,19 @@
+/**
+ * ⚡ DEVFORGE × Flickerless (github.com/LuisMTaveras/flickerless)
+ * Import once from src/shared/styles/main.css, AFTER tokens.css:
+ *   @import '../flickerless/flickerless.css';
+ *
+ * Carga los estilos de Flickerless y los conecta a los tokens del tema, así la
+ * barra de 2 px y el «—» siguen al tema Claro / Oscuro sin hex propios.
+ * `:root:root` gana a los `:root` / `.dark` de styles.css sin depender del orden.
+ */
+@import './core/styles.css';
+
+:root:root {
+  --flickerless-stream-color: var(--primary);
+  --flickerless-stream-bg: var(--primary-subtle);
+  --flickerless-muted-color: var(--muted-foreground);
+  --flickerless-unknown-color: var(--dim-foreground);
+  --flickerless-danger-color: var(--danger);
+  --flickerless-saving-beam: color-mix(in oklch, var(--success) 18%, transparent);
+}

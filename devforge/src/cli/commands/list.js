@@ -32,6 +32,7 @@ export function listCommand() {
     'project-kickoff.md      -> Step 0: Developer Calibration, Stack Advisory & Scoping',
     'data-formatting.md      -> Localized Currency, Number, Date, Phone & Null Fallback Rules',
     'theming.md              -> Mandatory Light + Dark themes with semantic design tokens',
+    'ui-components.md        -> Flickerless loading (no skeletons), SelectField, DatePicker, ListPager',
     'module-api.md           -> Exact API of every module (anti-hallucination source of truth)',
     'ui-ux-principles.md     -> Anti-AI Design System (UI/UX Pro Max & Zero Spanglish)',
     'project-structure.md    -> Production Greenfield Folder & File Hierarchy (Vue 3 / React)',
@@ -47,6 +48,10 @@ export function listCommand() {
     'rbac       -> Pure TS CASL-style Ability engine, <Can /> & v-can',
     'theme      -> Light/Dark tokens.css, initTheme(), useTheme() for Vue & React',
     'url-sync   -> Bidirectional URL Search Params table synchronizer',
+    'flickerless-> Carga sin skeleton: FlickerlessSurface, FlickerlessValue, TableShell',
+    'select     -> SelectField.vue: combo estándar (reemplaza <select>)',
+    'dates      -> DatePicker.vue + DateRangeFilter.vue + date-range.ts',
+    'pagination -> ListPager.vue + pagination.ts («Mostrando 11–20 de 57»)',
   ]);
 
   console.log('To add any module to your current project:');
@@ -56,7 +61,11 @@ export function listCommand() {
   console.log('  \x1b[32mdevforge add formatters\x1b[0m   -> Injects localized formatting engine');
   console.log('  \x1b[32mdevforge add rbac\x1b[0m         -> Injects permissions engine');
   console.log('  \x1b[32mdevforge add theme\x1b[0m        -> Injects light/dark theme engine & tokens');
-  console.log('  \x1b[32mdevforge add url-sync\x1b[0m     -> Injects URL state synchronizer\n');
+  console.log('  \x1b[32mdevforge add url-sync\x1b[0m     -> Injects URL state synchronizer');
+  console.log('  \x1b[32mdevforge add flickerless\x1b[0m  -> Injects skeleton-free loading (Vue & React)');
+  console.log('  \x1b[32mdevforge add select\x1b[0m       -> Injects the standard combo (Vue)');
+  console.log('  \x1b[32mdevforge add dates\x1b[0m        -> Injects date picker & period filter (Vue)');
+  console.log('  \x1b[32mdevforge add pagination\x1b[0m   -> Injects the standard list pager (Vue)\n');
 
   console.log('To audit your project for AI compliance:');
   console.log('  \x1b[32mdevforge audit\x1b[0m            -> Scans code for hardcoded arrays, neon colors, and Spanglish\n');
