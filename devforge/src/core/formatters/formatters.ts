@@ -17,6 +17,8 @@ export interface CountryPreset {
   locale: string;
   currency: string;
   dialCode: string;
+  /** IANA time zone of the country's business day (the capital's). */
+  timeZone: string;
 }
 
 /**
@@ -24,15 +26,15 @@ export interface CountryPreset {
  * separators, date names), currency and phone mask for the whole project.
  */
 export const COUNTRY_PRESETS: Record<CountryCode, CountryPreset> = {
-  DO: { name: 'República Dominicana', locale: 'es-DO', currency: 'DOP', dialCode: '1' },
-  US: { name: 'Estados Unidos', locale: 'en-US', currency: 'USD', dialCode: '1' },
-  PR: { name: 'Puerto Rico', locale: 'es-PR', currency: 'USD', dialCode: '1' },
-  CO: { name: 'Colombia', locale: 'es-CO', currency: 'COP', dialCode: '57' },
-  MX: { name: 'México', locale: 'es-MX', currency: 'MXN', dialCode: '52' },
-  ES: { name: 'España', locale: 'es-ES', currency: 'EUR', dialCode: '34' },
-  CL: { name: 'Chile', locale: 'es-CL', currency: 'CLP', dialCode: '56' },
-  PE: { name: 'Perú', locale: 'es-PE', currency: 'PEN', dialCode: '51' },
-  AR: { name: 'Argentina', locale: 'es-AR', currency: 'ARS', dialCode: '54' },
+  DO: { name: 'República Dominicana', locale: 'es-DO', currency: 'DOP', dialCode: '1', timeZone: 'America/Santo_Domingo' },
+  US: { name: 'Estados Unidos', locale: 'en-US', currency: 'USD', dialCode: '1', timeZone: 'America/New_York' },
+  PR: { name: 'Puerto Rico', locale: 'es-PR', currency: 'USD', dialCode: '1', timeZone: 'America/Puerto_Rico' },
+  CO: { name: 'Colombia', locale: 'es-CO', currency: 'COP', dialCode: '57', timeZone: 'America/Bogota' },
+  MX: { name: 'México', locale: 'es-MX', currency: 'MXN', dialCode: '52', timeZone: 'America/Mexico_City' },
+  ES: { name: 'España', locale: 'es-ES', currency: 'EUR', dialCode: '34', timeZone: 'Europe/Madrid' },
+  CL: { name: 'Chile', locale: 'es-CL', currency: 'CLP', dialCode: '56', timeZone: 'America/Santiago' },
+  PE: { name: 'Perú', locale: 'es-PE', currency: 'PEN', dialCode: '51', timeZone: 'America/Lima' },
+  AR: { name: 'Argentina', locale: 'es-AR', currency: 'ARS', dialCode: '54', timeZone: 'America/Argentina/Buenos_Aires' },
 };
 
 // Global project defaults: República Dominicana (es-DO, DOP, (809) 578-1234).
@@ -43,6 +45,11 @@ export const formatConfig = {
   defaultCountry: 'DO' as string,
   phoneDisplay: 'national' as PhoneDisplay,
   fallbackString: '—',
+  /**
+   * Dates and times are shown in the BUSINESS time zone, never the process one: a server
+   * pinned to UTC formats 9:00 p.m. in Santo Domingo as the next day.
+   */
+  timeZone: 'America/Santo_Domingo',
 };
 
 export function setFormatDefaults(config: Partial<typeof formatConfig>): void {
@@ -59,6 +66,7 @@ export function setFormatCountry(country: CountryCode, overrides: Partial<typeof
     defaultLocale: preset.locale,
     defaultCurrency: preset.currency,
     defaultCountry: country,
+    timeZone: preset.timeZone,
     ...overrides,
   });
 }
@@ -148,7 +156,20 @@ export function formatDate(
     datetime: { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' },
   };
 
-  return new Intl.DateTimeFormat(locale, optionsMap[style] || optionsMap.medium).format(date);
+  return new Intl.DateTimeFormat(locale, { ...(optionsMap[style] || optionsMap.medium), timeZone: formatConfig.timeZone }).format(date);
+}
+
+/**
+ * Formats the time of day in the business time zone (e.g., "9:05 p. m.", es-DO).
+ */
+export function formatTime(
+  dateInput: string | number | Date | null | undefined,
+  locale = formatConfig.defaultLocale
+): string {
+  if (!dateInput) return formatConfig.fallbackString;
+  const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
+  if (isNaN(date.getTime())) return formatConfig.fallbackString;
+  return new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit', timeZone: formatConfig.timeZone }).format(date);
 }
 
 /**

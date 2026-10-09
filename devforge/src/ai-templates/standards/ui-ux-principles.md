@@ -92,4 +92,5 @@ Every interactive component (buttons, inputs, cards, rows) must have all 5 state
   3. A short explanatory description.
   4. A direct Primary Action button (e.g., "[Nueva transacción]").
 - **Loading (Zero Skeletons)**: Skeletons and full-screen spinners are banned. Use Flickerless: what was there stays dimmed under a 2 px bar, what is not known yet is `—`, cold loads paint the real table shell. Rules: `.ai/standards/ui-components.md` §1.
-- **Standard controls**: combos use `SelectField`, dates use `DatePicker` / `DateRangeFilter`, lists end with `ListPager` (`ui-components.md` §2–§4).
+- **Standard controls**: combos use `SelectField`, dates use `DatePicker` / `DateRangeFilter`, lists end with `ListPager`, empty lists show `EmptyState`, modals use `ModalShell`, interruptions `confirmDialog()`, feedback `notify()` (`ui-components.md`).
+- **Every action gives feedback**: a save ends in a toast or a visible change; a failure says what failed and what to do. A destructive action asks first with `tone: 'danger'`.

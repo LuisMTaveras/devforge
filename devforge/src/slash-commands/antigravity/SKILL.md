@@ -16,7 +16,7 @@ When this skill is activated:
 - No generic purple gradients, no floating blur orbs, no low-density cards.
 - Follow the 60-30-10 color rule and 4px/8px spatial rhythm.
 - Ship light and dark themes from the first commit (`.ai/standards/theming.md`, `devforge add theme`).
-- Use the standard components (`.ai/standards/ui-components.md`): Flickerless instead of skeletons, SelectField, DatePicker / DateRangeFilter, ListPager.
+- Use the standard components (`.ai/standards/ui-components.md`): Flickerless instead of skeletons, SelectField, DatePicker / DateRangeFilter, ListPager, confirmDialog / notify (never window.confirm), ModalShell / DrawerShell / RowMenu, EmptyState, MoneyInput / MaskedInput, BatchProgressModal.
 - Format currency, numbers, dates and phones per country (`.ai/standards/data-formatting.md`, `devforge add formatters`).
 
 ## 3. Production Blueprints

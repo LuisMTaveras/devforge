@@ -16,7 +16,7 @@ AI models are only as good as the context, constraints, and blueprints you give 
 5. **Zero Hardcoded Data & Mandatory Pagination**: Mandates that 100% of data flow through typed services and reactive composables/hooks, always paginated, with zero over-fetching.
 6. **Automatic Localized Formatting**: Built-in formatters for currency, numbers, percentages, dates, relative time, and phone numbers, configured per country (`setFormatCountry('DO')`).
 7. **Light + Dark Themes by Default**: Every project ships Claro / Oscuro / Sistema themes with semantic design tokens and the "Warm Slate" palette (graphite in light, ivory in dark) (`devforge add theme`).
-8. **Standard UI Components**: Flickerless loading instead of skeletons, `SelectField` combo, `DatePicker` / `DateRangeFilter` and `ListPager` pagination — the same in every project (`.ai/standards/ui-components.md`).
+8. **Standard UI Components**: Flickerless loading instead of skeletons, `SelectField`, `DatePicker` / `DateRangeFilter`, `ListPager`, system dialogs and toasts, `ModalShell` / `DrawerShell` / `RowMenu`, `EmptyState`, `MoneyInput` / `MaskedInput` and `BatchProgressModal` — the same in every project, Vue and React (`.ai/standards/ui-components.md`).
 9. **Battle-Tested Blueprints**: High-leverage architectural patterns (OpenAPI SDK, Zod Schema forms, URL-synced tables, RBAC permissions, In-app devtools, Silent Refresh Auth, and GraphQL Pagination).
 
 ---
@@ -90,11 +90,14 @@ devforge init
 
 ### 3. Audit Your Code for AI Rule Compliance
 
-Runs an automated scan for hardcoded arrays, neon colors, and Spanglish:
+Runs an automated scan for hardcoded arrays, neon colors, Spanglish, single-theme colors, skeletons, native selects / date inputs / `window.confirm`, backdrop-closing modals, hardcoded currencies, hand-formatted dates and `@ts-nocheck`. It exits with code `1` on violations, so CI can block them:
 
 ```bash
 devforge audit
+devforge audit --baseline   # existing project: record today's debt; later runs fail only on NEW violations
 ```
+
+The baseline (`.devforge-audit-baseline.json`) is per file and rule and can only shrink: each fix lowers it automatically.
 
 Example audit output:
 
@@ -153,9 +156,24 @@ devforge add dates --vue       # or --react
 
 # Injects ListPager (Vue & React): «Mostrando 11–20 de 57 facturas» + ‹ 2 / 6 ›
 devforge add pagination --vue  # or --react
+
+# Injects confirmDialog() / promptDialog() / notify() + <ConfirmDialog /> and <ToastHost />
+devforge add feedback --vue    # or --react
+
+# Injects ModalShell, DrawerShell and RowMenu (stacked Escape, scroll lock, backdrop never closes)
+devforge add overlays --vue    # or --react
+
+# Injects EmptyState and ListStaleNotice
+devforge add list-states --vue # or --react
+
+# Injects MoneyInput and MaskedInput (cédula, RNC, phone masked while typing)
+devforge add inputs --vue      # or --react
+
+# Injects BatchProgressModal + createBatchTracker() («Procesando 3 de 10…»)
+devforge add batch --vue       # or --react
 ```
 
-Modules install their dependencies (`dates` -> `theme` + `select`, `pagination` -> `theme` + `formatters` + `flickerless`). `--vue` / `--react` installs only that framework's adapter files.
+Modules install their dependencies (`dates` -> `theme` + `select`, `pagination` -> `theme` + `formatters` + `flickerless`, `inputs` -> `formatters`, `batch` -> `overlays` + `formatters`). `--vue` / `--react` installs only that framework's adapter files.
 
 ---
 

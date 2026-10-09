@@ -52,6 +52,11 @@ export function listCommand() {
     'select     -> SelectField (.vue / .tsx): combo estándar (reemplaza <select>)',
     'dates      -> DatePicker + DateRangeFilter (.vue / .tsx) + date-range.ts',
     'pagination -> ListPager (.vue / .tsx) + pagination.ts («Mostrando 11–20 de 57»)',
+    'feedback   -> ConfirmDialog + ToastHost: confirmDialog(), promptDialog(), notify()',
+    'overlays   -> ModalShell, DrawerShell, RowMenu (Escape apilado, scroll bloqueado)',
+    'list-states-> EmptyState, ListStaleNotice',
+    'inputs     -> MoneyInput, MaskedInput (cédula, RNC, teléfono) + input-masks.ts',
+    'batch      -> BatchProgressModal + createBatchTracker() («3 de 10»)',
   ]);
 
   console.log('To add any module to your current project:');
@@ -65,8 +70,14 @@ export function listCommand() {
   console.log('  \x1b[32mdevforge add flickerless\x1b[0m  -> Injects skeleton-free loading (Vue & React)');
   console.log('  \x1b[32mdevforge add select\x1b[0m       -> Injects the standard combo (Vue & React)');
   console.log('  \x1b[32mdevforge add dates\x1b[0m        -> Injects date picker & period filter (Vue & React)');
-  console.log('  \x1b[32mdevforge add pagination\x1b[0m   -> Injects the standard list pager (Vue & React)\n');
+  console.log('  \x1b[32mdevforge add pagination\x1b[0m   -> Injects the standard list pager (Vue & React)');
+  console.log('  \x1b[32mdevforge add feedback\x1b[0m     -> Injects system dialogs and toasts (Vue & React)');
+  console.log('  \x1b[32mdevforge add overlays\x1b[0m     -> Injects modal, side panel and row menu (Vue & React)');
+  console.log('  \x1b[32mdevforge add list-states\x1b[0m  -> Injects empty state and stale-list notice (Vue & React)');
+  console.log('  \x1b[32mdevforge add inputs\x1b[0m       -> Injects money and masked inputs (Vue & React)');
+  console.log('  \x1b[32mdevforge add batch\x1b[0m        -> Injects live batch progress (Vue & React)\n');
 
   console.log('To audit your project for AI compliance:');
-  console.log('  \x1b[32mdevforge audit\x1b[0m            -> Scans code for hardcoded arrays, neon colors, and Spanglish\n');
+  console.log('  \x1b[32mdevforge audit\x1b[0m            -> Scans code for hardcoded arrays, neon colors, and Spanglish');
+  console.log('  \x1b[32mdevforge audit --baseline\x1b[0m -> Records today\'s debt; later runs fail only on new violations\n');
 }

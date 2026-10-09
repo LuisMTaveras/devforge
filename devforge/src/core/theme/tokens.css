@@ -37,6 +37,8 @@
   --success: oklch(59.6% 0.145 163.2);
   --warning: oklch(66.6% 0.179 58.3);
   --danger: oklch(58.6% 0.253 17.5);
+  --danger-foreground: oklch(100% 0 0);         /* texto sobre botón destructivo */
+  --overlay: oklch(13% 0.004 88 / 0.45);        /* telón de modales y diálogos */
 }
 
 .dark {
@@ -60,6 +62,8 @@
   --success: oklch(76.5% 0.177 163.2);
   --warning: oklch(76.9% 0.188 70.1);
   --danger: oklch(71.2% 0.194 13.4);
+  --danger-foreground: oklch(14% 0.004 88);
+  --overlay: oklch(0% 0 0 / 0.6);
 }
 
 @theme inline {
@@ -81,6 +85,8 @@
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
+  --color-overlay: var(--overlay);
   --shadow-popover: var(--shadow-popover);
 }
 

@@ -69,6 +69,8 @@ Palette "Warm Slate" (from Snowlr): graphite in Claro, ivory in Oscuro, defined 
 | `bg-primary` / `text-primary-foreground` / `hover:bg-primary-hover` | graphite / ivory | ivory / graphite | Primary buttons, selected day |
 | `bg-primary-subtle` / `border-primary-border` | graphite 7% / 16% | white 9% / 16% | Selected option, range in the calendar, open field |
 | `text-success` / `text-warning` / `text-danger` | 600-level | 400-level | Semantic states                    |
+| `text-danger-foreground`   | white                  | graphite               | Text on a `bg-danger` button              |
+| `bg-overlay`               | graphite 45%           | black 60%              | Backdrop of modals and dialogs (never `bg-black/50`) |
 
 Shape and type scale (same in both themes): `rounded-control` (inputs, buttons), `rounded-card` (cards, popovers), `rounded-panel`; `text-caption` 11px, `text-small` 12px, `text-body` 13px, `text-title` 16px, `text-display` 24px; `shadow-popover`.
 
@@ -174,6 +176,6 @@ export default {
 
 ## 8. What NOT to Invent
 
-- The only tokens are the ones in §3 (`background`, `foreground`, `surface`, `surface-raised`, `surface-hover`, `muted-foreground`, `dim-foreground`, `border`, `input`, `ring`, `primary`, `primary-hover`, `primary-foreground`, `primary-subtle`, `primary-border`, `success`, `warning`, `danger`). Classes like `bg-card`, `text-muted`, `bg-accent` or `bg-secondary` **do not exist** unless you add the token to `tokens.css` first (in both `:root` and `.dark`).
+- The only tokens are the ones in §3 (`background`, `foreground`, `surface`, `surface-raised`, `surface-hover`, `muted-foreground`, `dim-foreground`, `border`, `input`, `ring`, `primary`, `primary-hover`, `primary-foreground`, `primary-subtle`, `primary-border`, `success`, `warning`, `danger`, `danger-foreground`, `overlay`). Classes like `bg-card`, `text-muted`, `bg-accent` or `bg-secondary` **do not exist** unless you add the token to `tokens.css` first (in both `:root` and `.dark`).
 - The only theme API is the one listed in `.ai/standards/module-api.md` §2.
 - Do not install `next-themes`, `@vueuse/core`'s `useDark` or similar libraries: the theme engine is already in `src/core/theme/theme.ts`.
