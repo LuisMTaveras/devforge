@@ -7,6 +7,18 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT_DIR = path.resolve(__dirname, '../../../');
 
+// Shared helpers of the standard components (installed next to them).
+const vueFile = f => ({ src: `src/adapters/vue/components/${f}`, dest: `src/shared/components/${f}`, framework: 'vue' });
+const reactFile = f => ({ src: `src/adapters/react/components/${f}`, dest: `src/shared/components/${f}`, framework: 'react' });
+const coreFile = f => ({ src: `src/core/${f}`, dest: `src/core/${f}` });
+const ICONS_VUE = [vueFile('DfIcon.ts'), { src: 'src/adapters/shared/icon-paths.ts', dest: 'src/shared/components/icon-paths.ts', framework: 'vue' }];
+const ICONS_REACT = [reactFile('icons.tsx'), reactFile('usePopover.ts'), { src: 'src/adapters/shared/icon-paths.ts', dest: 'src/shared/components/icon-paths.ts', framework: 'react' }];
+const OVERLAY_CORE = [coreFile('overlay/escape-layer.ts'), coreFile('overlay/scroll-lock.ts')];
+const OVERLAY_HOOKS = [
+  { src: 'src/adapters/vue/composables/useOverlay.ts', dest: 'src/shared/composables/useOverlay.ts', framework: 'vue' },
+  { src: 'src/adapters/react/hooks/useOverlay.ts', dest: 'src/shared/hooks/useOverlay.ts', framework: 'react' },
+];
+
 const MODULE_REGISTRY = {
   'auth': {
     name: 'Authentication & Silent Refresh Queue Engine',
@@ -32,6 +44,7 @@ const MODULE_REGISTRY = {
     name: 'Localized Data Formatters (Currency, Numbers, Percents, Dates, Phones, Fallbacks)',
     files: [
       { src: 'src/core/formatters/formatters.ts', dest: 'src/core/formatters/formatters.ts' },
+      { src: 'src/core/formatters/input-masks.ts', dest: 'src/core/formatters/input-masks.ts' },
     ]
   },
   'rbac': {
@@ -75,8 +88,7 @@ const MODULE_REGISTRY = {
     files: [
       { src: 'src/adapters/vue/components/SelectField.vue', dest: 'src/shared/components/SelectField.vue', framework: 'vue' },
       { src: 'src/adapters/react/components/SelectField.tsx', dest: 'src/shared/components/SelectField.tsx', framework: 'react' },
-      { src: 'src/adapters/react/components/usePopover.ts', dest: 'src/shared/components/usePopover.ts', framework: 'react' },
-      { src: 'src/adapters/react/components/icons.tsx', dest: 'src/shared/components/icons.tsx', framework: 'react' },
+      ...ICONS_REACT,
     ]
   },
   'dates': {
@@ -97,7 +109,72 @@ const MODULE_REGISTRY = {
       { src: 'src/core/pagination/pagination.ts', dest: 'src/core/pagination/pagination.ts' },
       { src: 'src/adapters/vue/components/ListPager.vue', dest: 'src/shared/components/ListPager.vue', framework: 'vue' },
       { src: 'src/adapters/react/components/ListPager.tsx', dest: 'src/shared/components/ListPager.tsx', framework: 'react' },
-      { src: 'src/adapters/react/components/icons.tsx', dest: 'src/shared/components/icons.tsx', framework: 'react' },
+      ...ICONS_REACT,
+    ]
+  },
+  'feedback': {
+    name: 'ConfirmDialog + ToastHost: alertDialog / confirmDialog / promptDialog y notify (Vue & React)',
+    requires: ['theme'],
+    files: [
+      coreFile('feedback/dialog.ts'),
+      coreFile('feedback/toast.ts'),
+      ...OVERLAY_CORE,
+      ...OVERLAY_HOOKS,
+      ...ICONS_VUE,
+      ...ICONS_REACT,
+      vueFile('ConfirmDialog.vue'),
+      vueFile('ToastHost.vue'),
+      reactFile('ConfirmDialog.tsx'),
+      reactFile('ToastHost.tsx'),
+    ]
+  },
+  'overlays': {
+    name: 'ModalShell + DrawerShell + RowMenu: capas con Escape apilado y bloqueo de scroll (Vue & React)',
+    requires: ['theme'],
+    files: [
+      ...OVERLAY_CORE,
+      coreFile('overlay/menu-position.ts'),
+      ...OVERLAY_HOOKS,
+      ...ICONS_VUE,
+      ...ICONS_REACT,
+      vueFile('ModalShell.vue'),
+      vueFile('DrawerShell.vue'),
+      vueFile('RowMenu.vue'),
+      reactFile('ModalShell.tsx'),
+      reactFile('DrawerShell.tsx'),
+      reactFile('RowMenu.tsx'),
+    ]
+  },
+  'list-states': {
+    name: 'EmptyState + ListStaleNotice: lista vacía con acción y aviso de cambios (Vue & React)',
+    requires: ['theme'],
+    files: [
+      ...ICONS_VUE,
+      ...ICONS_REACT,
+      vueFile('EmptyState.vue'),
+      vueFile('ListStaleNotice.vue'),
+      reactFile('EmptyState.tsx'),
+      reactFile('ListStaleNotice.tsx'),
+    ]
+  },
+  'inputs': {
+    name: 'MoneyInput + MaskedInput: monto, cédula, RNC y teléfono enmascarados al escribir (Vue & React)',
+    requires: ['theme', 'formatters'],
+    files: [
+      ...ICONS_REACT.filter(f => f.dest.endsWith('usePopover.ts')),
+      vueFile('MoneyInput.vue'),
+      vueFile('MaskedInput.vue'),
+      reactFile('MoneyInput.tsx'),
+      reactFile('MaskedInput.tsx'),
+    ]
+  },
+  'batch': {
+    name: 'BatchProgressModal: avance en vivo de un lote («3 de 10 · Cliente») (Vue & React)',
+    requires: ['overlays', 'formatters'],
+    files: [
+      coreFile('batch/batch-progress.ts'),
+      vueFile('BatchProgressModal.vue'),
+      reactFile('BatchProgressModal.tsx'),
     ]
   },
   'url-sync': {
@@ -132,7 +209,11 @@ function rewriteImports(content) {
     // ../../vendor/flickerless/vue/index.js -> @/shared/flickerless/vue
     .replace(/from '(?:\.\.\/)+vendor\/flickerless\/([^']+?)(?:\/index)?\.js'/g, "from '@/shared/flickerless/$1'")
     .replace(/from '@flickerless\/core'/g, "from '@/shared/flickerless/core'")
-    .replace(/from '(?:\.\.\/)+core\/([^']+?)\.js'/g, "from '@/core/$1'");
+    .replace(/from '(?:\.\.\/)+core\/([^']+?)\.js'/g, "from '@/core/$1'")
+    // ../../shared/icon-paths.js -> ./icon-paths (installed next to the components)
+    .replace(/from '(?:\.\.\/)+shared\/icon-paths\.js'/g, "from './icon-paths'")
+    // Remaining relative imports drop the `.js` the source package needs for NodeNext.
+    .replace(/from '(\.\.?\/[^']+)\.(?:js|ts)'/g, "from '$1'");
 }
 
 function installModule(key, targetDir, installed, framework) {

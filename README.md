@@ -20,22 +20,26 @@ Los modelos de IA generativa suelen ser inconsistentes: inventan estructuras de 
 1. **Un CLI determinista**: Comandos instantáneos para inicializar proyectos (`devforge init`), inyectar módulos de arquitectura (`devforge add <modulo>`) y auditar el código fuente en 1 segundo (`devforge audit`).
 2. **Capa Multi-Agente Universal**: Archivos de contexto y configuración nativos para Antigravity (`AGENTS.md`, `.agents/skills/`), Claude Code (`CLAUDE.md`, `.claude/commands/`), Cursor (`.cursorrules`) y Copilot (`.github/copilot-instructions.md`).
 3. **7 Blueprints de Producción**: Recetas de arquitectura probadas en batalla (OpenAPI SDK, Formularios Zod, Tablas sincronizadas con URL, RBAC CASL, In-App DevTools, Auth Silent Refresh y GraphQL Pagination).
-4. **Estándares de Diseño y Gobernanza**: Reglas estrictas de UI/UX Pro Max, paletas neutrales Zinc, tipografía moderna, formateo localizado de datos y cero Spanglish.
+4. **Estándares de Diseño y Gobernanza**: Reglas estrictas de UI/UX Pro Max, paleta «Warm Slate» (grafito en claro, marfil en oscuro), tipografía moderna, formateo localizado de datos y cero Spanglish.
+5. **Componentes UI estándar (Vue y React)**: Flickerless en lugar de skeletons, combo `SelectField`, fechas `DatePicker` / `DateRangeFilter`, paginación `ListPager`, diálogos y avisos, modales, menú de fila, estados de lista, campos de monto y cédula, y avance de lotes, iguales en todos los proyectos.
 
 ---
 
-## 🚨 Los 6 Mandamientos DEVFORGE (Pre-Flight Checklist)
+## 🚨 Los 9 Mandamientos DEVFORGE (Pre-Flight Checklist)
 
-Cada agente de IA que opere en un repositorio configurado con DEVFORGE tiene la obligación contractual de verificar estos 6 puntos antes de generar o editar cualquier archivo:
+Cada agente de IA que opere en un repositorio configurado con DEVFORGE tiene la obligación contractual de verificar estos 9 puntos antes de generar o editar cualquier archivo:
 
 | # | Mandamiento | Regla Estricta | Alternativa Requerida |
 | :-: | :--- | :--- | :--- |
 | **1** | **Cero Datos Hardcodeados** | Prohibido declarar `const items = [ ... ]` o arreglos estáticos en componentes (`.vue`, `.tsx`). | Todo dato proviene de `props` tipados, servicios de dominio (`services/`) o composables/hooks asíncronos (`useQuery`). |
 | **2** | **Paginación Obligatoria** | Prohibido consultar listas completas sin parámetros de página (`SELECT *` o `GET /items`). | Paginación obligatoria por cursor o desplazamiento (`page`, `pageSize`, `first`, `after`). Cero sobreconsulta. |
-| **3** | **Formateo Localizado** | Prohibido imprimir números brutos como moneda (`"$ " + valor`) o fechas ISO (`2026-10-05T15:50:00Z`). | Usar formateadores oficiales: `formatCurrency()`, `formatDate()`, `formatPhoneNumber()`. Nulos se renderizan con em-dash `—`. |
+| **3** | **Formateo Localizado** | Prohibido imprimir números brutos como moneda (`"$ " + valor`) o fechas ISO (`2026-10-05T15:50:00Z`). | Usar formateadores oficiales: `formatCurrency()`, `formatDate()`, `formatPhoneNumber()`. Fechas en la hora del negocio (nunca `toLocaleDateString()`), moneda del documento (nunca `currency: 'DOP'` en el código). Nulos se renderizan con em-dash `—`. |
 | **4** | **Cero Spanglish (100% Español)** | Si la interfaz está en español, prohibida cualquier palabra en inglés en UI, botones o estados. | `Cerrar`, `Guardar`, `Estado`, `Monto`, `Acciones`, `Observado`, `Completado`, `Pendiente`. |
-| **5** | **Cero Cyberpunk / Paleta Anti-AI** | Prohibidos los colores cian/teal fluorescentes (`cyan-*`, `#00ff9d`), degradados morados o badges radioactivos. | Paleta neutral pura (`zinc-950`, `zinc-900`, `border-zinc-800`) con badges translúcidos al 10% (`bg-emerald-500/10 text-emerald-400`). |
+| **5** | **Cero Cyberpunk / Paleta Anti-AI** | Prohibidos los colores cian/teal fluorescentes (`cyan-*`, `#00ff9d`), degradados morados o badges radioactivos. | Paleta «Warm Slate» por tokens (`bg-surface`, `text-foreground`, `border-border`) con badges translúcidos al 10% (`bg-emerald-500/10 text-emerald-700 dark:text-emerald-400`). |
 | **6** | **Seguridad Lógica y Tipado** | Prohibido el uso de `any` y mutaciones directas de `props`. | Encadenamiento opcional `record?.cliente?.nombre`, emisión de eventos (`emit`), tipos estrictos y esquemas Zod. |
+| **7** | **Tema Claro + Oscuro** | Prohibidas las interfaces de un solo tema y los colores hex dentro de componentes. | Tokens semánticos de `tokens.css` (`bg-surface`, `text-foreground`, `border-border`), `initTheme()` y selector Claro / Oscuro / Sistema. |
+| **8** | **Cero Alucinación** | Prohibido inventar funciones, paquetes, endpoints o variables de entorno. | Solo lo que lista `.ai/standards/module-api.md`; si falta, `devforge add <módulo>` o preguntar. |
+| **9** | **Componentes UI Estándar** | Prohibidos los skeletons, `animate-pulse`, el `<select>` nativo, `<input type="date">`, `window.confirm/alert/prompt`, modales hechos a mano que se cierran al tocar el telón y pies de paginación propios. | Flickerless, `SelectField`, `DatePicker` / `DateRangeFilter`, `ListPager`, `confirmDialog()` / `notify()`, `ModalShell` / `DrawerShell` / `RowMenu`, `EmptyState`, `MoneyInput` / `MaskedInput` y `BatchProgressModal` (`.ai/standards/ui-components.md`). |
 
 ---
 
@@ -63,6 +67,7 @@ tu-proyecto/
 │       ├── data-formatting.md            # Moneda, números, fechas, teléfonos y manejo de nulos
 │       ├── theming.md                    # Tema claro + oscuro obligatorio con tokens semánticos
 │       ├── module-api.md                 # API exacta de cada módulo (evita que la IA invente funciones)
+│       ├── ui-components.md              # Flickerless, combo, selector de fechas y paginación
 │       ├── ui-ux-principles.md           # Diseño Anti-AI, regla 60-30-10 y espaciado
 │       ├── project-structure.md          # Estructura de carpetas guiada por dominio
 │       ├── architecture-standards.md     # Capas de servicio, desacoplamiento y paginación
@@ -140,6 +145,8 @@ Una vez ejecutado `devforge init`, la capa de IA ya está activa. Ahora abre tu 
    devforge add rbac         # Permisos por rol y directivas UI
    devforge add dates --vue       # (o --react) Selector de fecha/rango y filtro de período (instala select)
    devforge add pagination --vue  # Pie de paginación estándar (instala flickerless)
+   devforge add feedback --vue    # Diálogos del sistema y avisos (confirmDialog, notify)
+   devforge add overlays --vue    # ModalShell, DrawerShell y RowMenu
    ```
 4. **Comienza a codificar asistido por los blueprints** en `.ai/blueprints/`.
 5. **Antes de subir tus cambios a Git, audita tu código**:
@@ -207,7 +214,13 @@ Realiza un escaneo estático ultra rápido (en menos de un segundo) sobre todos 
 - **Anti-AI Cyberpunk Palette**: Detecta colores prohibidos como `cyan-*`, `teal-*`, `#00ff9d`.
 - **Zero-Spanglish**: Detecta textos comunes en inglés en botones y estados (`Close`, `Save`, `Status`, `Amount`, `Pending`).
 - **Unformatted Currency**: Detecta montos monetarios formateados a mano con `$` en lugar de usar `formatCurrency()`.
+- **Componentes estándar**: skeletons y `animate-pulse`, `<select>` nativo, `<input type="date">`, `window.confirm/alert/prompt` y modales que se cierran al tocar el telón (`@click.self`).
+- **Moneda escrita a mano**: `currency: 'DOP'` o `=== 'DOP'` en el código (la moneda la trae el documento).
+- **Fechas en la zona equivocada**: `toLocaleDateString()`, `toLocaleTimeString()` o `timeZone: 'UTC'` en lugar de `formatDate()` / `formatTime()`.
+- **TypeScript apagado**: `// @ts-nocheck` en un archivo completo.
 - **Puntuación de Salud Arquitectónica**: Calcula el porcentaje de cumplimiento de 0% a 100%.
+
+Termina con código de salida `1` si hay violaciones, así que sirve para bloquear en CI. En un **proyecto existente**, `devforge audit --baseline` guarda la deuda de hoy en `.devforge-audit-baseline.json` (por archivo y regla); desde ahí la auditoría solo falla con violaciones **nuevas**, y cada arreglo reduce la línea base sola. La deuda solo puede bajar.
 
 ### 3. `devforge list`
 Muestra en consola el catálogo interactivo de todos los Blueprints, estándares y módulos de código disponibles para consultar o inyectar.
@@ -220,13 +233,18 @@ Inyecta módulos de código limpios, probados y con TypeScript estricto en la es
 | **Autenticación** | `devforge add auth` | `src/core/auth/auth-token.ts`<br>`src/core/auth/silent-refresh-queue.ts`<br>`src/modules/auth/stores/auth.store.ts` | Gestión de tokens JWT, almacenamiento seguro y cola anti-colisión para refresco de sesión en peticiones paralelas. |
 | **Errores de API** | `devforge add errors` | `src/core/errors/api-error.ts` | Normalizador universal de errores HTTP compatible con Laravel, Express, NestJS, FastAPI y Spring. |
 | **Exportación** | `devforge add export` | `src/core/export/export-engine.ts` | Exportación de datos a CSV y Excel con cabecera UTF-8 BOM para soporte total de tildes y caracteres especiales. |
-| **Formateadores** | `devforge add formatters` | `src/core/formatters/formatters.ts` | Motores de formato localizado por país (República Dominicana por defecto; `setFormatCountry('CO')` para cambiarlo): moneda (`RD$1,500.00`), números con comas y puntos (`1,234,567.89`), porcentajes, fechas relativas, teléfonos (`(809) 578-1234`) y reemplazo de nulos por `—`. |
+| **Formateadores** | `devforge add formatters` | `src/core/formatters/formatters.ts`<br>`src/core/formatters/input-masks.ts` | Motores de formato localizado por país (República Dominicana por defecto; `setFormatCountry('CO')` para cambiarlo): moneda (`RD$1,500.00`), números con comas y puntos (`1,234,567.89`), porcentajes, fechas relativas, teléfonos (`(809) 578-1234`) y reemplazo de nulos por `—`. |
 | **Tema Claro / Oscuro** | `devforge add theme` | `src/core/theme/theme.ts`<br>`src/shared/styles/tokens.css`<br>`src/shared/composables/useTheme.ts` (Vue)<br>`src/shared/hooks/useTheme.ts` (React) | Motor de temas Claro / Oscuro / Sistema con persistencia, tokens semánticos para Tailwind v4 y script anti-parpadeo. |
 | **Permisos RBAC** | `devforge add rbac` | `src/core/permissions/ability.ts`<br>`src/shared/components/Can.tsx` (React)<br>`src/shared/directives/v-can.ts` (Vue) | Motor de permisos declarativo basado en habilidades (estilo CASL), directiva `v-can` para Vue 3 y componente `<Can />` para React. |
 | **Sincronización URL** | `devforge add url-sync` | `src/core/url-sync/url-state.ts` | Sincronización bidireccional entre estados de filtros/paginación y los `URLSearchParams` del navegador. |
 | **Flickerless** | `devforge add flickerless` | `src/shared/flickerless/core/*`<br>`src/shared/flickerless/vue/*`<br>`src/shared/flickerless/react/*`<br>`src/shared/flickerless/flickerless.css` | Reemplazo del skeleton ([github.com/LuisMTaveras/flickerless](https://github.com/LuisMTaveras/flickerless)): lo que estaba se queda atenuado con una barra de 2 px, lo que no se sabe es «—», y la carga en frío pinta la tabla real. |
 | **Combo** | `devforge add select` | `src/shared/components/SelectField.vue` (Vue)<br>`src/shared/components/SelectField.tsx` (React) | Desplegable estándar que reemplaza al `<select>` nativo: menú teleportado (no se recorta en modales), tema claro/oscuro, grupos, opciones deshabilitadas y teclado. |
 | **Fechas** | `devforge add dates` | `src/core/dates/date-range.ts`<br>`src/shared/components/DatePicker.vue`<br>`src/shared/components/DateRangeFilter.vue`<br>`DatePicker.tsx` / `DateRangeFilter.tsx` (React) | Selector de fecha o rango (dos meses lado a lado, `dd/mm/aaaa`) y filtro de período con atajos (Hoy, Ayer, Este mes…), flechas de día y rango personalizado. «Hoy» se calcula en la zona de RD. |
+| **Diálogos y avisos** | `devforge add feedback` | `src/core/feedback/dialog.ts`<br>`src/core/feedback/toast.ts`<br>`ConfirmDialog` y `ToastHost` (`.vue` / `.tsx`) | `confirmDialog()`, `alertDialog()`, `promptDialog()` y `notify()`: el diálogo del sistema que reemplaza a `window.confirm`, con tono destructivo, Escape y Enter. |
+| **Modales** | `devforge add overlays` | `src/core/overlay/*.ts`<br>`ModalShell`, `DrawerShell`, `RowMenu` (`.vue` / `.tsx`)<br>`useOverlay` | Armazón de modal y panel lateral (el telón no cierra, Escape cierra la capa de arriba, fondo sin scroll) y menú «⋮» de fila que no se recorta. |
+| **Estados de lista** | `devforge add list-states` | `EmptyState`, `ListStaleNotice` (`.vue` / `.tsx`) | Lista vacía con acción directa y aviso de cambios nuevos sin recargar sola. |
+| **Campos** | `devforge add inputs` | `src/core/formatters/input-masks.ts`<br>`MoneyInput`, `MaskedInput` (`.vue` / `.tsx`) | Monto con los separadores del país (valor numérico) y cédula `001-1234567-8`, RNC `1-01-23456-7` y teléfono `(809) 578-1234` mientras se escribe. |
+| **Lotes** | `devforge add batch` | `src/core/batch/batch-progress.ts`<br>`BatchProgressModal` (`.vue` / `.tsx`) | Avance en vivo de un proceso uno a uno: «Procesando 3 de 10…», barra y resultado de cada registro. |
 | **Paginación** | `devforge add pagination` | `src/core/pagination/pagination.ts`<br>`src/shared/components/ListPager.vue`<br>`ListPager.tsx` (React) | Pie de listado estándar: «Mostrando 11–20 de 57 facturas» y ‹ 2 / 6 ›, con «—» hasta la primera respuesta. |
 
 ---
@@ -266,8 +284,8 @@ Ubicados en `.ai/blueprints/`, estos documentos son recetas canónicas que instr
 DEVFORGE destierra la estética predecible y sobrecargada que suelen generar los modelos de IA, aplicando principios visuales de nivel enterprise (inspirados en Linear, Stripe y Vercel):
 
 ### 1. Regla de Color 60-30-10
-- **60% Superficie Neutra**: Fondos profundos y sobrios con escala Zinc (`bg-zinc-950`, `bg-zinc-900`, `border-zinc-800`).
-- **30% Jerarquía Tipográfica**: Textos contrastados y legibles (`text-zinc-100`, `text-zinc-400`, `text-zinc-500`).
+- **60% Superficie Neutra**: Paleta «Warm Slate» heredada de Snowlr: grafito en Claro y marfil en Oscuro, en OKLCH, siempre por tokens (`bg-background`, `bg-surface`, `bg-surface-raised`, `border-border`).
+- **30% Jerarquía Tipográfica**: `text-foreground`, `text-muted-foreground`, `text-dim-foreground`, con la escala cerrada `text-caption` · `text-small` · `text-body` · `text-title`.
 - **10% Acento Funcional**: Color de acción enfocado exclusivamente en llamadas a la acción primarias (CTA) e indicadores de estado.
 
 ### 2. Badges Suaves (Soft-Tint Badges)
@@ -280,7 +298,37 @@ DEVFORGE destierra la estética predecible y sobrecargada que suelen generar los
   </span>
   ```
 
-### 3. Cero Spanglish en la Interfaz
+### 3. Componentes Estándar (Vue y React)
+Las mismas piezas en todos los proyectos, instaladas con `devforge add` (reglas en `.ai/standards/ui-components.md`):
+- **Carga sin skeleton (Flickerless)**: lo que ya estaba se queda atenuado bajo una barra de 2 px; lo que aún no se sabe es «—» (nunca `RD$0.00` mientras carga); la primera carga pinta la tabla real con `FlickerlessTableShell`.
+- **Combo `SelectField`**: reemplaza al `<select>` nativo; el menú no se recorta en modales y sigue el tema.
+- **Fechas `DatePicker` / `DateRangeFilter`**: fecha o rango (dos meses lado a lado, `dd/mm/aaaa`) y filtro de período con atajos (Hoy, Ayer, Este mes…). «Hoy» se calcula en la hora de RD.
+- **Paginación `ListPager`**: «Mostrando 11–20 de 57 facturas» y ‹ 2 / 6 ›.
+- **Diálogos y avisos (`feedback`)**: `confirmDialog()`, `alertDialog()` y `promptDialog()` en lugar de `window.confirm`, con tono destructivo (`tone: 'danger'`) para lo que no se deshace; `notify()` para lo que no interrumpe.
+- **Modales (`overlays`)**: `ModalShell` y `DrawerShell` no se cierran al tocar el telón, Escape cierra solo la capa de arriba y el fondo no se desplaza. `RowMenu` es el menú «⋮» de las filas, con las acciones no disponibles apagadas y su motivo.
+- **Estados de lista (`list-states`)**: `EmptyState` (icono, titular, explicación y acción) y `ListStaleNotice` («Hay cambios nuevos · Actualizar lista», sin recargar sola).
+- **Campos (`inputs`)**: `MoneyInput` (el valor es un número, nunca texto) y `MaskedInput` para cédula, RNC y teléfono enmascarados mientras se escribe.
+- **Lotes (`batch`)**: `BatchProgressModal` muestra «Procesando 3 de 10…» y el resultado de cada registro (listo, omitido o error y por qué).
+
+```vue
+<!-- Vue -->
+<DateRangeFilter v-model="periodo" @change="cargar" />
+<FlickerlessSurface :loading="loading">
+  <table>…</table>
+  <ListPager v-model:page="page" :page-size="20" :total="meta?.total" singular="factura" plural="facturas" />
+</FlickerlessSurface>
+```
+
+```tsx
+// React
+<DateRangeFilter value={periodo} onChange={setPeriodo} onCommit={cargar} />
+<FlickerlessSurface loading={isFetching}>
+  <table>…</table>
+  <ListPager page={page} onPageChange={setPage} pageSize={20} total={data?.meta.total} singular="factura" plural="facturas" />
+</FlickerlessSurface>
+```
+
+### 4. Cero Spanglish en la Interfaz
 Toda aplicación en español debe mantener consistencia lingüística absoluta:
 - `Close` ➔ **Cerrar**
 - `Save` ➔ **Guardar**

@@ -12,7 +12,7 @@
 
 | Module       | Install command          | Files created in the project |
 | ------------ | ------------------------ | ---------------------------- |
-| formatters   | `devforge add formatters` | `src/core/formatters/formatters.ts` |
+| formatters   | `devforge add formatters` | `src/core/formatters/formatters.ts`, `src/core/formatters/input-masks.ts` |
 | theme        | `devforge add theme`      | `src/core/theme/theme.ts`, `src/shared/styles/tokens.css`, `src/shared/composables/useTheme.ts` (Vue), `src/shared/hooks/useTheme.ts` (React) |
 | auth         | `devforge add auth`       | `src/core/auth/auth-token.ts`, `src/core/auth/silent-refresh-queue.ts`, `src/modules/auth/stores/auth.store.ts` |
 | errors       | `devforge add errors`     | `src/core/errors/api-error.ts` |
@@ -22,10 +22,16 @@
 | flickerless  | `devforge add flickerless` | `src/shared/flickerless/core/*`, `src/shared/flickerless/vue/*`, `src/shared/flickerless/react/*`, `src/shared/flickerless/flickerless.css` |
 | select       | `devforge add select`     | `src/shared/components/SelectField.vue` (Vue) · `SelectField.tsx`, `usePopover.ts`, `icons.tsx` (React) |
 | dates        | `devforge add dates`      | `src/core/dates/date-range.ts`, `src/shared/components/DatePicker.vue`, `src/shared/components/DateRangeFilter.vue` (Vue) · `DatePicker.tsx`, `DateRangeFilter.tsx` (React) |
+| feedback     | `devforge add feedback`   | `src/core/feedback/dialog.ts`, `src/core/feedback/toast.ts`, `src/core/overlay/escape-layer.ts`, `src/core/overlay/scroll-lock.ts`, `ConfirmDialog` + `ToastHost` (`.vue` / `.tsx`), `useOverlay` |
+| overlays     | `devforge add overlays`   | `src/core/overlay/*.ts`, `ModalShell`, `DrawerShell`, `RowMenu` (`.vue` / `.tsx`), `useOverlay` |
+| list-states  | `devforge add list-states` | `EmptyState`, `ListStaleNotice` (`.vue` / `.tsx`) |
+| inputs       | `devforge add inputs`     | `MoneyInput`, `MaskedInput` (`.vue` / `.tsx`) |
+| batch        | `devforge add batch`      | `src/core/batch/batch-progress.ts`, `BatchProgressModal` (`.vue` / `.tsx`) |
 | pagination   | `devforge add pagination` | `src/core/pagination/pagination.ts`, `src/shared/components/ListPager.vue` (Vue) · `ListPager.tsx`, `icons.tsx` (React) |
 
-> `theme`, `rbac`, `flickerless`, `select`, `dates` and `pagination` install both the Vue and the React adapter. Pass `--vue` or `--react` to install only one.
-> Modules install their dependencies: `dates` ➔ `theme`, `select` · `pagination` ➔ `theme`, `formatters`, `flickerless`.
+> Every UI module installs both the Vue and the React adapter. Pass `--vue` or `--react` to install only one.
+> Modules install their dependencies: `dates` ➔ `theme`, `select` · `pagination` ➔ `theme`, `formatters`, `flickerless` · `inputs` ➔ `formatters` · `batch` ➔ `overlays`, `formatters`.
+> Components go to `src/shared/components/` (with their helpers `DfIcon.ts` (Vue) / `icons.tsx` + `usePopover.ts` (React) and `icon-paths.ts`); `useOverlay` goes to `src/shared/composables/` (Vue) or `src/shared/hooks/` (React).
 > Usage rules for the four UI modules: `.ai/standards/ui-components.md`.
 
 ---
@@ -41,16 +47,18 @@ Default country: **República Dominicana** (`es-DO`, `DOP`, phones `(809) 578-12
 | `formatCurrency` | `(amount, options?: { currency?, locale?, minimumFractionDigits? }) => string` | `17870000` ➔ `RD$17,870,000.00` |
 | `formatNumber` | `(value, options?: { locale?, minimumFractionDigits?, maximumFractionDigits? }) => string` | `1234567.891` ➔ `1,234,567.89` |
 | `formatPercent` | `(value, options?: { locale?, fractionDigits?, isRatio? }) => string` | `0.125` ➔ `12.5%`; `(12.5, { isRatio: false })` ➔ `12.5%` |
-| `formatDate` | `(date, style?: 'short' \| 'medium' \| 'long' \| 'datetime', locale?) => string` | `formatDate(iso, 'medium')` |
+| `formatDate` | `(date, style?: 'short' \| 'medium' \| 'long' \| 'datetime', locale?) => string` — in `formatConfig.timeZone` | `formatDate(iso, 'medium')` |
+| `formatTime` | `(date, locale?) => string` — in `formatConfig.timeZone` | `'2026-10-06T01:00:00Z'` ➔ `9:00 p. m.` |
 | `formatRelativeTime` | `(date, locale?) => string` | `hace 5 minutos` |
 | `formatPhoneNumber` | `(phone, country?: string, display?: 'national' \| 'international') => string` | `8095781234` ➔ `(809) 578-1234` |
 | `formatFallback` | `<T>(value: T, fallback?: string) => T \| string` | `null` ➔ `—` |
-| `COUNTRY_PRESETS` | `Record<CountryCode, { name, locale, currency, dialCode }>` | `COUNTRY_PRESETS.DO.currency` ➔ `'DOP'` |
-| `formatConfig` | `{ defaultLocale, defaultCurrency, defaultCountry, phoneDisplay, fallbackString }` | read-only in components |
+| `COUNTRY_PRESETS` | `Record<CountryCode, { name, locale, currency, dialCode, timeZone }>` | `COUNTRY_PRESETS.DO.currency` ➔ `'DOP'` |
+| `formatConfig` | `{ defaultLocale, defaultCurrency, defaultCountry, phoneDisplay, fallbackString, timeZone }` | read-only in components; `timeZone` default `America/Santo_Domingo`, set by `setFormatCountry` |
 | types | `CountryCode` (`'DO' \| 'US' \| 'PR' \| 'CO' \| 'MX' \| 'ES' \| 'CL' \| 'PE' \| 'AR'`), `PhoneDisplay`, `CountryPreset`, `FormatOptions` | |
 
 - Phone masks exist for `DO`, `US`, `PR`, `CO`, `MX`, `ES`, `CL`, `PE`. `AR` has locale/currency but **no phone mask** (falls back to `+<digits>`).
-- There is **no** `formatCompact`, `parseCurrency`, `formatDocument`/cédula/RNC formatter or input mask. If one is needed, ask the user before adding it to `formatters.ts`.
+- **Input masks** `@/core/formatters/input-masks` (for TYPING; `formatters.ts` is for DISPLAYING): `onlyDigits(value)`, `formatCedula` (`001-1234567-8`), `formatRnc` (`1-01-23456-7`), `formatTaxId` (RNC or cédula by length; letters ➔ untouched), `formatPhoneInput` (NANP `(809) 578-1234`), `INPUT_MASKS` / type `InputMask` (`'cedula' | 'rnc' | 'taxId' | 'phone'`), `parseAmount(text, locale?)` ➔ `number | null`, `sanitizeAmountInput(text, locale?, decimals = 2)`, `amountToEditable(value, locale?)`, `decimalSeparator(locale?)`.
+- There is **no** `formatCompact`, passport validator or phone mask for typing outside NANP. If one is needed, ask the user.
 
 ---
 
@@ -139,3 +147,43 @@ Copy of [github.com/LuisMTaveras/flickerless](https://github.com/LuisMTaveras/fl
 - React (named export `ListPager`): `page`, `onPageChange(page)`, `pageSize`, `total?`, `hasMore?`, `singular?`, `plural?`, `note?: ReactNode`.
 - Core: `PageMeta` (`{ page, pageSize, total, hasMore? }`), `PageState`, `totalPages(total, pageSize)`, `pageState(meta)` ➔ `{ page, pages, hasPrev, hasNext, from, to }`, `pageSummary(meta, { singular?, plural?, format? })` ➔ `'Mostrando 11–20 de 57 facturas'`.
 - There is no page-size selector and no numbered page list.
+
+## 12. `feedback` — `@/core/feedback/dialog` · `@/core/feedback/toast`
+
+- Dialog: `alertDialog(title, message?, type? = 'info')` ➔ `Promise<void>`; `confirmDialog(title, message?, confirmText? = 'Confirmar', { cancelText?, tone? })` ➔ `Promise<boolean>`; `promptDialog(title, message?, defaultValue?, { placeholder?, confirmText? = 'Enviar', cancelText?, required?, multiline?, tone? })` ➔ `Promise<string | null>`. Types `DialogType` (`'info' | 'success' | 'warning' | 'error' | 'confirm' | 'prompt'`), `DialogTone` (`'neutral' | 'danger'`), `DialogState`. Internals used by the component: `getDialogState`, `subscribeDialog`, `acceptDialog`, `cancelDialog`, `setDialogInput`, `isLongDialogMessage`.
+- Opening a dialog while another is open cancels the previous one (its promise resolves `false` / `null`).
+- Toast: `notify(message, type? = 'success', durationMs?)` ➔ id; `dismissToast(id)`; `getToasts`, `subscribeToasts`. Types `ToastType` (`'success' | 'error' | 'info' | 'warning'`), `Toast`. Max 4 visible.
+- Components (no props): `<ConfirmDialog />`, `<ToastHost />` — once in the app root. Vue: default export of the `.vue`; React: named exports `ConfirmDialog`, `ToastHost`.
+
+## 13. `overlays` — `@/core/overlay/*` + `ModalShell` · `DrawerShell` · `RowMenu`
+
+- Core: `pushEscapeLayer(onEscape)` ➔ release fn; `escapeLayerCount()`; `lockScroll()` ➔ release fn; `scrollLockCount()`; `menuPosition(anchorRect, { width?, entries?, entryHeight?, viewport? })` ➔ `{ left, top, width, opensAbove }`.
+- `useOverlay(active, onEscape, { lockScroll? = true })` — Vue (`active`: ref/getter/boolean) and React (`active`: boolean).
+- `ModalShell`: Vue props `open`, `title`, `subtitle?`, `size?` (`'sm' | 'md' | 'lg' | 'xl' | '2xl' | '4xl' | '6xl'`, default `'lg'`), `bodyClass?`; emits `close`; slots `default`, `subtitle`, `footer`. React: `open`, `title`, `subtitle?`, `onClose`, `size?`, `bodyClassName?`, `footer?`, `children`.
+- `DrawerShell`: same as ModalShell with `size?` (`'md' | 'lg' | 'xl' | '2xl' | '3xl'`, default `'2xl'`); Vue slots also `title`, `actions`; React `actions?`.
+- `RowMenu`: props `actions: RowAction[]`, `label?` (= `'Acciones'`); Vue emits `select(id)`, React `onSelect(id)`. `RowAction = { id, label, icon?: IconName, tone?: 'neutral' | 'danger', disabled?: boolean | string, separatorBefore? }`.
+- `IconName` (from `icon-paths.ts`): `chevronDown | chevronLeft | chevronRight | check | close | calendar | info | success | warning | error | help | edit | refresh | ellipsis | inbox | clock | minus`. There are no other icons.
+
+## 14. `list-states` — `EmptyState` · `ListStaleNotice`
+
+- `EmptyState`: props `title`, `text?`, `icon?: IconName` (= `'inbox'`); default slot / `children` = actions. Vue also slot `icon`; React `icon` may be a node.
+- `ListStaleNotice`: props `message?` (= `'Hay cambios nuevos en esta lista.'`), `actionText?` (= `'Actualizar lista'`); Vue emits `refresh`, React `onRefresh`.
+
+## 15. `inputs` — `MoneyInput` · `MaskedInput`
+
+- `MoneyInput`: Vue `v-model` / React `value` + `onChange` with `number | null`; props `currency?` (default `formatConfig.defaultCurrency`), `label?`, `placeholder?`, `decimals?` (= 2), `disabled?`, `invalid?`, `compact?`.
+- `MaskedInput`: `v-model` / `value` + `onChange` with the **formatted** `string`; props `mask: InputMask` (required), `label?`, `placeholder?`, `disabled?`, `invalid?`, `compact?`. Extra attributes go to the `<input>`.
+
+## 16. `batch` — `@/core/batch/batch-progress` + `BatchProgressModal`
+
+- `createBatchTracker()` ➔ `{ getState, subscribe, run, track, apply, close, reopen }`.
+  - `run({ title, items: { id, label, sublabel? }[], worker(item, index) })` ➔ `Promise<BatchState>`; worker throws ➔ `FAILED` (detail = error message), returns `{ status: 'SKIPPED' | 'FAILED' | 'DONE', detail? }` ➔ that outcome, anything else ➔ `DONE`.
+  - `track({ title, items, request(progressKey), settle?(result) ➔ BatchOutcome[] })` ➔ `Promise<result | null>`; `apply(event: BatchEvent)` for server progress events.
+- Types: `BatchState`, `BatchItem`, `BatchItemStatus` (`'PENDING' | 'RUNNING' | 'DONE' | 'SKIPPED' | 'FAILED'`), `BatchOutcome`, `BatchEvent`, `BatchTracker`. Helpers `recountBatch`, `batchSummary(state, format?)`, `batchCountLabel(n, 'done' | 'skipped', format?)`.
+- `BatchProgressModal`: prop `tracker: BatchTracker`.
+
+## 17. `devforge audit`
+
+- Rules: hardcoded data, neon palette, Spanglish, single-theme colors, unformatted phone / currency, skeletons, native `<select>` / date inputs, `window.alert/confirm/prompt`, hardcoded currency (`currency: 'DOP'`, `=== 'DOP'`), `@ts-nocheck`, `toLocaleDateString` / `toLocaleTimeString` / `timeZone: 'UTC'`, backdrop-click closing (`@click.self`).
+- Exit code `1` when there are (new) violations, so CI can block them.
+- `devforge audit --baseline` writes `.devforge-audit-baseline.json` (known debt per file and rule). Later runs fail only on NEW violations and lower the baseline automatically when something is fixed. It can only shrink; never edit it upwards.

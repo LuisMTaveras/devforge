@@ -15,6 +15,7 @@ This repository is powered by **DEVFORGE**. You are expected to operate as a Pri
    - Required: Use `formatCurrency()`, `formatNumber()`, `formatPercent()`, `formatDate()`, `formatRelativeTime()`, and `formatPhoneNumber()` from `@/core/formatters/formatters`.
    - Country format: thousands/decimal separators and phone masks follow the project country (`setFormatCountry('DO')` -> `1,234,567.89`, `RD$1,500.00`, `(809) 578-1234`).
    - Null fallback: Always render `—` for null/undefined/empty data points.
+   - Dates in the business time zone: never `toLocaleDateString()` / `timeZone: 'UTC'` by hand. Currency comes from the document, never `currency: 'DOP'` written in code.
 4. **[ ] ZERO SPANGLISH / 100% SPANISH**:
    - If the project is in Spanish, 0% English allowed in UI text, table columns, badges, buttons:
      - `Close` ➔ `Cerrar`, `Save` ➔ `Guardar`, `Status` ➔ `Estado`, `Amount` ➔ `Monto`
@@ -35,9 +36,9 @@ This repository is powered by **DEVFORGE**. You are expected to operate as a Pri
    - Only run scripts that exist in `package.json`. The DEVFORGE CLI is the globally linked `devforge` command — **never `npx devforge`** (that npm package is an unrelated project).
    - Blueprint code is a reference pattern: adapt names to the real code. If a blueprint and an installed module disagree, the installed module wins.
    - If you are not sure, say so and ask. A short question is always better than plausible-looking invented code.
-9. **[ ] STANDARD UI COMPONENTS: FLICKERLESS, COMBO, DATES, PAGER**:
-   - Banned: Skeletons (`<Skeleton>`, `skeleton`, `animate-pulse`), full-screen spinners, native `<select>`, `<input type="date">`, ad-hoc pagination footers, and `0` / "Sin resultados" before the first response.
-   - Required: `<FlickerlessSurface>` + `<FlickerlessValue>` / `<FlickerlessTableShell>` (`devforge add flickerless`), `<SelectField>` (`devforge add select`), `<DatePicker>` / `<DateRangeFilter>` (`devforge add dates`), `<ListPager>` at the end of every paginated list (`devforge add pagination`). Rules: `.ai/standards/ui-components.md`.
+9. **[ ] STANDARD UI COMPONENTS (NEVER HAND-ROLLED)**:
+   - Banned: Skeletons (`<Skeleton>`, `skeleton`, `animate-pulse`), full-screen spinners, native `<select>`, `<input type="date">`, `window.alert/confirm/prompt`, hand-written modal backdrops or closing on backdrop click (`@click.self`), ad-hoc pagination footers, and `0` / "Sin resultados" before the first response.
+   - Required: Flickerless (`devforge add flickerless`), `<SelectField>` (`select`), `<DatePicker>` / `<DateRangeFilter>` (`dates`), `<ListPager>` (`pagination`), `confirmDialog()` / `notify()` (`feedback`), `<ModalShell>` / `<DrawerShell>` / `<RowMenu>` (`overlays`), `<EmptyState>` / `<ListStaleNotice>` (`list-states`), `<MoneyInput>` / `<MaskedInput>` (`inputs`), `<BatchProgressModal>` (`batch`). Rules: `.ai/standards/ui-components.md`.
 
 ## Order of Truth (When Sources Disagree)
 
@@ -53,7 +54,7 @@ This repository is powered by **DEVFORGE**. You are expected to operate as a Pri
 - **Developer Calibration & Stack Advisory**: Execute `.ai/standards/project-kickoff.md` (Junior/Intermediate/Senior calibration).
 - **Anti-AI Design Excellence**: Follow `.ai/standards/ui-ux-principles.md` (Linear/Stripe aesthetic).
 - **Light + Dark Themes**: Follow `.ai/standards/theming.md`. Every screen must work in both themes.
-- **Standard UI Components**: Follow `.ai/standards/ui-components.md` (Flickerless loading, SelectField, DatePicker, ListPager).
+- **Standard UI Components**: Follow `.ai/standards/ui-components.md` (Flickerless, SelectField, DatePicker, ListPager, dialogs and toasts, ModalShell, RowMenu, EmptyState, MoneyInput / MaskedInput, BatchProgressModal).
 - **Localized Formatting**: Follow `.ai/standards/data-formatting.md` (currency, numbers, dates, phones per country). Default country: República Dominicana.
 - **Module API**: `.ai/standards/module-api.md` is the exact list of DEVFORGE functions. Nothing else exists.
 - **Strict Adherence to Blueprints**: Check `.ai/blueprints/` before coding.
@@ -67,4 +68,4 @@ This repository is powered by **DEVFORGE**. You are expected to operate as a Pri
 - Tests: `npm run test` or `npx vitest run`
 - Typecheck: `npx tsc --noEmit`
 - Lint: `npm run lint`
-- Audit: `devforge audit` (globally linked CLI; never `npx devforge`)
+- Audit: `devforge audit` (globally linked CLI; never `npx devforge`). Existing project: `devforge audit --baseline` once, then only new violations fail.
