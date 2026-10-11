@@ -35,52 +35,59 @@ Language consistency must be absolute:
 
 ---
 
-## 3. Sophisticated Enterprise Color Palette (Soft Tints, No Neon)
+## 3. Color: Semantic Tokens Only (Warm Slate)
 
-- **Dual Theme Architecture (Claro + Oscuro, Mandatory)**: Every project ships both themes. Full rules in `.ai/standards/theming.md`.
-  - **Light**: Background white / zinc-50 (`#ffffff` / `#fafafa`), text zinc-900 (`#18181b`), borders 1px zinc-200 (`#e4e4e7`).
-  - **Dark**: Background neutral zinc or slate (`#09090b` or `#0f172a`), NOT saturated cyan or teal. Surfaces (`#18181b` / `#1e293b`), borders 1px (`#27272a` / `#334155`).
-  - Use semantic tokens (`bg-background`, `bg-surface`, `text-foreground`, `text-muted-foreground`, `border-border`) so components work in both themes.
-- **Status Badges (Subdued Tints, Never Saturated Neon, Readable in Both Themes)**:
-  - *Success*: Soft emerald background (`bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20`).
-  - *Warning*: Soft amber background (`bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20`).
-  - *Destructive / Error*: Soft rose background (`bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20`).
-  - *Neutral / Secondary*: Soft zinc background (`bg-zinc-500/10 text-zinc-700 dark:text-zinc-400 border border-zinc-500/20`).
-- **The 60-30-10 Rule**:
-  - **60%**: Neutral background surfaces.
-  - **30%**: Crisp typography hierarchy (zinc-900 on light, zinc-100 on dark).
-  - **10%**: Single functional accent color (e.g. clean enterprise blue or emerald for actions).
+- **Dual theme (Claro + Oscuro + Sistema) is mandatory.** Full rules in `.ai/standards/theming.md`. The values live ONLY in `tokens.css`; a component never contains a hex, an `rgb()` or a raw palette class (`bg-zinc-50`, `text-slate-900`, `bg-blue-600`).
+- **Surfaces**: `bg-background` (page), `bg-surface` (cards, tables), `bg-surface-raised` (menus, modals). **Text**: `text-foreground`, `text-muted-foreground`, `text-dim-foreground`. **Lines**: `border-border`.
+- **Status badges** (soft tint, readable in both themes): `rounded-full border px-2 py-0.5 text-xs font-medium` plus
+  - Success: `border-success/20 bg-success/10 text-success`
+  - Warning: `border-warning/20 bg-warning/10 text-warning`
+  - Danger: `border-danger/20 bg-danger/10 text-danger`
+  - Neutral: `border-border bg-surface text-muted-foreground`
+- **One action color**: `bg-primary text-primary-foreground` (graphite in Claro, ivory in Oscuro). There is no second «brand blue» or green CTA. Destructive actions use `danger`.
+- **60-30-10**: 60% neutral surfaces, 30% typography hierarchy, 10% `primary` + states. Color carries meaning, never decoration; never color alone (pair it with text or an icon).
 
 ---
 
 ## 4. Spatial System & Density Archetypes
 
-All layouts must follow an intentional **4px / 8px grid**:
+All layouts follow a **4px / 8px grid**: `1` (4px), `2` (8px), `3` (12px), `4` (16px), `6` (24px), `8` (32px). No arbitrary values (`p-[13px]`, `text-[15px]`).
 
-- Spacers: `4px (1)`, `8px (2)`, `12px (3)`, `16px (4)`, `24px (6)`, `32px (8)`.
-- Density Archetypes:
-  - **High-Density (B2B, Dashboards, Data tools)**: Compact row heights (36px-40px), font size 12-14px, minimal padding (`p-2.5` to `p-3`), tabular numbers, drawers and split panes.
-  - **Standard-Density (Consumer apps, SaaS Landing, Settings)**: Row heights (44px-48px), font size 14-16px, comfortable padding (`p-4` to `p-6`).
+- **High density (B2B, dashboards, data tools — the default)**: rows 36–40px, `text-sm` body / `text-xs` meta, cell padding `px-3 py-2`, tabular numbers, drawers and split panes instead of page hops.
+- **Standard density (settings, onboarding, consumer)**: rows 44–48px, `text-sm`–`text-base`, padding `p-4`–`p-6`.
+- **Responsive**: every screen works at 375px. Tables scroll horizontally inside their own container (never the page); filter bars wrap; modals become full-height sheets on mobile.
 
 ---
 
 ## 5. Typography Scale & Hierarchy
 
-- **Title/Display**: Bold or semibold, tight letter-spacing (`tracking-tight`), distinct size hierarchy (`text-2xl` to `text-4xl`).
-- **Body**: Normal weight, relaxed line-height (`leading-relaxed`), high contrast against background.
-- **Data & Metrics**: Always monospace for codes, IDs, monetary amounts, and timestamps (`font-mono text-xs tabular-nums text-muted-foreground`), always rendered through the localized formatters (`formatCurrency`, `formatNumber`, `formatDate`, `formatPhoneNumber`).
+- **Page title**: `text-xl font-semibold tracking-tight` (one per screen). **Section title**: `text-base font-semibold`. **Body**: `text-sm`. **Meta / helper**: `text-xs text-muted-foreground`.
+- **Numbers and money**: `tabular-nums`, right-aligned in tables, in `text-foreground` (an amount is data, not decoration — never dimmed). Always through the formatters (`formatCurrency`, `formatNumber`, `formatPercent`).
+- **Codes and IDs** (NCF, SKU, UUID fragments): `font-mono text-xs`. Dates and times are NOT monospace; they use `formatDate` / `formatTime`.
+- Max two font weights per screen besides the title (`font-normal`, `font-medium`).
 
 ---
 
-## 6. Complete Interaction States (The 5 States of UI)
+## 6. Complete Interaction States
 
-Every interactive component (buttons, inputs, cards, rows) must have all 5 states explicitly designed:
+Every interactive element (buttons, inputs, rows, menu items) defines:
 
-1. **Default**: Crisp border, balanced background.
-2. **Hover**: Subtle contrast increase (e.g. `hover:bg-surface-hover`, or `hover:bg-zinc-100 dark:hover:bg-zinc-800`), 150ms transition.
-3. **Active / Pressed**: Subtle scale down (`active:scale-[0.98]`) or deeper background shade.
-4. **Focus-Visible**: High-contrast, accessible 2px focus ring with offset (`focus-visible:ring-2 focus-visible:ring-offset-2`).
-5. **Disabled**: Reduced opacity (`opacity-50 pointer-events-none cursor-not-allowed`).
+1. **Default**: token border + token background.
+2. **Hover**: one step of contrast via tokens (`hover:bg-surface-raised` / `hover:bg-primary/90`), `transition-colors duration-150`.
+3. **Active**: `active:scale-[0.98]` for buttons only.
+4. **Focus-visible**: `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background`. Never remove focus without replacing it.
+5. **Disabled**: native `disabled` attribute + `disabled:opacity-50 disabled:cursor-not-allowed`. Do NOT add `pointer-events-none` (it kills the cursor and the tooltip that explains why).
+6. **Busy**: the button that runs the action is disabled and changes its text (`Guardando…`); the rest of the screen stays usable.
+
+---
+
+## 6-bis. Forms, Errors & Accessibility
+
+- **Fields**: every field has a visible `<label>` bound to it (placeholder is not a label). Required fields are marked and validated on submit AND on blur once touched. The error is shown under the field (`text-xs text-danger`), with `aria-invalid` and `aria-describedby`.
+- **Field types** map to the standard components: closed list ➔ `SelectField`; date ➔ `DateField`; money ➔ `MoneyInput`; phone / cédula / RNC ➔ `MaskedInput`. Never `<input type="number">` for money.
+- **Submit**: one primary button bottom-right (`Guardar`), secondary `Cancelar` to its left. Enter submits, Escape cancels (through `ModalShell`). Leaving with unsaved changes asks with `confirmDialog()`.
+- **Backend errors**: field errors from the API go to their fields; the rest go to `notify({ type: 'error' })` with the message from `normalizeApiError(err)`. Never show stack traces, status codes or English text.
+- **Accessibility**: icon-only buttons have `aria-label` (in the UI language); contrast AA in both themes; everything reachable with Tab in visual order; modals trap focus and return it on close; motion respects `prefers-reduced-motion`.
 
 ---
 

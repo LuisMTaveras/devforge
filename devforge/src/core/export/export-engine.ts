@@ -6,7 +6,7 @@
 export interface ExportColumn<T = any> {
   header: string;
   key: keyof T | string;
-  formatter?: (value: any, item: T) => string | number;
+  formatter?: (value: any, item: T) => string | number; // any: cell values are arbitrary user data
 }
 
 /**
@@ -62,10 +62,10 @@ function escapeCSVValue(val: unknown): string {
   return `"${str}"`;
 }
 
-function getNestedValue(obj: Record<string, any>, path: string): any {
+function getNestedValue(obj: Record<string, any>, path: string): any { // any: walks arbitrary nested paths
   if (!obj || !path) return undefined;
   const parts = path.split('.');
-  let current: any = obj;
+  let current: any = obj; // any: walks arbitrary nested paths
   for (const part of parts) {
     if (current === null || current === undefined) return undefined;
     current = current[part];

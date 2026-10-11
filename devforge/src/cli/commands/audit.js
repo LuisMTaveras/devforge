@@ -34,7 +34,7 @@ const AUDIT_RULES = [
       if (match) {
         return {
           rule: 'Anti-AI Cyberpunk Palette',
-          message: `Uso de color cian/teal/neón prohibido ('${match[0]}'). Usa escala Zinc/Slate.`,
+          message: `Uso de color cian/teal/neón prohibido ('${match[0]}'). Usa los tokens semánticos (bg-surface, text-foreground, border-border, primary, success/warning/danger).`,
         };
       }
       return null;
@@ -144,6 +144,36 @@ const AUDIT_RULES = [
         return {
           rule: 'Strict TypeScript',
           message: '@ts-nocheck apaga el compilador en todo el archivo. Quítalo y arregla lo que salga; para una línea suelta usa @ts-expect-error.',
+        };
+      }
+      return null;
+    }
+  },
+  {
+    id: 'TS_IGNORE',
+    name: 'Strict TypeScript',
+    check: (content, line, lineNum, ext) => {
+      if (!CODE.includes(ext)) return null;
+      if (/(\/\/|\/\*)\s*@ts-ignore\b/.test(line)) {
+        return {
+          rule: 'Strict TypeScript',
+          message: '@ts-ignore silencia el error para siempre. Arregla el tipo; si de verdad hace falta, usa // @ts-expect-error <motivo>.',
+        };
+      }
+      return null;
+    }
+  },
+  {
+    id: 'EXPLICIT_ANY',
+    name: 'Strict TypeScript',
+    check: (content, line, lineNum, ext) => {
+      if (!['.ts', '.tsx', '.vue'].includes(ext) || isComment(line)) return null;
+      if (/\/\/\s*any:\s*\S/.test(line)) return null; // justified boundary
+      const match = line.match(/(?::\s*any\b(?!\w)|\bas\s+any\b|<any>|\bany\[\])/);
+      if (match) {
+        return {
+          rule: 'Strict TypeScript',
+          message: `'${match[0].trim()}' apaga el tipado. Usa unknown y estrecha (Zod o type guard); si es una frontera con una librería sin tipos, justifícalo en la misma línea: // any: <motivo>.`,
         };
       }
       return null;

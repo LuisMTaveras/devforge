@@ -23,13 +23,13 @@ export function createAuthStoreDefinition() {
 
   function setUser(profile: UserProfile | null) {
     user.value = profile;
-    globalAbility.setUser(profile as any);
+    globalAbility.setUser(profile as any); // any: CASL ability typing boundary
 
     if (profile?.permissions) {
       globalAbility.updateRules(
         profile.permissions.map(perm => {
           const [action, subject] = perm.split(':');
-          return { action: action as any, subject: subject || 'all' };
+          return { action: action as any, subject: subject || 'all' }; // any: CASL ability typing boundary
         })
       );
     }

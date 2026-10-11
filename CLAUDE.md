@@ -5,27 +5,27 @@ This repository is powered by **DEVFORGE**. You are expected to operate as a Pri
 ## 🚨 MANDATORY PRE-FLIGHT CHECKLIST (VERIFY BEFORE GENERATING CODE)
 
 1. **[ ] ZERO HARDCODED DATA**:
-   - Banned: `const items = [ ... ]`, `const records = [ ... ]` inside components.
-   - All data must flow via typed props, service calls (`services/`), or composables/hooks.
+   - Banned: business records written in a component or composable (`const clientes = [{ … }]`, fake totals like `'RD$17.8M'`, demo rows «para que se vea algo»). A screen that shows data gets it from a service (`modules/<feature>/services/`) through a hook / composable, typed end to end.
+   - Allowed: UI configuration that is not data (column definitions, tab lists, the options of a closed enum the backend also fixes). If a list could change without a deploy, it is data: ask the backend for it.
+   - No backend yet: mocks live ONLY in MSW (`src/mocks/`), with async delay and real pagination, and you say so. The component code is identical to production.
 2. **[ ] MANDATORY PAGINATION & ZERO OVER-FETCHING**:
-   - Banned: Unpaginated list calls. Always pass `page` + `pageSize` (or `first` + `after`).
-   - Banned: Querying unused fields. In GraphQL use fragment colocation; in REST use sparse fieldsets (`?fields=...`).
+   - Banned: a list request without `page` + `pageSize` (or `first` + `after`); loading everything and paginating in the client; selecting fields the screen does not render.
+   - Required: the server returns the page AND the total (`totalCount` / `hasNextPage`); the list ends with `<ListPager :total :has-more>`; GraphQL uses fragment colocation, REST uses sparse fieldsets (`?fields=…`) when the backend supports them. Contract: `.ai/blueprints/07-graphql-pagination.md`.
 3. **[ ] AUTOMATIC LOCALIZED FORMATTING**:
-   - Banned: Raw currency numbers (`17870000` or `"$ " + amount`), raw numbers (`1234567.891`, `toFixed()`), raw ISO dates (`2026-10-05T...`), or raw phone numbers (`8095781234`).
-   - Required: Use `formatCurrency()`, `formatNumber()`, `formatPercent()`, `formatDate()`, `formatRelativeTime()`, and `formatPhoneNumber()` from `@/core/formatters/formatters`.
-   - Country format: thousands/decimal separators and phone masks follow the project country (`setFormatCountry('DO')` -> `1,234,567.89`, `RD$1,500.00`, `(809) 578-1234`).
-   - Null fallback: Always render `—` for null/undefined/empty data points.
-   - Dates in the business time zone: never `toLocaleDateString()` / `timeZone: 'UTC'` by hand. Currency comes from the document, never `currency: 'DOP'` written in code.
-4. **[ ] ZERO SPANGLISH / 100% SPANISH**:
-   - If the project is in Spanish, 0% English allowed in UI text, table columns, badges, buttons:
-     - `Close` ➔ `Cerrar`, `Save` ➔ `Guardar`, `Status` ➔ `Estado`, `Amount` ➔ `Monto`
-     - `Flagged` ➔ `Observado`, `Settled` ➔ `Completado`, `Pending` ➔ `Pendiente`
-5. **[ ] ZERO CYBERPUNK / ZERO NEON GAMER**:
-   - Banned Tailwind classes: `cyan-*`, `teal-*`, `neon-*`, glowing borders, radioactive greens (`#00ff9d`), or deep cyan backgrounds.
-   - Required palette: Neutral zinc in both themes via semantic tokens (`bg-background`, `bg-surface`, `text-foreground`, `text-muted-foreground`, `border-border`) and soft-tint badges (`bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20`).
+   - Banned: raw money (`17870000`, `"$ " + amount`, `toFixed(2)`), raw numbers (`1234567.891`), raw ISO dates, `toLocaleDateString()` / `toLocaleString()` / `new Intl.NumberFormat()` written in a component, `timeZone: 'UTC'`, raw phones (`8095781234`), and `"null"` / `"undefined"` / `0` shown for a missing value.
+   - Required: ONLY the formatters from `@/core/formatters/formatters` (`formatCurrency`, `formatNumber`, `formatPercent`, `formatDate`, `formatTime`, `formatRelativeTime`, `formatPhoneNumber`); `setFormatCountry('<CODE>')` once in the entrypoint (default `DO`: `1,234,567.89`, `RD$1,500.00`, `(809) 578-1234`); `—` for null / undefined / empty.
+   - Money: the currency comes from the document (`formatCurrency(f?.total, { currency: f?.moneda })`), never `currency: 'DOP'` in code. Amounts are right-aligned with `tabular-nums`.
+4. **[ ] ZERO SPANGLISH / 100% SPANISH UI**:
+   - The UI language is the one agreed at kickoff (default: Spanish). EVERY visible string is in that language: labels, placeholders, buttons, table headers, badges, toasts, dialogs, empty states, validation and backend error messages shown to the user, `aria-label` and `title`.
+   - `Close` ➔ `Cerrar`, `Save` ➔ `Guardar`, `Status` ➔ `Estado`, `Amount` ➔ `Monto`, `Actions` ➔ `Acciones`, `Flagged` ➔ `Observado`, `Settled` ➔ `Completado`, `Pending` ➔ `Pendiente`, `Loading…` ➔ `Cargando…`, `No results` ➔ `Sin resultados`.
+   - Code identifiers, commits and comments may stay in English; what the user reads may not.
+5. **[ ] ZERO CYBERPUNK / ZERO NEON — TOKENS ONLY**:
+   - Banned: `cyan-*`, `teal-*`, `neon-*`, glows, radioactive greens (`#00ff9d`), purple/indigo gradients, blur orbs, emoji in titles or buttons, and raw Tailwind palette classes for meaning (`bg-blue-600`, `text-red-500`, `bg-emerald-500/10`).
+   - Required: the «Warm Slate» semantic tokens of `tokens.css` — surfaces `bg-background` / `bg-surface` / `bg-surface-raised`, text `text-foreground` / `text-muted-foreground` / `text-dim-foreground`, `border-border`, actions `bg-primary text-primary-foreground`, states `success` / `warning` / `danger`. Soft-tint badge: `rounded-full border border-success/20 bg-success/10 text-success` (same pattern with `warning`, `danger`; neutral: `border-border bg-surface text-muted-foreground`). The single action color is `primary` (graphite / ivory): no second «brand blue».
 6. **[ ] VUE 3 / REACT LOGIC SAFETY**:
-   - Null safety: Use optional chaining `record?.cliente?.nombre` everywhere.
-   - No direct prop mutations: Always emit events `emit('close')` or `emit('update:modelValue', val)`.
+   - Null safety where the TYPE says it can be null (API payloads, optional props, `find()` results): `record?.cliente?.nombre ?? '—'`. Do not sprinkle `?.` on values that cannot be null: it hides bugs.
+   - Never mutate props: Vue emits (`emit('update:modelValue', v)`), React lifts state (`onChange(v)`).
+   - Every async action handles its three outcomes: pending (button disabled with its own text, no double submit), success (visible feedback), error (`normalizeApiError(err)` ➔ message to the user, never a raw `err.message` or a silent `catch {}`).
 7. **[ ] DUAL THEME: LIGHT + DARK (MANDATORY)**:
    - Every project ships **Claro** and **Oscuro** themes plus **Sistema** (OS preference) from the first commit (`devforge add theme`).
    - Banned: Dark-only or light-only UIs, a color class without its other-theme pair (`bg-white` alone, `text-zinc-100` alone), hex colors inside components.
@@ -42,6 +42,12 @@ This repository is powered by **DEVFORGE**. You are expected to operate as a Pri
 10. **[ ] AUTHORIZATIONS & NOTIFICATIONS (SINGLE GATES)**:
    - Banned: exception permissions (`'descuentos:override_tope'`, `canOverrideCredit`, `bypassLimit`), hand-made «contraseña del supervisor» prompts, backend errors flattened to their message (`sendError(res, err.message)`, `.json({ error: err.message })`), `new Notification()` / `Notification.requestPermission()` on load, and `alert()` for notices.
    - Required: risky acts go to the authorization catalog and are checked when CONSUMED (`assertAuthorized` / `liftsBlock`, blueprint 08); the frontend installs the interceptor once and mounts `<AuthorizationDialog />` + `<AuthorizationAlerts />` (`devforge add authorizations`). Persistent notices go to the bell (`<NotificationCenter />`, `receiveNotification`, blueprint 09); ephemeral ones are `notify()`; decisions are `confirmDialog()`.
+11. **[ ] DEFINITION OF DONE (RUN IT, DON'T ASSUME IT)**:
+   - Typecheck passes (`npx tsc --noEmit` / `vue-tsc --noEmit`, or the project's script), the build passes, and the tests of what you touched pass. Report the real output; never claim a check you did not run.
+   - `devforge audit` shows no NEW violation (existing project: compare against `.devforge-audit-baseline.json`).
+   - The screen works in Claro AND Oscuro, at 375 px width, with keyboard only (Tab / Enter / Escape), and in its four data states: first load (`—`, no fake zeros), with data, empty (`EmptyState`) and error (message + retry).
+   - Every new visible string is in the UI language and every number, date, phone and amount goes through a formatter.
+   - If something could not be verified (no backend, no browser), say exactly what and why.
 
 ## Order of Truth (When Sources Disagree)
 

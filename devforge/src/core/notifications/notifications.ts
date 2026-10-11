@@ -143,12 +143,12 @@ export function createNotificationFetchTransport(opts: { baseUrl?: string; heade
     if (!res.ok) throw new Error(json?.message || json?.error || 'No se pudieron cargar las notificaciones.');
     return json;
   }
-  const unwrap = (json: any) => (json && typeof json === 'object' && 'data' in json ? json.data : json);
+  const unwrap = (json: any) => (json && typeof json === 'object' && 'data' in json ? json.data : json); // any: backend payload shape varies; normalized below
   return {
     async list({ page, pageSize, status, type }) {
       const q = new URLSearchParams({ page: String(page), pageSize: String(pageSize), status, ...(type ? { type } : {}) });
-      const json = await call<any>('GET', `?${q}`);
-      const rows: any[] = Array.isArray(json?.items) ? json.items : Array.isArray(unwrap(json)) ? unwrap(json) : unwrap(json)?.items ?? [];
+      const json = await call<any>('GET', `?${q}`); // any: backend payload shape varies; normalized below
+      const rows: any[] = Array.isArray(json?.items) ? json.items : Array.isArray(unwrap(json)) ? unwrap(json) : unwrap(json)?.items ?? []; // any: backend payload shape varies; normalized below
       const meta = json?.meta ?? unwrap(json)?.meta ?? {};
       return { items: rows.map(toNotification), hasMore: Boolean(meta.hasMore ?? rows.length === pageSize) };
     },

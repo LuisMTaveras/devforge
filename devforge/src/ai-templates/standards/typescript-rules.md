@@ -2,7 +2,15 @@
 
 ## 1. Strict Configuration
 
-All projects must run with `strict: true`, `noImplicitAny: true`, and `strictNullChecks: true`.
+All projects must run with `strict: true` (which includes `noImplicitAny` and `strictNullChecks`) and `noUncheckedIndexedAccess: true`. Never relax `tsconfig.json` to make an error go away.
+
+## 1-bis. Banned Escape Hatches
+
+- `any` (explicit or `as any`). Unknown input is `unknown` and gets narrowed (Zod or a type guard). The only exception is a typed boundary to an untyped library, with a one-line comment saying why.
+- `// @ts-ignore`, `// @ts-nocheck`. If a line really needs it, use `// @ts-expect-error <reason>` so it fails when the cause is fixed.
+- Non-null assertions (`user!.id`) on data that comes from the network, storage or `find()`. Handle the `undefined`.
+- Double casts (`x as unknown as T`) outside tests.
+- `devforge audit` reports `TS_NOCHECK`, `TS_IGNORE` and `EXPLICIT_ANY`; a new one fails the audit.
 
 ## 2. Type Inference vs Explicit Typing
 

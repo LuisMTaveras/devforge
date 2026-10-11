@@ -104,6 +104,6 @@ export async function initCommand(options = {}) {
   console.log('  - Type \x1b[32m/devforge\x1b[0m to consult architectural blueprints and UI/UX standards.\n');
 
   logger.info('Foundation modules (install before the first screen):');
-  console.log('  - \x1b[32mdevforge add formatters\x1b[0m -> currency, numbers, dates & phones per country, e.g. (809) 578-1234');
-  console.log('  - \x1b[32mdevforge add theme\x1b[0m      -> light + dark themes (Claro / Oscuro / Sistema)\n');
+  console.log('  - \x1b[32mdevforge add formatters theme errors feedback overlays flickerless list-states\x1b[0m');
+  console.log('    formatters, Claro / Oscuro / Sistema, normalizeApiError, dialogs + toasts, modals, loading without skeletons, empty states\n');
 }
