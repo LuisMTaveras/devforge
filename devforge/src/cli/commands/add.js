@@ -208,22 +208,34 @@ const MODULE_REGISTRY = {
   }
 };
 
-export async function addCommand(moduleKey, options = {}) {
+export async function addCommand(moduleKeys, options = {}) {
   logger.banner();
   const targetDir = options.cwd || process.cwd();
+  const keys = (Array.isArray(moduleKeys) ? moduleKeys : [moduleKeys]).filter(Boolean).map(k => k.toLowerCase());
+  const unknown = keys.filter(k => !MODULE_REGISTRY[k]);
 
-  if (!moduleKey || !MODULE_REGISTRY[moduleKey.toLowerCase()]) {
-    logger.error(`Module '${moduleKey}' not recognized.`);
+  if (!keys.length || unknown.length) {
+    logger.error(keys.length ? `Module(s) not recognized: ${unknown.join(', ')}` : 'Name at least one module.');
     console.log('\nAvailable modules to add:');
     Object.keys(MODULE_REGISTRY).forEach(k => {
       console.log(`  - \x1b[36m${k}\x1b[0m: ${MODULE_REGISTRY[k].name}`);
     });
+    process.exitCode = 1;
     return;
   }
 
-  const installed = options._installed || new Set();
-  installModule(moduleKey.toLowerCase(), targetDir, installed, options.framework);
-  logger.success(`\nModule '${moduleKey}' ready to use!`);
+  const ctx = { installed: options._installed || new Set(), skipped: [], missing: [], force: !!options.force };
+  for (const key of keys) installModule(key, targetDir, ctx, options.framework);
+
+  if (ctx.missing.length) {
+    logger.error(`Package is incomplete, these source files are missing: ${ctx.missing.join(', ')}`);
+    process.exitCode = 1;
+  }
+  if (ctx.skipped.length) {
+    logger.warn(`Kept ${ctx.skipped.length} existing file(s) with local changes (re-run with --force to overwrite):`);
+    ctx.skipped.forEach(f => console.log(`  - ${f}`));
+  }
+  logger.success(`\nModule(s) ready to use: ${keys.join(', ')}`);
 }
 
 /** Rewrites source-package imports to the `@/` alias used in the target project. */
@@ -239,7 +251,8 @@ function rewriteImports(content) {
     .replace(/from '(\.\.?\/[^']+)\.(?:js|ts)'/g, "from '$1'");
 }
 
-function installModule(key, targetDir, installed, framework) {
+function installModule(key, targetDir, ctx, framework) {
+  const { installed } = ctx;
   if (installed.has(key)) return;
   installed.add(key);
   const mod = MODULE_REGISTRY[key];
@@ -247,7 +260,7 @@ function installModule(key, targetDir, installed, framework) {
   for (const dep of mod.requires || []) {
     if (!installed.has(dep)) {
       logger.info(`'${key}' requires '${dep}'.`);
-      installModule(dep, targetDir, installed, framework);
+      installModule(dep, targetDir, ctx, framework);
     }
   }
 
@@ -258,20 +271,26 @@ function installModule(key, targetDir, installed, framework) {
     const srcPath = path.join(ROOT_DIR, f.src);
     const destPath = path.join(targetDir, f.dest);
 
-    if (fs.existsSync(srcPath)) {
-      const destDir = path.dirname(destPath);
-      if (!fs.existsSync(destDir)) {
-        fs.mkdirSync(destDir, { recursive: true });
-      }
-      if (/\.(ts|tsx|vue)$/.test(srcPath)) {
-        // Source modules use relative imports so this package typechecks on its own.
-        // In the target project they live elsewhere, so rewrite them to the `@/` alias
-        // mandated by .ai/standards/project-structure.md.
-        fs.writeFileSync(destPath, rewriteImports(fs.readFileSync(srcPath, 'utf8')), 'utf8');
-      } else {
-        fs.copyFileSync(srcPath, destPath);
-      }
-      logger.success(`Created: ${f.dest}`);
+    if (!fs.existsSync(srcPath)) {
+      ctx.missing.push(f.src);
+      return;
     }
+    // Source modules use relative imports so this package typechecks on its own.
+    // In the target project they live elsewhere, so rewrite them to the `@/` alias
+    // mandated by .ai/standards/project-structure.md.
+    const content = /\.(ts|tsx|vue)$/.test(srcPath)
+      ? Buffer.from(rewriteImports(fs.readFileSync(srcPath, 'utf8')), 'utf8')
+      : fs.readFileSync(srcPath);
+    const existed = fs.existsSync(destPath);
+    if (existed) {
+      if (fs.readFileSync(destPath).equals(content)) return; // already up to date
+      if (!ctx.force) {
+        ctx.skipped.push(f.dest);
+        return;
+      }
+    }
+    fs.mkdirSync(path.dirname(destPath), { recursive: true });
+    fs.writeFileSync(destPath, content);
+    logger.success(`${existed ? 'Updated' : 'Created'}: ${f.dest}`);
   });
 }

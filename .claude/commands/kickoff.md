@@ -8,4 +8,4 @@ Execute the Greenfield Project Kickoff Protocol:
    - Phase 2: (5) Audience & information density, (6) Visual identity + default theme (Claro / Oscuro / Sistema — both themes are always built), (7) MVP scope (2-3 key flows).
 4. Ask in the user's language. Wait for each phase's answers; never assume answers the user did not give.
 5. Summarize the agreed decisions and get confirmation before proposing the architecture and folder hierarchy.
-6. When scaffolding, install `devforge add formatters` and `devforge add theme` before the first screen.
+6. When scaffolding, install the foundation set before the first screen: `devforge add formatters theme errors feedback overlays flickerless list-states` (step 3 of `.ai/standards/project-kickoff.md`).

@@ -250,8 +250,8 @@ export async function withAuthorization<T>(send: (headers: Record<string, string
 }
 
 interface AxiosLike {
-  request(config: any): Promise<any>;
-  interceptors: { response: { use(onFulfilled: (r: any) => any, onRejected: (e: any) => any): number } };
+  request(config: any): Promise<any>; // any: boundary to an untyped HTTP client (axios-like)
+  interceptors: { response: { use(onFulfilled: (r: any) => any, onRejected: (e: any) => any): number } }; // any: boundary to an untyped HTTP client (axios-like)
 }
 
 /**

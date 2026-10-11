@@ -38,9 +38,9 @@ Hardcoding static arrays or dummy metrics directly inside UI components is **str
 - **No Static Array Fixtures in Components**: Never declare `const transactions = [...]` or static metric strings inside `.vue` or `.tsx` view files.
 - **Service & Hook Layer Mandatory**: Every piece of data displayed on screen must be requested through a service (`modules/[domain]/services/`) and consumed via a reactive hook or composable (`useQuery` / `useTransactions`).
 - **Dynamic Response Handling**: Components must always account for dynamic variations:
-  - Real pagination (`page`, `pageSize`, `totalCount`, `totalPages`).
+  - Real pagination: the request sends `page` + `pageSize` (or `first` + `after`); the response returns `items` + `totalCount` (+ `hasNextPage` for cursors). The screen maps them to `<ListPager :total="totalCount" :has-more="hasNextPage">`.
   - True empty states when arrays return `[]`.
-  - Realistic numeric formatting using `Intl.NumberFormat` instead of raw hardcoded strings like `"$17.87M"`.
+  - Localized formatting ONLY through `@/core/formatters/formatters` (`formatCurrency`, `formatNumber`, `formatDate`…). Never `Intl.NumberFormat` / `toLocale*` in a component, never strings like `"$17.87M"`.
 - **Decoupled Mocking (If Backend is Offline/WIP)**:
   - If a backend endpoint is not yet available, mock data must live exclusively in an interceptor layer (e.g. **MSW - Mock Service Worker** in `src/mocks/` or a dedicated mock service adapter).
   - The UI component must still make a real asynchronous network request as if communicating with production.

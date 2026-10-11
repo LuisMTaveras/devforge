@@ -259,9 +259,10 @@ function onListKeydown(e: KeyboardEvent) {
     Home: () => firstEnabled(0, 1),
     End: () => firstEnabled(last, -1),
   };
-  if (moves[e.key]) {
+  const move = moves[e.key];
+  if (move) {
     e.preventDefault();
-    activeIndex.value = moves[e.key]();
+    activeIndex.value = move();
     scrollActiveIntoView();
   } else if (e.key === 'Enter' || e.key === ' ') {
     e.preventDefault();

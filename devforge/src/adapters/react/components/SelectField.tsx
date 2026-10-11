@@ -106,9 +106,10 @@ export function SelectField({
       Home: () => firstEnabled(0, 1),
       End: () => firstEnabled(flat.length - 1, -1),
     };
-    if (moves[e.key]) {
+    const move = moves[e.key];
+    if (move) {
       e.preventDefault();
-      setActiveIndex(moves[e.key]());
+      setActiveIndex(move());
     } else if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       const opt = flat[activeIndex];

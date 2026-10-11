@@ -4,32 +4,30 @@
 
 ## 🚨 MANDATORY PRE-FLIGHT CHECKLIST (DO NOT SKIP)
 
-Before generating ANY component, file, or view, you MUST mentally verify and strictly enforce these 8 checkpoints:
+Before generating ANY component, file, or view, you MUST enforce these 11 checkpoints, and close every task with checkpoint 11:
 
 1. **[ ] ZERO HARDCODED DATA**:
-   - Strictly banned: `const items = [ ... ]`, `const records = [ ... ]` or dummy metrics written statically inside `.vue` or `.tsx`.
-   - Every piece of data MUST come from typed `props`, a service (`services/`), or a reactive composable/hook.
+   - Banned: business records written in a component or composable (`const clientes = [{ … }]`, fake totals like `'RD$17.8M'`, demo rows «para que se vea algo»). A screen that shows data gets it from a service (`modules/<feature>/services/`) through a hook / composable, typed end to end.
+   - Allowed: UI configuration that is not data (column definitions, tab lists, the options of a closed enum the backend also fixes). If a list could change without a deploy, it is data: ask the backend for it.
+   - No backend yet: mocks live ONLY in MSW (`src/mocks/`), with async delay and real pagination, and you say so. The component code is identical to production.
 2. **[ ] MANDATORY PAGINATION & ZERO OVER-FETCHING**:
-   - Strictly banned: Querying lists without pagination parameters (`page` & `pageSize`, or `first` & `after`). Never load all rows in a single batch.
-   - Strictly banned: Requesting database fields not displayed on screen. In GraphQL, use strict field queries/fragments. In REST, request sparse fieldsets (`?fields=...`).
+   - Banned: a list request without `page` + `pageSize` (or `first` + `after`); loading everything and paginating in the client; selecting fields the screen does not render.
+   - Required: the server returns the page AND the total (`totalCount` / `hasNextPage`); the list ends with `<ListPager :total :has-more>`; GraphQL uses fragment colocation, REST uses sparse fieldsets (`?fields=…`) when the backend supports them. Contract: `.ai/blueprints/07-graphql-pagination.md`.
 3. **[ ] AUTOMATIC LOCALIZED FORMATTING**:
-   - Never render raw numbers as currency (`17870000` or `"$ " + amount`). Use `formatCurrency(amount)` from `@/core/formatters/formatters` or `Intl.NumberFormat`.
-   - Never render raw quantities or percentages (`1234567.891`, `toFixed(2)`, `value + "%"`). Use `formatNumber(value)` and `formatPercent(value)`; commas and dots follow the country locale (`es-DO` -> `1,234,567.89`, `es-CO` -> `1.234.567,89`).
-   - Never display raw ISO date strings (`"2026-10-05T15:50:00Z"`). Use `formatDate(date)` or `formatRelativeTime(date)`.
-   - Never display unformatted phone digits (`8095781234`). Use `formatPhoneNumber(phone, country)` -> `(809) 578-1234` (national) or `+1 (809) 578-1234` (international).
-   - Configure the country once with `setFormatCountry('<CODE>')` in the entrypoint.
-   - Fallback for null/undefined/empty: always render `—` (em-dash), never `"null"`, `"undefined"` or blank spaces.
-   - Dates in the business time zone: never `toLocaleDateString()` / `timeZone: 'UTC'` by hand. Currency comes from the document, never `currency: 'DOP'` written in code.
-4. **[ ] ZERO SPANGLISH / 100% SPANISH**:
-   - If the user/app is in Spanish, NOT A SINGLE English word is permitted in UI text, table headers, buttons, or statuses.
-   - Banned: `Close`, `Save`, `Status`, `Amount`, `Actions`, `Flagged`, `Settled`, `Pending`.
-   - Required: `Cerrar`, `Guardar`, `Estado`, `Monto`, `Acciones`, `Observado`, `Completado`, `Pendiente`.
-5. **[ ] ZERO CYBERPUNK / ZERO NEON GAMER**:
-   - Strictly banned Tailwind classes: `cyan-*`, `teal-*`, `neon-*`, glowing borders, radioactive greens (`#00ff9d`), or deep cyan backgrounds.
-   - Required palette: Neutral zinc in both themes via semantic tokens (`bg-background`, `bg-surface`, `text-foreground`, `text-muted-foreground`, `border-border`) and soft-tint badges (`bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20`).
+   - Banned: raw money (`17870000`, `"$ " + amount`, `toFixed(2)`), raw numbers (`1234567.891`), raw ISO dates, `toLocaleDateString()` / `toLocaleString()` / `new Intl.NumberFormat()` written in a component, `timeZone: 'UTC'`, raw phones (`8095781234`), and `"null"` / `"undefined"` / `0` shown for a missing value.
+   - Required: ONLY the formatters from `@/core/formatters/formatters` (`formatCurrency`, `formatNumber`, `formatPercent`, `formatDate`, `formatTime`, `formatRelativeTime`, `formatPhoneNumber`); `setFormatCountry('<CODE>')` once in the entrypoint (default `DO`: `1,234,567.89`, `RD$1,500.00`, `(809) 578-1234`); `—` for null / undefined / empty.
+   - Money: the currency comes from the document (`formatCurrency(f?.total, { currency: f?.moneda })`), never `currency: 'DOP'` in code. Amounts are right-aligned with `tabular-nums`.
+4. **[ ] ZERO SPANGLISH / 100% SPANISH UI**:
+   - The UI language is the one agreed at kickoff (default: Spanish). EVERY visible string is in that language: labels, placeholders, buttons, table headers, badges, toasts, dialogs, empty states, validation and backend error messages shown to the user, `aria-label` and `title`.
+   - `Close` ➔ `Cerrar`, `Save` ➔ `Guardar`, `Status` ➔ `Estado`, `Amount` ➔ `Monto`, `Actions` ➔ `Acciones`, `Flagged` ➔ `Observado`, `Settled` ➔ `Completado`, `Pending` ➔ `Pendiente`, `Loading…` ➔ `Cargando…`, `No results` ➔ `Sin resultados`.
+   - Code identifiers, commits and comments may stay in English; what the user reads may not.
+5. **[ ] ZERO CYBERPUNK / ZERO NEON — TOKENS ONLY**:
+   - Banned: `cyan-*`, `teal-*`, `neon-*`, glows, radioactive greens (`#00ff9d`), purple/indigo gradients, blur orbs, emoji in titles or buttons, and raw Tailwind palette classes for meaning (`bg-blue-600`, `text-red-500`, `bg-emerald-500/10`).
+   - Required: the «Warm Slate» semantic tokens of `tokens.css` — surfaces `bg-background` / `bg-surface` / `bg-surface-raised`, text `text-foreground` / `text-muted-foreground` / `text-dim-foreground`, `border-border`, actions `bg-primary text-primary-foreground`, states `success` / `warning` / `danger`. Soft-tint badge: `rounded-full border border-success/20 bg-success/10 text-success` (same pattern with `warning`, `danger`; neutral: `border-border bg-surface text-muted-foreground`). The single action color is `primary` (graphite / ivory): no second «brand blue».
 6. **[ ] VUE 3 / REACT LOGIC SAFETY**:
-   - Protect all nullables: Always use optional chaining `record?.cliente?.nombre` to prevent `Cannot read properties of null` crashes.
-   - Never mutate props directly: Emit events `emit('close')` or `emit('update:modelValue', val)`.
+   - Null safety where the TYPE says it can be null (API payloads, optional props, `find()` results): `record?.cliente?.nombre ?? '—'`. Do not sprinkle `?.` on values that cannot be null: it hides bugs.
+   - Never mutate props: Vue emits (`emit('update:modelValue', v)`), React lifts state (`onChange(v)`).
+   - Every async action handles its three outcomes: pending (button disabled with its own text, no double submit), success (visible feedback), error (`normalizeApiError(err)` ➔ message to the user, never a raw `err.message` or a silent `catch {}`).
 7. **[ ] DUAL THEME: LIGHT + DARK (MANDATORY)**:
    - Every project ships **Claro** and **Oscuro** themes plus **Sistema** (OS preference) from the first commit (`devforge add theme`).
    - Banned: Dark-only or light-only UIs, a color class without its other-theme pair (`bg-white` alone, `text-zinc-100` alone), hex colors inside components.
@@ -46,6 +44,12 @@ Before generating ANY component, file, or view, you MUST mentally verify and str
 10. **[ ] AUTHORIZATIONS & NOTIFICATIONS (SINGLE GATES)**:
    - Banned: exception permissions (`'descuentos:override_tope'`, `canOverrideCredit`, `bypassLimit`), hand-made «contraseña del supervisor» prompts, backend errors flattened to their message (`sendError(res, err.message)`, `.json({ error: err.message })`), `new Notification()` / `Notification.requestPermission()` on load, and `alert()` for notices.
    - Required: risky acts go to the authorization catalog and are checked when CONSUMED (`assertAuthorized` / `liftsBlock`, blueprint 08); the frontend installs the interceptor once and mounts `<AuthorizationDialog />` + `<AuthorizationAlerts />` (`devforge add authorizations`). Persistent notices go to the bell (`<NotificationCenter />`, `receiveNotification`, blueprint 09); ephemeral ones are `notify()`; decisions are `confirmDialog()`.
+11. **[ ] DEFINITION OF DONE (RUN IT, DON'T ASSUME IT)**:
+   - Typecheck passes (`npx tsc --noEmit` / `vue-tsc --noEmit`, or the project's script), the build passes, and the tests of what you touched pass. Report the real output; never claim a check you did not run.
+   - `devforge audit` shows no NEW violation (existing project: compare against `.devforge-audit-baseline.json`).
+   - The screen works in Claro AND Oscuro, at 375 px width, with keyboard only (Tab / Enter / Escape), and in its four data states: first load (`—`, no fake zeros), with data, empty (`EmptyState`) and error (message + retry).
+   - Every new visible string is in the UI language and every number, date, phone and amount goes through a formatter.
+   - If something could not be verified (no backend, no browser), say exactly what and why.
 
 ## Order of Truth (When Sources Disagree)
 
@@ -93,7 +97,8 @@ Consult the standards under `.ai/standards/`:
 - **UI/UX Design System**: `.ai/standards/ui-ux-principles.md` (Anti-AI rules, Zero-Spanglish, Soft-tint badges)
 - **Complete Project Structure**: `.ai/standards/project-structure.md` (Domain-driven folder hierarchy)
 - **Architecture Standards**: `.ai/standards/architecture-standards.md` (Zero hardcoded data, pagination, service layers)
-- **TypeScript Rules**: `.ai/standards/typescript-rules.md`
+- **TypeScript Rules**: `.ai/standards/typescript-rules.md` (no `any`, no `@ts-ignore`, Zod at the boundaries)
+- **Standard UI Components**: `.ai/standards/ui-components.md` (Flickerless, SelectField, DateField, ListPager, dialogs, overlays, EmptyState, inputs, batch, authorizations, notifications)
 
 ---
 
@@ -106,6 +111,8 @@ Consult the standards under `.ai/standards/`:
 - **In-App DevTools & Scenario Simulator**: `.ai/blueprints/05-in-app-devtools.md`
 - **Enterprise Auth & Silent Refresh Queue**: `.ai/blueprints/06-auth-session.md`
 - **Strict Pagination & GraphQL Query Optimization**: `.ai/blueprints/07-graphql-pagination.md`
+- **Authorizations (sign-off when consummated)**: `.ai/blueprints/08-authorizations.md`
+- **Notifications (bell)**: `.ai/blueprints/09-notifications.md`
 
 ---
 
@@ -116,9 +123,16 @@ src/
 ├── app/               # Router, providers, app shell
 ├── core/              # Agnostic utilities, formatters, permission engines, HTTP clients
 │   ├── auth/          # Silent refresh queue & token storage
+│   ├── authorizations/ # Sign-off challenge, interceptor, live alerts
+│   ├── batch/         # Batch progress state
+│   ├── dates/         # Day keys, ranges and calendar in the business time zone
 │   ├── errors/        # normalizeApiError
 │   ├── export/        # exportToCSV
-│   ├── formatters/    # Localized currency, number, date, phone formatters
+│   ├── feedback/      # confirmDialog / promptDialog / notify
+│   ├── formatters/    # Localized currency, number, date, phone formatters + input masks
+│   ├── notifications/ # Bell store (REST + socket)
+│   ├── overlay/       # Escape layers & scroll lock
+│   ├── pagination/    # Page state & summary
 │   ├── permissions/   # RBAC ability engine
 │   ├── theme/         # Light/Dark theme engine (initTheme, setThemePreference)
 │   └── url-sync/      # URL query param synchronizer

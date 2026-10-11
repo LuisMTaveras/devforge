@@ -14,5 +14,9 @@ Consult DEVFORGE architectural specifications:
    - `05-in-app-devtools.md` (Floating developer cockpit)
    - `06-auth-session.md` (Auth & silent refresh queue)
    - `07-graphql-pagination.md` (Strict pagination & query optimization)
+   - `08-authorizations.md` (Sign-off when the risky act is consummated)
+   - `09-notifications.md` (Notification bell, socket + REST)
 3. Check `.ai/standards/project-structure.md` for feature-first code organization.
-4. Assist the user in implementing clean, production-grade, human-crafted code.
+4. Check `.ai/standards/module-api.md` before importing any DEVFORGE function; if the module is not in `src/`, tell the user to run `devforge add <module>`.
+5. Close every task with checkpoint 11 (Definition of Done) of `CLAUDE.md`.
+6. Assist the user in implementing clean, production-grade, human-crafted code.

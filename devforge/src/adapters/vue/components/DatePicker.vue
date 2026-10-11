@@ -385,7 +385,7 @@ function selectDate(key: string) {
     commit([key]); // empieza un rango nuevo
     return;
   }
-  const start = rangeValue.value[0];
+  const start = rangeValue.value[0] ?? key;
   commit(key < start ? [key, start] : [start, key]);
   hoverDate.value = '';
   close();

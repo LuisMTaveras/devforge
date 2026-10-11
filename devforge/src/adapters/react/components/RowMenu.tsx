@@ -92,9 +92,10 @@ export function RowMenu({ actions, onSelect, label = 'Acciones' }: { actions: Ro
       Home: () => focusItem(0, 1),
       End: () => focusItem(actions.length - 1, -1),
     };
-    if (moves[e.key]) {
+    const move = moves[e.key];
+    if (move) {
       e.preventDefault();
-      moves[e.key]();
+      move();
     } else if (e.key === 'Tab') close();
   };
 

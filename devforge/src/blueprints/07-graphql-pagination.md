@@ -176,4 +176,14 @@ apiClient.GET('/api/v1/clientes', {
 1. **Never generate un-paginated queries**: Every collection endpoint must accept `page` & `pageSize` (or `first` & `after`).
 2. **Never query unused fields**: In GraphQL queries, only write the specific fields displayed in the component. Never add heavy sub-resources (`logs`, `auditTrails`, `documents`) to listing queries.
 3. **Smooth Transitions**: Always use `placeholderData: (prev) => prev` (TanStack Query) to maintain previous data while loading the next page without layout jumps.
-4. **Do not invent the schema**: the `clientes` query, its arguments and its fields above are examples. Use only types and fields that exist in the GraphQL schema or `v1.d.ts`. If you cannot see the schema, ask the user for it.
+4. **Wire the screen with the standard pieces** (`devforge add pagination flickerless list-states`):
+   ```vue
+   <FlickerlessSurface :loading="isFetching" :empty="data?.items?.length === 0" :error="error">
+     <ClientesTable :rows="data?.items ?? []" />
+     <template #empty><EmptyState title="Aún no hay clientes" /></template>
+   </FlickerlessSurface>
+   <ListPager v-model:page="page" :page-size="pageSize" :total="data?.totalCount" :has-more="data?.hasNextPage" plural="clientes" />
+   ```
+   `total` stays `undefined` until the first answer (the pager shows `—`, never `0`). Cursor lists without `totalCount` pass only `has-more`. React: `onPageChange={setPage}`, same props in camelCase. Never write your own «Anterior / Siguiente» footer.
+5. **The page lives in the URL** (`?page=3`, blueprint 03): reload and back button keep it; a filter change resets it to 1.
+6. **Do not invent the schema**: the `clientes` query, its arguments and its fields above are examples. Use only types and fields that exist in the GraphQL schema or `v1.d.ts`. If you cannot see the schema, ask the user for it.

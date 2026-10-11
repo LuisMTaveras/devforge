@@ -108,7 +108,7 @@ const LOOKS: Record<string, { icon: IconName; color: string }> = {
   prompt: { icon: 'edit', color: 'text-muted-foreground' },
 };
 
-const look = computed(() => (state.value.tone === 'danger' ? { icon: 'warning' as const, color: 'text-danger' } : LOOKS[state.value.type]));
+const look = computed(() => (state.value.tone === 'danger' ? { icon: 'warning' as const, color: 'text-danger' } : LOOKS[state.value.type] ?? { icon: 'info' as const, color: 'text-muted-foreground' }));
 const hasCancel = computed(() => state.value.type === 'confirm' || state.value.type === 'prompt');
 const isLong = computed(() => isLongDialogMessage(state.value.message));
 const confirmClass = computed(() => {

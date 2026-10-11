@@ -56,8 +56,8 @@ Once the stack and developer profile are established, finalize the functional sc
 ### 6. Visual Identity & Mood
 
 - What brand aesthetic or mood are you aiming for?
-  - Modern Minimalist (clean zinc/slate, subtle 1px borders, quiet elegance)
-  - Enterprise / Fintech (trustworthy slate with emerald accents)
+  - Modern Minimalist (Warm Slate tokens as shipped: graphite / ivory primary, 1px borders, quiet elegance)
+  - Enterprise / Fintech (Warm Slate with a tuned `primary` token — changed in `tokens.css`, never per component)
   - Brutalist / Industrial (bold borders, monospace typography, high contrast)
 - **Light and dark themes are NOT optional**: every project ships both (Claro / Oscuro / Sistema). Only ask which one is the **default** for first-time visitors (recommended: `Sistema`, follows the OS). See `.ai/standards/theming.md`.
 
@@ -76,9 +76,12 @@ Once the user answers the discovery questions:
 2. Initialize the project using the standard directory structure defined in `.ai/standards/project-structure.md`.
 3. Install the foundation modules **before building any screen** so the project is ready from the first commit:
    ```bash
-   devforge add formatters   # currency, numbers, percents, dates, phones, "—" fallback
-   devforge add theme        # light + dark tokens, initTheme(), useTheme()
+   devforge add formatters theme errors feedback overlays flickerless list-states
+   # formatters: currency, numbers, dates, phones, "—" · theme: Claro/Oscuro/Sistema tokens
+   # errors: normalizeApiError · feedback: confirmDialog/notify · overlays: ModalShell/DrawerShell/RowMenu
+   # flickerless: loading without skeletons · list-states: EmptyState/ListStaleNotice
    ```
+   Then add per feature, before the first screen that needs it: `select`, `dates`, `pagination` (any list), `inputs` (money / cédula / phone), `batch`, `authorizations`, `notifications`. Run `devforge list` to see the real catalog; never hand-write one of these components.
 4. Wire them in the entrypoint (`main.ts` / `main.tsx`): `setFormatCountry('<CODE>')` and `initTheme()`; add the no-flash script to `index.html` and the theme selector (Claro / Oscuro / Sistema) to the app shell.
 5. Apply the data formatting defaults (`.ai/standards/data-formatting.md`) and theming rules (`.ai/standards/theming.md`).
 6. Apply the design directives from `.ai/standards/ui-ux-principles.md`.
