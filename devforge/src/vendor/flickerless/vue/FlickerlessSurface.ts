@@ -22,7 +22,7 @@ export const FlickerlessSurface = defineComponent({
     settled: { type: Boolean as PropType<boolean | undefined>, default: undefined },
     announce: { type: Boolean, default: true },
     announceText: { type: String, default: 'Actualizando…' },
-    /** Texto cuando la carga falla y no hay slot `#error`: el error nunca se traga en silencio. */
+    /** Texto cuando la carga falla y no hay slot `#error`: el error nunca se traga en silencio. `''` si la pantalla ya lo avisa. */
     errorText: { type: String, default: 'No se pudo cargar la información.' },
     streamHeight: { type: String, default: undefined },
     streamColor: { type: String, default: undefined },
@@ -129,7 +129,8 @@ export const FlickerlessSurface = defineComponent({
         );
       } else if (effectiveError.value) {
         // Sin slot #error: se avisa y se conserva lo que había.
-        children.push(h('div', { class: 'flickerless-error-inline', role: 'alert' }, props.errorText));
+        // `error-text=""`: la pantalla ya pinta su propio aviso.
+        if (props.errorText) children.push(h('div', { class: 'flickerless-error-inline', role: 'alert' }, props.errorText));
         children.push(h('div', bodyProps.value, slots.default ? slots.default({ settled: settled.value }) : []));
       } else if (isVisibleLoading.value && effectiveEmpty.value && slots.skeleton) {
         // Carga inicial en frío usando slot #skeleton

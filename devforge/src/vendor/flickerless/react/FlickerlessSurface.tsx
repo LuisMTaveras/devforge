@@ -16,7 +16,7 @@ export interface FlickerlessSurfaceProps extends FlickerlessOptions {
   errorState?: ReactNode | ((err: unknown) => ReactNode);
   /** Texto para el lector de pantalla mientras el indicador está visible. */
   announceText?: string;
-  /** Texto cuando la carga falla y no hay `errorState`: el error nunca se traga en silencio. */
+  /** Texto cuando la carga falla y no hay `errorState`: el error nunca se traga en silencio. `''` si la pantalla ya lo avisa. */
   errorText?: string;
   className?: string;
   style?: React.CSSProperties;
@@ -80,7 +80,7 @@ export const FlickerlessSurface: React.FC<FlickerlessSurfaceProps> = ({
         ) : options.error ? (
           // Sin errorState: se avisa y se conserva lo que había.
           <>
-            <div className="flickerless-error-inline" role="alert">{errorText}</div>
+            {errorText ? <div className="flickerless-error-inline" role="alert">{errorText}</div> : null}
             <div {...bodyProps}>{typeof children === 'function' ? children({ settled }) : children}</div>
           </>
         ) : showEmpty ? (
