@@ -1,4 +1,5 @@
 import { computed, unref, type Ref, type ComputedRef } from 'vue';
+import { isEmptyValue } from '@flickerless/core';
 
 export interface QueryLike<T = unknown> {
   data?: Ref<T | undefined> | T | undefined;
@@ -18,20 +19,6 @@ export interface FlickerlessQueryState {
   /** La query respondió al menos una vez (hay `data` o `status === 'success'`). */
   settled: ComputedRef<boolean>;
   error: ComputedRef<unknown>;
-}
-
-/** Una página `{ items }`, `{ edges }` o `{ nodes }` está vacía si su lista lo está, no por tener claves. */
-function isEmptyValue(val: unknown): boolean {
-  if (val === null || val === undefined) return true;
-  if (Array.isArray(val)) return val.length === 0;
-  if (typeof val === 'object') {
-    const rec = val as Record<string, unknown>;
-    for (const key of ['items', 'edges', 'nodes', 'data', 'results', 'rows']) {
-      if (Array.isArray(rec[key])) return (rec[key] as unknown[]).length === 0;
-    }
-    return Object.keys(rec).length === 0;
-  }
-  return false;
 }
 
 /**

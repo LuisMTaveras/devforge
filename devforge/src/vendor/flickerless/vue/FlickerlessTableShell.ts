@@ -1,5 +1,5 @@
 import { defineComponent, h } from 'vue';
-import { FlickerlessValue } from './FlickerlessValue';
+import { FlickerlessValue } from './FlickerlessValue.js';
 
 /**
  * Carcasa de una tabla que aún no tiene respuesta: filas reales con «—» en cada

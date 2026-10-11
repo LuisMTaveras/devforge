@@ -1,4 +1,4 @@
-import type { FlickerlessOptions, FlickerlessStatus } from './types';
+import type { FlickerlessOptions, FlickerlessStatus } from './types.js';
 
 // `performance` no está en todos los entornos (ni en los tipos sin DOM).
 const now = (): number => (globalThis as { performance?: { now(): number } }).performance?.now() ?? Date.now();

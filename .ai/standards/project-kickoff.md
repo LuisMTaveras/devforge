@@ -73,7 +73,7 @@ Once the stack and developer profile are established, finalize the functional sc
 Once the user answers the discovery questions:
 
 1. Confirm the agreed architecture, stack, country localization, and visual identity.
-2. Initialize the project using the standard directory structure defined in `.ai/standards/project-structure.md`.
+2. Initialize the project with **pnpm** (`pnpm create vite@latest <name> --template vue-ts` / `react-ts`, then `pnpm install`) using the standard directory structure defined in `.ai/standards/project-structure.md`. Commit `pnpm-lock.yaml`; never leave a `package-lock.json` next to it.
 3. Install the foundation modules **before building any screen** so the project is ready from the first commit:
    ```bash
    devforge add formatters theme errors feedback overlays flickerless list-states

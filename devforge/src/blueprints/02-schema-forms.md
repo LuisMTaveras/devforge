@@ -56,7 +56,7 @@ Install what the form uses before writing it (`devforge add select dates inputs`
 ### 3. React Implementation (React Hook Form + @hookform/resolvers/zod)
 
 ```bash
-npm install react-hook-form @hookform/resolvers zod
+pnpm add react-hook-form @hookform/resolvers zod
 ```
 
 ```tsx
@@ -164,7 +164,7 @@ export function DynamicForm<T extends FieldValues>({ schema, fields, defaultValu
 ### 4. Vue 3 Implementation (VeeValidate + @vee-validate/zod)
 
 ```bash
-npm install vee-validate @vee-validate/zod zod
+pnpm add vee-validate @vee-validate/zod zod
 ```
 
 ```vue

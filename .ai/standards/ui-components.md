@@ -53,7 +53,7 @@ few frames. A `0` or "Sin resultados" before the first response is a **false num
 5. **Errors are never swallowed**: give the surface an `#error` slot (`errorState` in React) with the message
    from `normalizeApiError` and a «Reintentar» button. Without it the surface shows `errorText`
    («No se pudo cargar la información.») above what was there, so the user always knows.
-6. **With TanStack / Vue Query** (Vue) pass the query itself: `<FlickerlessSurface :query="clientesQuery">`. It
+6. **With TanStack Query** pass the query itself: `<FlickerlessSurface :query="clientesQuery">` (React: `query={clientesQuery}`). It
    follows `isFetching`, `error` and `data`; a page `{ items: [] }` / `{ edges: [] }` counts as empty.
 7. Inline saves dim just the row/button: `v-flickerless-saving="savingId === row.id"` (Vue).
 8. A small spinner **inside a button** that is saving is allowed.

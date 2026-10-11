@@ -86,7 +86,8 @@ your-project/
 From inside the `devforge` directory:
 
 ```bash
-npm link
+pnpm install
+pnpm link --global   # first time: run `pnpm setup` and open a new terminal
 ```
 
 Now `devforge` is globally available anywhere in your terminal!

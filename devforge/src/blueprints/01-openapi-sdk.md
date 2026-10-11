@@ -18,8 +18,8 @@ Eliminate manual TypeScript interfaces and hand-written API endpoints. Automatic
 ### 1. Package Installation
 
 ```bash
-npm install -D openapi-typescript
-npm install openapi-fetch
+pnpm add -D openapi-typescript
+pnpm add openapi-fetch
 ```
 
 ### 2. Add Generation Script in `package.json`
@@ -134,7 +134,7 @@ export function useUsers(pageRef: Ref<number>) {
 
 When prompted to integrate a new endpoint:
 
-1. Check `src/core/api/v1.d.ts` for path definitions. **If the path, param or field is not there, do not invent it**: ask the user to run `npm run api:generate` or to confirm the contract (or mock it in MSW with their approval).
+1. Check `src/core/api/v1.d.ts` for path definitions. **If the path, param or field is not there, do not invent it**: ask the user to run `pnpm api:generate` or to confirm the contract (or mock it in MSW with their approval).
 2. Use `apiClient.GET()`, `apiClient.POST()`, `apiClient.PUT()`, or `apiClient.DELETE()`.
 3. Wrap it in a reusable hook/composable under `src/modules/[module]/`.
 4. Never manually type responses; let TypeScript infer from `apiClient`.

@@ -1,6 +1,7 @@
-export * from './useFlickerless';
-export * from './FlickerlessSurface';
-export * from './FlickerlessValue';
-export * from './FlickerlessTableShell';
-export { useSettled } from './settled';
-export type { FlickerlessOptions, FlickerlessStatus } from '@flickerless/core';
+export * from './useFlickerless.js';
+export * from './useFlickerlessQuery.js';
+export * from './FlickerlessSurface.js';
+export * from './FlickerlessValue.js';
+export * from './FlickerlessTableShell.js';
+export { useSettled } from './settled.js';
+export type { FlickerlessOptions, FlickerlessStatus, QuerySnapshot, QueryState } from '@flickerless/core';

@@ -1,5 +1,6 @@
+'use client';
 import type { ReactNode } from 'react';
-import { useSettled } from './settled';
+import { useSettled } from './settled.js';
 
 export interface FlickerlessValueProps<T> {
   value?: T | null;

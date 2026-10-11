@@ -67,7 +67,7 @@ const MODULE_REGISTRY = {
   'flickerless': {
     name: 'Flickerless: carga sin skeleton (superficie que conserva, «—» hasta saber)',
     files: [
-      ...['types.ts', 'controller.ts', 'index.ts', 'styles.css'].map(f => ({
+      ...['types.ts', 'controller.ts', 'query.ts', 'index.ts', 'styles.css'].map(f => ({
         src: `src/vendor/flickerless/core/${f}`, dest: `src/shared/flickerless/core/${f}`,
       })),
       { src: 'src/vendor/flickerless/flickerless.css', dest: 'src/shared/flickerless/flickerless.css' },
@@ -76,7 +76,7 @@ const MODULE_REGISTRY = {
         'FlickerlessTableShell.ts', 'settled.ts', 'directives.ts'].map(f => ({
         src: `src/vendor/flickerless/vue/${f}`, dest: `src/shared/flickerless/vue/${f}`, framework: 'vue',
       })),
-      ...['index.ts', 'useFlickerless.ts', 'FlickerlessSurface.tsx', 'FlickerlessValue.tsx',
+      ...['index.ts', 'useFlickerless.ts', 'useFlickerlessQuery.ts', 'FlickerlessSurface.tsx', 'FlickerlessValue.tsx',
         'FlickerlessTableShell.tsx', 'settled.ts'].map(f => ({
         src: `src/vendor/flickerless/react/${f}`, dest: `src/shared/flickerless/react/${f}`, framework: 'react',
       })),

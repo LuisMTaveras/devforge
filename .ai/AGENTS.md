@@ -35,7 +35,8 @@ Before generating ANY component, file, or view, you MUST enforce these 11 checkp
 8. **[ ] ZERO HALLUCINATION (VERIFY, NEVER GUESS)**:
    - DEVFORGE functions: use only what `.ai/standards/module-api.md` lists. Check the file exists in `src/` before importing it; if it is missing, tell the user to run `devforge add <module>` — never rewrite a module from memory.
    - Never invent npm packages, versions, API endpoints, GraphQL fields, DB columns or env vars. Read `package.json`, `src/core/api/v1.d.ts` (or the GraphQL schema) and `.env.example` first. If it is not there, ASK the user (or, with their approval, mock it in MSW and say so explicitly).
-   - Only run scripts that exist in `package.json`. The DEVFORGE CLI is the globally linked `devforge` command — **never `npx devforge`** (that npm package is an unrelated project).
+   - Only run scripts that exist in `package.json`. The DEVFORGE CLI is the globally linked `devforge` command — **never `npx devforge` / `pnpm dlx devforge`** (the npm package with that name is an unrelated project).
+   - Package manager: **pnpm** (`pnpm-lock.yaml`). Install with `pnpm add` / `pnpm add -D`, run with `pnpm <script>` and `pnpm exec <bin>`. If the project already has another lockfile (`package-lock.json`, `yarn.lock`, `bun.lockb`), use THAT manager and never mix two lockfiles.
    - Blueprint code is a reference pattern: adapt names to the real code. If a blueprint and an installed module disagree, the installed module wins.
    - If you are not sure, say so and ask. A short question is always better than plausible-looking invented code.
 9. **[ ] STANDARD UI COMPONENTS (NEVER HAND-ROLLED)**:
@@ -45,7 +46,7 @@ Before generating ANY component, file, or view, you MUST enforce these 11 checkp
    - Banned: exception permissions (`'descuentos:override_tope'`, `canOverrideCredit`, `bypassLimit`), hand-made «contraseña del supervisor» prompts, backend errors flattened to their message (`sendError(res, err.message)`, `.json({ error: err.message })`), `new Notification()` / `Notification.requestPermission()` on load, and `alert()` for notices.
    - Required: risky acts go to the authorization catalog and are checked when CONSUMED (`assertAuthorized` / `liftsBlock`, blueprint 08); the frontend installs the interceptor once and mounts `<AuthorizationDialog />` + `<AuthorizationAlerts />` (`devforge add authorizations`). Persistent notices go to the bell (`<NotificationCenter />`, `receiveNotification`, blueprint 09); ephemeral ones are `notify()`; decisions are `confirmDialog()`.
 11. **[ ] DEFINITION OF DONE (RUN IT, DON'T ASSUME IT)**:
-   - Typecheck passes (`npx tsc --noEmit` / `vue-tsc --noEmit`, or the project's script), the build passes, and the tests of what you touched pass. Report the real output; never claim a check you did not run.
+   - Typecheck passes (`pnpm exec tsc --noEmit` / `pnpm exec vue-tsc --noEmit`, or the project's script), the build passes, and the tests of what you touched pass. Report the real output; never claim a check you did not run.
    - `devforge audit` shows no NEW violation (existing project: compare against `.devforge-audit-baseline.json`).
    - The screen works in Claro AND Oscuro, at 375 px width, with keyboard only (Tab / Enter / Escape), and in its four data states: first load (`—`, no fake zeros), with data, empty (`EmptyState`) and error (message + retry).
    - Every new visible string is in the UI language and every number, date, phone and amount goes through a formatter.

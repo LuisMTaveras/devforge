@@ -1,5 +1,5 @@
 import { defineComponent, h, inject, type PropType } from 'vue';
-import { FLICKERLESS_SETTLED } from './settled';
+import { FLICKERLESS_SETTLED } from './settled.js';
 
 /**
  * Un dato que puede no existir todavía. Sin respuesta pinta «—» atenuado en vez

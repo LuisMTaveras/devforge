@@ -1,3 +1,4 @@
+'use client';
 import { createContext, useContext } from 'react';
 
 /** Si la superficie que envuelve a un componente ya tiene una respuesta. `null`: no hay superficie. */

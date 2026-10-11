@@ -8,7 +8,7 @@
 - Before importing a module, **check that the file exists** in the project (e.g. `src/core/formatters/formatters.ts`). If it does not, tell the user to run the install command shown below — never recreate the module from memory.
 - If the installed file in `src/` differs from this reference, **the installed file wins**: read it and follow it.
 - All imports use the `@/` alias (`@/core/...`, `@/shared/...`). `devforge add` already rewrites imports to that alias.
-- The CLI is the globally linked `devforge` binary (`npm link` from the DEVFORGE repo). **Never run `npx devforge`**: the npm package named `devforge` is an unrelated project.
+- The CLI is the globally linked `devforge` binary (`pnpm link --global` from the DEVFORGE repo). **Never run `npx devforge` / `pnpm dlx devforge`**: the npm package named `devforge` is an unrelated project.
 
 | Module       | Install command          | Files created in the project |
 | ------------ | ------------------------ | ---------------------------- |
@@ -124,7 +124,8 @@ Returns `{ theme, preference, labels, setPreference, toggle }` (in Vue, `theme` 
 Copy of [github.com/LuisMTaveras/flickerless](https://github.com/LuisMTaveras/flickerless) (MIT). Replaces skeletons. CSS: `@import '../flickerless/flickerless.css'` once (bridged to the theme tokens).
 
 - Vue: `FlickerlessSurface` (props `loading`, `empty`, `error`, `settled?`, `delayMs` = 180, `minDurationMs` = 250, `keepPreviousData` = true, `preserveHeight`, `query` (TanStack/Vue Query-like), `announceText`, `errorText` (= `'No se pudo cargar la información.'`, shown when there is no `error` slot; `''` turns it off); slots `default({ settled })`, `empty`, `error({ error })`, `skeleton` — do not use `skeleton`), `FlickerlessValue` (props `value`, `placeholder` = `'—'`, `unknownLabel`; default slot `({ value })`), `FlickerlessTableShell` (props `cols` (required), `rows` = 4, `rowClass`, `cellClass`), directive `vFlickerlessSaving` (register as `v-flickerless-saving`), `useFlickerless(options)` ➔ `{ isVisibleLoading, status, surfaceProps, bodyProps }`, `useFlickerlessQuery(query | () => query)` ➔ `{ loading, isEmpty, settled, error, … }`, `FLICKERLESS_SETTLED`.
-- React: `FlickerlessSurface` (props: `FlickerlessOptions` + `settled?`, `children` (node or `({ settled }) => node`), `emptyState`, `errorState`, `announceText`, `errorText`, `className`, `style`), `FlickerlessValue` (`value`, `children?: (value) => node`, `placeholder`, `unknownLabel`), `FlickerlessTableShell` (`cols`, `rows?`, `rowClassName?`, `cellClassName?`), `useFlickerless(options)`, `useSettled()`.
+- React: `FlickerlessSurface` (props: `FlickerlessOptions` + `query?` (TanStack Query / SWR result; explicit props win), `preserveHeight?`, `settled?`, `children` (node or `({ settled }) => node`), `emptyState`, `errorState`, `announceText`, `errorText`, `className`, `style`), `FlickerlessValue` (`value`, `children?: (value) => node`, `placeholder`, `unknownLabel`), `FlickerlessTableShell` (`cols`, `rows?`, `rowClassName?`, `cellClassName?`), `useFlickerless(options)`, `useFlickerlessQuery(query)` ➔ `{ loading, isInitialLoading, isRefetching, isEmpty, settled, error }`, `useSettled()`.
+- Core (`@/shared/flickerless/core`): `isEmptyValue(data)` (a page `{ items | edges | nodes: [] }` is empty) and `readQueryState(query)`, the shared rule behind both adapters.
 - Core `@/shared/flickerless/core`: `FlickerlessController`, types `FlickerlessOptions`, `FlickerlessStatus` (`'idle' | 'loading' | 'error' | 'empty'`).
 
 ## 9. `select` — `@/shared/components/SelectField.vue` · `@/shared/components/SelectField` (React)

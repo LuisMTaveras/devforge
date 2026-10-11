@@ -3,7 +3,7 @@
  * Zero-dependency, pure TypeScript CSV and data exporter with UTF-8 BOM encoding for Excel.
  */
 
-export interface ExportColumn<T = any> {
+export interface ExportColumn<T = any> { // any: columns describe rows of any shape
   header: string;
   key: keyof T | string;
   formatter?: (value: any, item: T) => string | number; // any: cell values are arbitrary user data

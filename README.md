@@ -202,11 +202,12 @@ Para que el comando `devforge` esté disponible en cualquier terminal y en cualq
 git clone https://github.com/LuisMTaveras/devforge.git
 cd devforge/devforge
 
-# 2. Instala dependencias
-npm install
+# 2. Instala dependencias (pnpm; si no lo tienes: corepack enable)
+pnpm install
 
 # 3. Enlaza el comando globalmente en tu sistema
-npm link
+#    (la primera vez, `pnpm setup` crea la carpeta global y te pide abrir otra terminal)
+pnpm link --global
 ```
 
 > **Verificación**: Abre una nueva terminal y ejecuta:
@@ -482,7 +483,7 @@ Las instrucciones (`CLAUDE.md`, `AGENTS.md`, `.cursorrules`, Copilot) incluyen e
 
 Además, la IA tiene prohibido inventar paquetes, endpoints, campos de GraphQL o variables de entorno. Antes debe leer `package.json`, `v1.d.ts` y `.env.example`, y si algo no está, preguntar.
 
-> ⚠️ Usa siempre el comando `devforge` enlazado con `npm link`. **No uses `npx devforge`**: en npm existe otro paquete con ese nombre que no tiene relación con este proyecto.
+> ⚠️ Usa siempre el comando `devforge` enlazado con `pnpm link --global`. **No uses `npx devforge` ni `pnpm dlx devforge`**: en npm existe otro paquete con ese nombre que no tiene relación con este proyecto.
 
 ---
 

@@ -1,5 +1,5 @@
-// (sin import de React: jsx 'react-jsx' no lo necesita y noUnusedLocals lo rechaza)
-import { FlickerlessValue } from './FlickerlessValue';
+'use client';
+import { FlickerlessValue } from './FlickerlessValue.js';
 
 export interface FlickerlessTableShellProps {
   /** Columnas de la tabla. Tiene que coincidir con el número de `<th>`. */
