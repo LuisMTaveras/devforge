@@ -20,7 +20,7 @@
       v-if="open"
       role="tooltip"
       class="fixed z-250 w-[min(20rem,calc(100vw-1.5rem))] rounded-card border border-border bg-surface-raised px-3.5 py-3 text-caption leading-relaxed text-muted-foreground shadow-popover"
-      :style="{ top: `${pos.top}px`, left: `${pos.left}px` }"
+      :style="{ top: pos.top === undefined ? undefined : `${pos.top}px`, bottom: pos.bottom === undefined ? undefined : `${pos.bottom}px`, left: `${pos.left}px` }"
       @click.stop
     >
       <p class="mb-1 text-caption font-bold text-foreground">{{ label }}</p>
@@ -47,7 +47,7 @@ import { DfIcon } from './DfIcon.js';
 const props = defineProps<{ label: string; text?: string }>();
 const open = ref(false);
 const trigger = ref<HTMLElement | null>(null);
-const pos = ref({ top: 0, left: 0 });
+const pos = ref<{ top?: number; bottom?: number; left: number }>({ top: 0, left: 0 });
 /** El foco (o el cursor) abre justo antes del clic del mismo gesto: ese clic no debe cerrarla. */
 let openedAt = 0;
 const GUTTER = 12;
@@ -59,9 +59,9 @@ function place() {
   const rect = el.getBoundingClientRect();
   const width = Math.min(WIDTH, window.innerWidth - GUTTER * 2);
   const left = Math.min(Math.max(GUTTER, rect.left + rect.width / 2 - width / 2), window.innerWidth - width - GUTTER);
-  // Si no cabe debajo (teclado del teléfono), va encima.
-  const top = window.innerHeight - rect.bottom < 160 ? Math.max(GUTTER, rect.top - 160) : rect.bottom + 8;
-  pos.value = { top, left };
+  // Si no cabe debajo (teclado del teléfono), va encima, PEGADA al icono: se ancla por abajo,
+  // así no depende de la altura de la burbuja.
+  pos.value = window.innerHeight - rect.bottom < 160 ? { bottom: window.innerHeight - rect.top + 8, left } : { top: rect.bottom + 8, left };
 }
 function show() {
   place();

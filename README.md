@@ -125,17 +125,77 @@ Solicitud a distancia: la operación continúa sola cuando alguien aprueba. — 
 | :---: | :---: |
 | ![La campana — tema claro](docs/screenshots/campana-light.png) | ![La campana — tema oscuro](docs/screenshots/campana-dark.png) |
 
-### Barra de listado y error de carga (Oscuro)
+### Barra de listado
 
-`ListTabs` con conteo («—» mientras no se sabe), `SearchInput`, el período en la pestaña de pendientes y `TableStates` diciendo que la consulta falló —nunca «sin resultados»— con «Reintentar». — `devforge add list-toolbar` · `devforge add shells`
+`ListToolbar` con `ListTabs` (conteo del servidor; «—» mientras no se sabe), `SearchInput` y el período. — `devforge add list-toolbar`
 
-![Barra de listado y error de carga](docs/screenshots/list-toolbar-error-dark.png)
+| Claro | Oscuro |
+| :---: | :---: |
+| ![Barra de listado — tema claro](docs/screenshots/barra-listado-light.png) | ![Barra de listado — tema oscuro](docs/screenshots/barra-listado-dark.png) |
+
+### Tabla: carga en frío y error
+
+`TableStates`: antes de la primera respuesta, las filas reales con «—»; si la consulta falla, el motivo y «Reintentar» (nunca «sin resultados»). — `devforge add shells`
+
+| Claro | Oscuro |
+| :---: | :---: |
+| ![Tabla en carga en frío — tema claro](docs/screenshots/tabla-carga-fria-light.png) | ![Tabla en carga en frío — tema oscuro](docs/screenshots/tabla-carga-fria-dark.png) |
+
+### Tabla: la consulta falló
+
+El error de carga no se confunde con una lista vacía. — `devforge add shells`
+
+| Claro | Oscuro |
+| :---: | :---: |
+| ![Tabla con error — tema claro](docs/screenshots/tabla-error-light.png) | ![Tabla con error — tema oscuro](docs/screenshots/tabla-error-dark.png) |
+
+### Tarjetas y detalle antes de responder
+
+`CardShell` y `DetailShell`: la forma real de la pantalla con «—» donde va cada dato, sin skeleton. — `devforge add shells`
+
+| Claro | Oscuro |
+| :---: | :---: |
+| ![Tarjetas en carga — tema claro](docs/screenshots/tarjetas-carga-light.png) | ![Tarjetas en carga — tema oscuro](docs/screenshots/tarjetas-carga-dark.png) |
+
+### Detalle antes de responder
+
+`DetailShell`: cabecera, fichas de resumen y líneas reales con «—». — `devforge add shells`
+
+| Claro | Oscuro |
+| :---: | :---: |
+| ![Detalle en carga — tema claro](docs/screenshots/detalle-carga-light.png) | ![Detalle en carga — tema oscuro](docs/screenshots/detalle-carga-dark.png) |
+
+### Selector de registros
+
+`RecordPickerModal`: búsqueda en el servidor desde la primera letra, ↑/↓ + Enter y «Mostrar más». — `devforge add pickers`
+
+| Claro | Oscuro |
+| :---: | :---: |
+| ![Selector de registros — tema claro](docs/screenshots/selector-registros-light.png) | ![Selector de registros — tema oscuro](docs/screenshots/selector-registros-dark.png) |
+
+### Command palette (⌘K)
+
+`CommandPalette`: pantallas (sin acentos y con un error de dedo) y registros del servidor, con lo que casó resaltado. — `devforge add command-palette`
+
+| Claro | Oscuro |
+| :---: | :---: |
+| ![Command palette — tema claro](docs/screenshots/command-palette-light.png) | ![Command palette — tema oscuro](docs/screenshots/command-palette-dark.png) |
+
+### Ayuda de un campo
+
+`FieldHelp`: el «?» que se abre al tocar (también en el teléfono) y se queda pegado al campo. — `devforge add field-help`
+
+| Claro | Oscuro |
+| :---: | :---: |
+| ![Ayuda de un campo — tema claro](docs/screenshots/ayuda-campo-light.png) | ![Ayuda de un campo — tema oscuro](docs/screenshots/ayuda-campo-dark.png) |
 
 ### Vista previa de un documento
 
 `DocumentPreviewModal`: la maqueta en un iframe sin scripts, lista para imprimir. — `devforge add documents`
 
-![Vista previa de un documento](docs/screenshots/document-preview.png)
+| Claro | Oscuro |
+| :---: | :---: |
+| ![Vista previa de un documento — tema claro](docs/screenshots/vista-previa-light.png) | ![Vista previa de un documento — tema oscuro](docs/screenshots/vista-previa-dark.png) |
 
 ---
 

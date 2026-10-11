@@ -20,7 +20,7 @@ const WIDTH = 320;
 
 export function FieldHelp({ label, text, children }: FieldHelpProps) {
   const [open, setOpen] = useState(false);
-  const [pos, setPos] = useState({ top: 0, left: 0 });
+  const [pos, setPos] = useState<{ top?: number; bottom?: number; left: number }>({ top: 0, left: 0 });
   const trigger = useRef<HTMLButtonElement>(null);
   /** El foco (o el cursor) abre justo antes del clic del mismo gesto: ese clic no debe cerrarla. */
   const openedAt = useRef(0);
@@ -31,8 +31,8 @@ export function FieldHelp({ label, text, children }: FieldHelpProps) {
       const rect = el.getBoundingClientRect();
       const width = Math.min(WIDTH, window.innerWidth - GUTTER * 2);
       const left = Math.min(Math.max(GUTTER, rect.left + rect.width / 2 - width / 2), window.innerWidth - width - GUTTER);
-      const top = window.innerHeight - rect.bottom < 160 ? Math.max(GUTTER, rect.top - 160) : rect.bottom + 8;
-      setPos({ top, left });
+      // Sin espacio debajo: encima y pegada al icono (anclada por abajo, sin depender de su altura).
+      setPos(window.innerHeight - rect.bottom < 160 ? { bottom: window.innerHeight - rect.top + 8, left } : { top: rect.bottom + 8, left });
     }
     setOpen(was => {
       if (!was) openedAt.current = Date.now();
@@ -88,7 +88,7 @@ export function FieldHelp({ label, text, children }: FieldHelpProps) {
           <div
             role="tooltip"
             className="fixed z-250 w-[min(20rem,calc(100vw-1.5rem))] rounded-card border border-border bg-surface-raised px-3.5 py-3 text-caption leading-relaxed text-muted-foreground shadow-popover"
-            style={{ top: pos.top, left: pos.left }}
+            style={{ top: pos.top, bottom: pos.bottom, left: pos.left }}
             onClick={e => e.stopPropagation()}
           >
             <p className="mb-1 text-caption font-bold text-foreground">{label}</p>
