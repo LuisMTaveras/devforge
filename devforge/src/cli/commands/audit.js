@@ -169,7 +169,7 @@ const AUDIT_RULES = [
     check: (content, line, lineNum, ext) => {
       if (!['.ts', '.tsx', '.vue'].includes(ext) || isComment(line)) return null;
       if (/\/\/\s*any:\s*\S/.test(line)) return null; // justified boundary
-      const match = line.match(/(?::\s*any\b(?!\w)|\bas\s+any\b|<any>|\bany\[\])/);
+      const match = line.match(/(?::\s*any\b(?!\w)|\bas\s+any\b|<any>|\bany\[\]|=\s*any\s*[>,])/);
       if (match) {
         return {
           rule: 'Strict TypeScript',

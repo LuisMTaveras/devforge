@@ -72,7 +72,7 @@ export function setThemePreference(preference: ThemePreference): void {
 /** Cycles light -> dark -> system. Handy for a single toggle button. */
 export function cycleThemePreference(): ThemePreference {
   const order: ThemePreference[] = ['light', 'dark', 'system'];
-  const next = order[(order.indexOf(getThemePreference()) + 1) % order.length];
+  const next = order[(order.indexOf(getThemePreference()) + 1) % order.length] ?? 'system';
   setThemePreference(next);
   return next;
 }

@@ -46,7 +46,7 @@ export const tokenStorage = {
     try {
       const parts = token.split('.');
       if (parts.length !== 3) return true;
-      const payload = JSON.parse(atob(parts[1]));
+      const payload = JSON.parse(atob(parts[1] ?? ''));
       if (!payload.exp) return false;
       const nowInSeconds = Math.floor(Date.now() / 1000);
       // Give a 15-second buffer

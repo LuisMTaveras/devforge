@@ -191,11 +191,11 @@ export function formatRelativeTime(
   const units: Intl.RelativeTimeFormatUnit[] = ['second', 'minute', 'hour', 'day', 'week', 'month', 'year'];
 
   const unitIndex = cutoffs.findIndex(cutoff => cutoff > Math.abs(diffInSeconds));
-  const divisor = unitIndex ? cutoffs[unitIndex - 1] : 1;
+  const divisor = unitIndex > 0 ? cutoffs[unitIndex - 1] ?? 1 : 1;
   const count = Math.round(diffInSeconds / divisor);
 
   const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
-  return rtf.format(count, units[unitIndex]);
+  return rtf.format(count, units[unitIndex] ?? 'year');
 }
 
 interface PhoneMask {

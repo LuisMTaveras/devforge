@@ -21,34 +21,30 @@ export const FlickerlessSurface = defineComponent({
      */
     settled: { type: Boolean as PropType<boolean | undefined>, default: undefined },
     announce: { type: Boolean, default: true },
-    announceText: { type: String, default: 'Cargando actualización de datos...' },
+    announceText: { type: String, default: 'Actualizando…' },
+    /** Texto cuando la carga falla y no hay slot `#error`: el error nunca se traga en silencio. */
+    errorText: { type: String, default: 'No se pudo cargar la información.' },
     streamHeight: { type: String, default: undefined },
     streamColor: { type: String, default: undefined },
   },
   setup(props, { slots }) {
     // 1. Integración automática con TanStack Query / Vue Query / Pinia Colada si se pasa la prop :query
-    const queryState = props.query ? useFlickerlessQuery(props.query) : null;
+    //    El getter sigue a la query aunque el padre la reemplace.
+    const queryState = useFlickerlessQuery(() => props.query);
 
-    const effectiveLoading = computed(() => {
-      if (queryState) return queryState.loading.value;
-      return props.loading;
-    });
+    const effectiveLoading = computed(() => (props.query ? queryState.loading.value : props.loading));
+    const effectiveEmpty = computed(() => (props.query ? queryState.isEmpty.value : props.empty));
+    const effectiveError = computed(() => (props.query ? queryState.error.value : props.error) as boolean | string | Error | null);
 
-    const effectiveEmpty = computed(() => {
-      if (queryState) return queryState.isEmpty.value;
-      return props.empty;
+    // Resuelta = hubo una respuesta. Montar con loading=false y la lista vacía NO es una
+    // respuesta (la petición aún no salió): seguir así sería pintar «vacío» y «0» falsos.
+    const sawLoading = ref(effectiveLoading.value);
+    const loadFinished = ref(!effectiveLoading.value && !effectiveError.value && !effectiveEmpty.value);
+    watch([effectiveLoading, effectiveError, effectiveEmpty], ([loading, error, empty]) => {
+      if (loading) sawLoading.value = true;
+      else if (!error && (sawLoading.value || !empty)) loadFinished.value = true;
     });
-
-    const effectiveError = computed(() => {
-      if (queryState) return queryState.error.value;
-      return props.error;
-    });
-
-    const loadFinished = ref(!effectiveLoading.value && !effectiveError.value);
-    watch([effectiveLoading, effectiveError], ([loading, error]) => {
-      if (!loading && !error) loadFinished.value = true;
-    });
-    const settled = computed(() => props.settled ?? loadFinished.value);
+    const settled = computed(() => props.settled ?? (props.query ? queryState.settled.value : loadFinished.value));
     provide(FLICKERLESS_SETTLED, settled);
 
     const { isVisibleLoading, status, surfaceProps, bodyProps } = useFlickerless({
@@ -131,6 +127,10 @@ export const FlickerlessSurface = defineComponent({
         children.push(
           h('div', { class: 'flickerless-error-state' }, slots.error({ error: effectiveError.value }))
         );
+      } else if (effectiveError.value) {
+        // Sin slot #error: se avisa y se conserva lo que había.
+        children.push(h('div', { class: 'flickerless-error-inline', role: 'alert' }, props.errorText));
+        children.push(h('div', bodyProps.value, slots.default ? slots.default({ settled: settled.value }) : []));
       } else if (isVisibleLoading.value && effectiveEmpty.value && slots.skeleton) {
         // Carga inicial en frío usando slot #skeleton
         children.push(h('div', { class: 'flickerless-body' }, slots.skeleton()));

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, type ReactNode } from 'react';
+import React, { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { FlickerlessOptions } from '@flickerless/core';
 import { useFlickerless } from './useFlickerless';
 import { SettledContext } from './settled';
@@ -16,6 +16,8 @@ export interface FlickerlessSurfaceProps extends FlickerlessOptions {
   errorState?: ReactNode | ((err: unknown) => ReactNode);
   /** Texto para el lector de pantalla mientras el indicador está visible. */
   announceText?: string;
+  /** Texto cuando la carga falla y no hay `errorState`: el error nunca se traga en silencio. */
+  errorText?: string;
   className?: string;
   style?: React.CSSProperties;
 }
@@ -29,7 +31,8 @@ export const FlickerlessSurface: React.FC<FlickerlessSurfaceProps> = ({
   settled: settledProp,
   emptyState,
   errorState,
-  announceText = 'Actualizando',
+  announceText = 'Actualizando…',
+  errorText = 'No se pudo cargar la información.',
   className = '',
   style,
   streamHeight,
@@ -38,10 +41,14 @@ export const FlickerlessSurface: React.FC<FlickerlessSurfaceProps> = ({
 }) => {
   const { isVisibleLoading, surfaceProps, bodyProps } = useFlickerless(options);
 
-  const [loadFinished, setLoadFinished] = useState(!options.loading && !options.error);
+  // Resuelta = hubo una respuesta. Montar con loading=false y la lista vacía NO es una
+  // respuesta (la petición aún no salió): seguir así sería pintar «vacío» y «0» falsos.
+  const sawLoading = useRef(!!options.loading);
+  const [loadFinished, setLoadFinished] = useState(!options.loading && !options.error && !options.empty);
   useEffect(() => {
-    if (!options.loading && !options.error) setLoadFinished(true);
-  }, [options.loading, options.error]);
+    if (options.loading) sawLoading.current = true;
+    else if (!options.error && (sawLoading.current || !options.empty)) setLoadFinished(true);
+  }, [options.loading, options.error, options.empty]);
   const settled = settledProp ?? loadFinished;
 
   const customStyles: React.CSSProperties = {
@@ -70,6 +77,12 @@ export const FlickerlessSurface: React.FC<FlickerlessSurfaceProps> = ({
           <div className="flickerless-error-state">
             {typeof errorState === 'function' ? errorState(options.error) : errorState}
           </div>
+        ) : options.error ? (
+          // Sin errorState: se avisa y se conserva lo que había.
+          <>
+            <div className="flickerless-error-inline" role="alert">{errorText}</div>
+            <div {...bodyProps}>{typeof children === 'function' ? children({ settled }) : children}</div>
+          </>
         ) : showEmpty ? (
           <div className="flickerless-empty-state">{emptyState}</div>
         ) : (

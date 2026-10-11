@@ -134,7 +134,8 @@ export function DatePicker(props: DatePickerProps) {
       commit([key]); // empieza un rango nuevo
       return;
     }
-    commit(key < start ? [key, start] : [start, key]);
+    const first = start ?? key;
+    commit(key < first ? [key, first] : [first, key]);
     setHoverDate('');
     close();
   };

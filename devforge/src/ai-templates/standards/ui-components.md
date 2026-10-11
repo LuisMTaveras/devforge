@@ -47,9 +47,16 @@ few frames. A `0` or "Sin resultados" before the first response is a **false num
    response (or while the value is `null`). Never render `RD$0.00` while loading.
 3. **Cold load paints the real shell**: `<FlickerlessTableShell :cols>` puts real rows with `—` inside the real
    `<tbody>`, so nothing jumps when data arrives.
-4. **"Empty" only with a response in hand**: use the surface's `#empty` slot; it never shows during a load.
-5. Inline saves dim just the row/button: `v-flickerless-saving="savingId === row.id"` (Vue).
-6. A small spinner **inside a button** that is saving is allowed.
+4. **"Empty" only with a response in hand**: use the surface's `#empty` slot; it never shows during a load nor
+   on mount before the request leaves (mounted with `loading=false` and an empty list = still unknown). If your
+   loading flag can't express that, pass `:settled` explicitly (`settled` = "the server answered at least once").
+5. **Errors are never swallowed**: give the surface an `#error` slot (`errorState` in React) with the message
+   from `normalizeApiError` and a «Reintentar» button. Without it the surface shows `errorText`
+   («No se pudo cargar la información.») above what was there, so the user always knows.
+6. **With TanStack / Vue Query** (Vue) pass the query itself: `<FlickerlessSurface :query="clientesQuery">`. It
+   follows `isFetching`, `error` and `data`; a page `{ items: [] }` / `{ edges: [] }` counts as empty.
+7. Inline saves dim just the row/button: `v-flickerless-saving="savingId === row.id"` (Vue).
+8. A small spinner **inside a button** that is saving is allowed.
 
 ```vue
 <FlickerlessSurface :loading="loading" :empty="!rows.length">
@@ -59,7 +66,7 @@ few frames. A `0` or "Sin resultados" before the first response is a **false num
       <FlickerlessTableShell v-if="loading && !rows.length" :cols="7" cell-class="px-3.5 py-2.5" />
       <tr v-for="row in rows" v-else :key="row.id">
         <td class="px-3.5 py-2.5 text-right tabular-nums">
-          <FlickerlessValue :value="row?.monto">{{ formatCurrency(row.monto) }}</FlickerlessValue>
+          <FlickerlessValue :value="row.monto">{{ formatCurrency(row.monto) }}</FlickerlessValue>
         </td>
       </tr>
     </tbody>
