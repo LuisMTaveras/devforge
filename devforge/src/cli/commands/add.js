@@ -200,6 +200,106 @@ const MODULE_REGISTRY = {
       reactFile('NotificationCenter.tsx'),
     ]
   },
+  'shells': {
+    name: 'CardShell, DetailShell, TableStates: carga en frío y estados de tabla sin skeleton (Vue & React)',
+    requires: ['theme', 'flickerless'],
+    files: [
+      ...ICONS_VUE,
+      ...ICONS_REACT,
+      vueFile('CardShell.vue'),
+      vueFile('DetailShell.vue'),
+      vueFile('TableStates.vue'),
+      reactFile('CardShell.tsx'),
+      reactFile('DetailShell.tsx'),
+      reactFile('TableStates.tsx'),
+    ]
+  },
+  'list-toolbar': {
+    name: 'ListToolbar, ListTabs, SearchInput, HistoryPeriodFilter: la barra estándar de un listado (Vue & React)',
+    requires: ['theme', 'formatters', 'flickerless', 'dates'],
+    files: [
+      ...ICONS_VUE,
+      ...ICONS_REACT,
+      vueFile('ListToolbar.vue'),
+      vueFile('ListTabs.vue'),
+      vueFile('SearchInput.vue'),
+      vueFile('HistoryPeriodFilter.vue'),
+      reactFile('ListToolbar.tsx'),
+      reactFile('ListTabs.tsx'),
+      reactFile('SearchInput.tsx'),
+      reactFile('HistoryPeriodFilter.tsx'),
+    ]
+  },
+  'list-cache': {
+    name: 'useCachedList + createTabCache: listas que se conservan al navegar y parchean lo que cambiaste (Vue & React)',
+    requires: ['list-states'],
+    files: [
+      coreFile('list-cache/document-changes.ts'),
+      coreFile('list-cache/tab-cache.ts'),
+      { src: 'src/adapters/vue/composables/useCachedList.ts', dest: 'src/shared/composables/useCachedList.ts', framework: 'vue' },
+      { src: 'src/adapters/react/hooks/useCachedList.ts', dest: 'src/shared/hooks/useCachedList.ts', framework: 'react' },
+    ]
+  },
+  'excel': {
+    name: 'downloadExcelReport: Excel tipado con totales que no mezclan monedas (backend: blueprint 10)',
+    files: [coreFile('export/download.ts'), coreFile('export/excel-report.ts')]
+  },
+  'pickers': {
+    name: 'RecordPickerModal: elegir cliente / artículo buscando en el servidor (Vue & React)',
+    requires: ['theme', 'overlays', 'list-states', 'errors', 'flickerless'],
+    files: [
+      ...ICONS_VUE,
+      ...ICONS_REACT,
+      coreFile('search/record-search.ts'),
+      { src: 'src/adapters/vue/composables/useRecordSearch.ts', dest: 'src/shared/composables/useRecordSearch.ts', framework: 'vue' },
+      { src: 'src/adapters/react/hooks/useRecordSearch.ts', dest: 'src/shared/hooks/useRecordSearch.ts', framework: 'react' },
+      vueFile('SearchInput.vue'),
+      vueFile('RecordPickerModal.vue'),
+      reactFile('SearchInput.tsx'),
+      reactFile('RecordPickerModal.tsx'),
+    ]
+  },
+  'command-palette': {
+    name: 'CommandPalette (⌘K): pantallas en el navegador y registros en el servidor (Vue & React)',
+    requires: ['theme', 'overlays', 'list-states', 'errors'],
+    files: [
+      ...ICONS_VUE,
+      ...ICONS_REACT,
+      coreFile('search/nav-search.ts'),
+      coreFile('search/record-search.ts'),
+      { src: 'src/adapters/vue/composables/useRecordSearch.ts', dest: 'src/shared/composables/useRecordSearch.ts', framework: 'vue' },
+      { src: 'src/adapters/react/hooks/useRecordSearch.ts', dest: 'src/shared/hooks/useRecordSearch.ts', framework: 'react' },
+      vueFile('SearchInput.vue'),
+      vueFile('CommandPalette.vue'),
+      reactFile('SearchInput.tsx'),
+      reactFile('CommandPalette.tsx'),
+    ]
+  },
+  'documents': {
+    name: 'DocumentPreviewModal + openPdfInNewTab: ver, imprimir y descargar documentos con la sesión (Vue & React)',
+    requires: ['theme', 'overlays', 'feedback', 'errors'],
+    files: [
+      ...ICONS_VUE,
+      ...ICONS_REACT,
+      coreFile('export/download.ts'),
+      coreFile('documents/print.ts'),
+      vueFile('DocumentPreviewModal.vue'),
+      reactFile('DocumentPreviewModal.tsx'),
+    ]
+  },
+  'app-update': {
+    name: 'installAppUpdates: versión nueva sin perder trabajo y recuperación de pantallas que no cargan',
+    files: [coreFile('app-update/app-update.ts')]
+  },
+  'field-help': {
+    name: 'FieldHelp: la ayuda «?» de un campo que también funciona en táctil (Vue & React)',
+    requires: ['theme'],
+    files: [...ICONS_VUE, ...ICONS_REACT, vueFile('FieldHelp.vue'), reactFile('FieldHelp.tsx')]
+  },
+  'security': {
+    name: 'escapeHtml, safeLinkUrl, sanitizeTenantCss: datos de terceros en HTML, enlaces y CSS',
+    files: [coreFile('security/escape-html.ts'), coreFile('security/safe-url.ts'), coreFile('security/sanitize-css.ts')]
+  },
   'url-sync': {
     name: 'URL Search Params Synchronizer',
     files: [

@@ -125,11 +125,24 @@ Solicitud a distancia: la operación continúa sola cuando alguien aprueba. — 
 | :---: | :---: |
 | ![La campana — tema claro](docs/screenshots/campana-light.png) | ![La campana — tema oscuro](docs/screenshots/campana-dark.png) |
 
+### Barra de listado y error de carga (Oscuro)
+
+`ListTabs` con conteo («—» mientras no se sabe), `SearchInput`, el período en la pestaña de pendientes y `TableStates` diciendo que la consulta falló —nunca «sin resultados»— con «Reintentar». — `devforge add list-toolbar` · `devforge add shells`
+
+![Barra de listado y error de carga](docs/screenshots/list-toolbar-error-dark.png)
+
+### Vista previa de un documento
+
+`DocumentPreviewModal`: la maqueta en un iframe sin scripts, lista para imprimir. — `devforge add documents`
+
+![Vista previa de un documento](docs/screenshots/document-preview.png)
+
 ---
 
-## 🚨 Los 10 Mandamientos DEVFORGE (Pre-Flight Checklist)
 
-Cada agente de IA que opere en un repositorio configurado con DEVFORGE tiene la obligación contractual de verificar estos 10 puntos antes de generar o editar cualquier archivo:
+## 🚨 Los 11 Mandamientos DEVFORGE (Pre-Flight Checklist)
+
+Cada agente de IA que opere en un repositorio configurado con DEVFORGE tiene la obligación de verificar estos 11 puntos antes de generar o editar cualquier archivo, y de cerrar cada tarea con el 11:
 
 | # | Mandamiento | Regla Estricta | Alternativa Requerida |
 | :-: | :--- | :--- | :--- |
@@ -137,12 +150,13 @@ Cada agente de IA que opere en un repositorio configurado con DEVFORGE tiene la 
 | **2** | **Paginación Obligatoria** | Prohibido consultar listas completas sin parámetros de página (`SELECT *` o `GET /items`). | Paginación obligatoria por cursor o desplazamiento (`page`, `pageSize`, `first`, `after`). Cero sobreconsulta. |
 | **3** | **Formateo Localizado** | Prohibido imprimir números brutos como moneda (`"$ " + valor`) o fechas ISO (`2026-10-05T15:50:00Z`). | Usar formateadores oficiales: `formatCurrency()`, `formatDate()`, `formatPhoneNumber()`. Fechas en la hora del negocio (nunca `toLocaleDateString()`), moneda del documento (nunca `currency: 'DOP'` en el código). Nulos se renderizan con em-dash `—`. |
 | **4** | **Cero Spanglish (100% Español)** | Si la interfaz está en español, prohibida cualquier palabra en inglés en UI, botones o estados. | `Cerrar`, `Guardar`, `Estado`, `Monto`, `Acciones`, `Observado`, `Completado`, `Pendiente`. |
-| **5** | **Cero Cyberpunk / Paleta Anti-AI** | Prohibidos los colores cian/teal fluorescentes (`cyan-*`, `#00ff9d`), degradados morados o badges radioactivos. | Paleta «Warm Slate» por tokens (`bg-surface`, `text-foreground`, `border-border`) con badges translúcidos al 10% (`bg-emerald-500/10 text-emerald-700 dark:text-emerald-400`). |
-| **6** | **Seguridad Lógica y Tipado** | Prohibido el uso de `any` y mutaciones directas de `props`. | Encadenamiento opcional `record?.cliente?.nombre`, emisión de eventos (`emit`), tipos estrictos y esquemas Zod. |
+| **5** | **Cero Cyberpunk / Paleta Anti-AI** | Prohibidos los colores cian/teal fluorescentes (`cyan-*`, `#00ff9d`), degradados morados o badges radioactivos. | Paleta «Warm Slate» por tokens (`bg-surface`, `text-foreground`, `border-border`) con badges translúcidos al 10% por tokens (`border-success/20 bg-success/10 text-success`). Un solo color de acción: `primary`. |
+| **6** | **Seguridad Lógica y Tipado** | Prohibidos `any`, `@ts-ignore` y las mutaciones directas de `props`. | `?.` donde el tipo puede ser nulo, eventos (`emit` / `onChange`), Zod en las fronteras y los tres desenlaces de toda acción (en curso, éxito, error con `normalizeApiError`). |
 | **7** | **Tema Claro + Oscuro** | Prohibidas las interfaces de un solo tema y los colores hex dentro de componentes. | Tokens semánticos de `tokens.css` (`bg-surface`, `text-foreground`, `border-border`), `initTheme()` y selector Claro / Oscuro / Sistema. |
 | **8** | **Cero Alucinación** | Prohibido inventar funciones, paquetes, endpoints o variables de entorno. | Solo lo que lista `.ai/standards/module-api.md`; si falta, `devforge add <módulo>` o preguntar. |
-| **9** | **Componentes UI Estándar** | Prohibidos los skeletons, `animate-pulse`, el `<select>` nativo, `<input type="date">`, `window.confirm/alert/prompt`, modales hechos a mano que se cierran al tocar el telón y pies de paginación propios. | Flickerless, `SelectField`, `DateField` / `DateRangeFilter`, `ListPager`, `confirmDialog()` / `notify()`, `ModalShell` / `DrawerShell` / `RowMenu`, `EmptyState`, `MoneyInput` / `MaskedInput` y `BatchProgressModal` (`.ai/standards/ui-components.md`). |
+| **9** | **Componentes UI Estándar** | Prohibidos los skeletons, `animate-pulse`, el `<select>` nativo, `<input type="date">`, `window.confirm/alert/prompt`, modales hechos a mano que se cierran al tocar el telón y pies de paginación propios. | Flickerless, `SelectField`, `DateField` / `DateRangeFilter`, `ListPager`, `confirmDialog()` / `notify()`, `ModalShell` / `DrawerShell` / `RowMenu`, `EmptyState`, `MoneyInput` / `MaskedInput` `BatchProgressModal`, `TableStates`, `ListToolbar`, `downloadExcelReport()`, `RecordPickerModal`, `DocumentPreviewModal` y `escapeHtml` / `safeLinkUrl` para datos de terceros (`.ai/standards/ui-components.md`). |
 | **10** | **Autorizaciones y Notificaciones** | Prohibidos los permisos de excepción (`'descuentos:override_tope'`, `canOverrideCredit`), la «contraseña del supervisor» hecha a mano, aplanar los errores del backend a `err.message` y `new Notification()` a mano. | El acto riesgoso va al catálogo de autorizaciones y se avala al consumarlo (blueprint 08, `AuthorizationDialog`); lo persistente va a la campana (`NotificationCenter`, blueprint 09); lo efímero es `notify()`. |
+| **11** | **Definición de Terminado** | Prohibido decir «listo» sin haberlo corrido. | Typecheck, build y tests con su salida real; `devforge audit` sin violaciones nuevas; Claro y Oscuro, 375 px, solo teclado y los cuatro estados de datos (primera carga, con datos, vacío, error). Lo que no se pudo verificar se dice. |
 
 ---
 
@@ -357,10 +371,20 @@ Inyecta módulos de código limpios, probados y con TypeScript estricto en la es
 | **Autorizaciones** | `devforge add authorizations` | `src/core/authorizations/authorization.ts`<br>`AuthorizationDialog`, `AuthorizationAlerts` (`.vue` / `.tsx`) | El interceptor reconoce el 403 `AUTHORIZATION_REQUIRED`, abre el modal (mi contraseña, credenciales de otro o solicitud a distancia) y reintenta la misma petición con la llave. Quien firma recibe una tarjeta en vivo con cuenta regresiva. El backend es el blueprint 08. |
 | **Notificaciones** | `devforge add notifications` | `src/core/notifications/notifications.ts`<br>`NotificationCenter` (`.vue` / `.tsx`) | La campana: contador real, filtros, agrupada por día en la hora del negocio, acuse reversible y avisos de escritorio activados con un clic. El backend es el blueprint 09. |
 | **Paginación** | `devforge add pagination` | `src/core/pagination/pagination.ts`<br>`src/shared/components/ListPager.vue`<br>`ListPager.tsx` (React) | Pie de listado estándar: «Mostrando 11–20 de 57 facturas» y ‹ 2 / 6 ›, con «—» hasta la primera respuesta. |
+| **Estados de tabla** | `devforge add shells` | `CardShell`, `DetailShell`, `TableStates` (`.vue` / `.tsx`) | Carga en frío con la forma real («—»), error con «Reintentar» que nunca se confunde con una lista vacía, y el vacío solo con respuesta en la mano. |
+| **Barra de listado** | `devforge add list-toolbar` | `ListToolbar`, `ListTabs`, `SearchInput`, `HistoryPeriodFilter` (`.vue` / `.tsx`) | Pestañas con conteo del servidor, búsqueda con pausa, período (los pendientes se ven enteros) y acciones, siempre en el mismo orden. |
+| **Listas conservadas** | `devforge add list-cache` | `src/core/list-cache/*`<br>`useCachedList` | Volver de un detalle devuelve la lista como estaba sin ir al servidor; se parchea lo que cambiaste y se ofrece recargar si hay filas nuevas. |
+| **Excel** | `devforge add excel` | `src/core/export/excel-report.ts`<br>`src/core/export/download.ts` | `downloadExcelReport()`: columnas tipadas, membrete y totales que no suman pesos con dólares. El servidor es el blueprint 10. |
+| **Selector de registros** | `devforge add pickers` | `src/core/search/record-search.ts`<br>`RecordPickerModal` (`.vue` / `.tsx`) | Elegir cliente o artículo buscando en el servidor: cancela la búsqueda anterior, conserva los resultados mientras llega la nueva y pagina. |
+| **Command palette** | `devforge add command-palette` | `src/core/search/nav-search.ts`<br>`CommandPalette` (`.vue` / `.tsx`) | ⌘K / Ctrl+K: pantallas buscadas sin acentos y con tolerancia a un error de dedo, y registros del servidor. |
+| **Documentos** | `devforge add documents` | `src/core/documents/print.ts`<br>`DocumentPreviewModal` (`.vue` / `.tsx`) | Vista previa e impresión de PDF o maqueta HTML traídos con la sesión (nunca `window.open('/api/…')`), en un iframe sin scripts. |
+| **Ayuda de campo** | `devforge add field-help` | `FieldHelp` (`.vue` / `.tsx`) | El «?» junto a la etiqueta que funciona también en el teléfono, donde el `title` no existe. |
+| **Versión nueva** | `devforge add app-update` | `src/core/app-update/app-update.ts` | Despliegue nuevo con la pestaña abierta: se aplica en la próxima navegación (no se pierde lo que se estaba tecleando) y se recupera la pantalla que no carga. |
+| **Seguridad** | `devforge add security` | `src/core/security/*` | `escapeHtml`, `safeLinkUrl` y `sanitizeTenantCss` para el texto, los enlaces y el CSS que escriben terceros. |
 
 ---
 
-## 📐 Los 9 Blueprints de Arquitectura Empresarial
+## 📐 Los 16 Blueprints de Arquitectura Empresarial
 
 Ubicados en `.ai/blueprints/`, estos documentos son recetas canónicas que instruyen a tu IA exactamente sobre cómo estructurar patrones complejos:
 
@@ -391,6 +415,20 @@ Ubicados en `.ai/blueprints/`, estos documentos son recetas canónicas que instr
    - Un permiso dice qué pantalla se puede tocar; una autorización dice si ESTE acto, con ESTE importe, puede consumarse. Catálogo de actos (todo nace apagado), política por empresa, autorizadores con tope, huella del acto, llave de un solo uso, el importe como techo, `liftsBlock` para excepciones a un muro existente, el contrato del 403 y los trinquetes. El dueño y el ADMIN siempre pueden avalar.
 9. **`09-notifications.md` (Notificaciones)**:
    - Cuándo es diálogo, toast, notificación o tarjeta de autorización; modelo y API de la bandeja con aislamiento por usuario y empresa; cómo se emite un aviso (categoría, enlace sin prefijo, a quién); avisos de escritorio y web push.
+10. **`10-excel-reports.md` (Reportes Excel)**:
+   - El generador único del servidor (`exceljs`) para `downloadExcelReport()`: celdas tipadas, membrete con la empresa de la sesión, totales que no mezclan monedas y exportación de listas paginadas por su propia ruta con tope.
+11. **`11-document-history.md` (Histórico por documento)**:
+   - Qué guarda la auditoría para que el «Histórico» del menú ⋮ se lea (antes / después, motivo, importe con moneda, nunca secretos) y por qué la auditoría de seguridad va en la misma transacción.
+12. **`12-document-delivery.md` (Envío por correo y WhatsApp)**:
+   - Una sola puerta de envío, destinatarios por rol resueltos en el servidor, PDF generado en el servidor, bitácora por destinatario y reintentos sin duplicar.
+13. **`13-rate-limiting.md` (Límites y fuerza bruta)**:
+   - Límites en una sola fuente con Redis, `trust proxy` con los saltos reales (nunca `true`), llave por identidad o empresa y bloqueo progresivo por cuenta.
+14. **`14-idempotency-offline.md` (Idempotencia y redes inestables)**:
+   - `Idempotency-Key` por acto del usuario, misma llave con otro cuerpo = 422, reintentos con espera, cola offline y bloqueos de fila en lo que mueve saldos.
+15. **`15-auth-sessions.md` (Sesiones visibles y revocables)**:
+   - La mitad de servidor del blueprint 06: fila por sesión, `sid` en los tokens, rotación con detección de reuso, cierre por sesión y respuesta uniforme al «olvidé mi contraseña».
+16. **`16-realtime-sockets.md` (Tiempo real con sockets)**:
+   - Handshake con el mismo JWT, salas que asigna el servidor por empresa y usuario, emitir después del commit y el evento como aviso: la verdad es la API.
 
 ---
 
@@ -408,7 +446,7 @@ DEVFORGE destierra la estética predecible y sobrecargada que suelen generar los
 - **Obligatorio**: Fondos translúcidos con opacidad reducida y bordes sutiles:
   ```html
   <!-- Ejemplo: Estado exitoso/completado -->
-  <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-0.5 rounded-full text-xs font-medium">
+  <span class="rounded-full border border-success/20 bg-success/10 px-2.5 py-0.5 text-caption font-medium text-success">
     Completado
   </span>
   ```
@@ -424,6 +462,9 @@ Las mismas piezas en todos los proyectos, instaladas con `devforge add` (reglas 
 - **Estados de lista (`list-states`)**: `EmptyState` (icono, titular, explicación y acción) y `ListStaleNotice` («Hay cambios nuevos · Actualizar lista», sin recargar sola).
 - **Campos (`inputs`)**: `MoneyInput` (el valor es un número, nunca texto) y `MaskedInput` para cédula, RNC y teléfono enmascarados mientras se escribe.
 - **Lotes (`batch`)**: `BatchProgressModal` muestra «Procesando 3 de 10…» y el resultado de cada registro (listo, omitido o error y por qué).
+- **Listados (`shells`, `list-toolbar`, `list-cache`)**: `TableStates` dentro del `<tbody>` (carga en frío, error con «Reintentar», vacío), `ListToolbar` con `ListTabs`, `SearchInput` y `HistoryPeriodFilter`, y `useCachedList` para que volver de un detalle no recargue nada.
+- **Registros y documentos (`pickers`, `command-palette`, `documents`)**: `RecordPickerModal` para elegir buscando en el servidor, `CommandPalette` (⌘K) y `DocumentPreviewModal` para ver e imprimir.
+- **Excel (`excel`)**: `downloadExcelReport()` con columnas tipadas; nunca un CSV a mano.
 
 ```vue
 <!-- Vue -->

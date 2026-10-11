@@ -262,7 +262,7 @@ const inputClass =
 1. Use `DynamicForm` for flat CRUD forms (fields one under another, one submit). Forms with line items, conditional sections or multi-step flows are written by hand with the SAME rules (same components, same Zod schema, same error handling).
 2. Define the Zod schema first in `types.ts` of the feature module; infer the submit type with `z.infer<typeof Schema>`. If the backend is TypeScript, share the schema; otherwise mirror its rules and still show the server's field errors.
 3. Map every field to the table in §2. A native `<select>`, `<input type="date">` or `type="number"` for money is an audit violation.
-4. Submit flow: button disabled with `Guardando…` while pending; success ➔ `notify({ type: 'success', message: '…' })` and close/navigate; error ➔ `normalizeApiError(err)`: if the backend contract returns per-field errors (read it, don't assume a shape) they go to `setError` / `setFieldError`; the rest to `notify({ type: 'error' })`. Never `alert()` or a raw `err.message`.
+4. Submit flow: button disabled with `Guardando…` while pending; success ➔ `notify('Cliente guardado', 'success')` and close/navigate; error ➔ `normalizeApiError(err)`: if the backend contract returns per-field errors (read it, don't assume a shape) they go to `setError` / `setFieldError`; the rest to `notify(message, 'error')`. Never `alert()` or a raw `err.message`.
 5. Inside a modal, the form lives in `<ModalShell>` (Escape cancels, backdrop never closes); leaving with unsaved changes asks `confirmDialog()`.
 6. Colors only from tokens (`border-border`, `bg-surface`, `bg-primary`, `text-danger`). Never `text-gray-700`, `bg-blue-600` or `text-red-500`.
 7. Every label, placeholder, button and error message in the UI language (Zod messages included).

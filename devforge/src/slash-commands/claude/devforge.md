@@ -4,7 +4,7 @@ Consult DEVFORGE architectural specifications:
 1. Review `.ai/standards/ui-ux-principles.md` for Anti-AI design rules and 60-30-10 color guidelines.
    - Review `.ai/standards/theming.md`: every screen must work in light and dark themes.
    - Review `.ai/blueprints/08-authorizations.md` and `09-notifications.md`: risky acts are signed off when consummated (never an exception permission); persistent notices go to the bell.
-   - Review `.ai/standards/ui-components.md`: Flickerless loading (no skeletons), SelectField, DateField / DateRangeFilter, ListPager, confirmDialog / notify, ModalShell / DrawerShell / RowMenu, EmptyState, MoneyInput / MaskedInput and BatchProgressModal.
+   - Review `.ai/standards/ui-components.md`: Flickerless loading (no skeletons), SelectField, DateField / DateRangeFilter, ListPager, confirmDialog / notify, ModalShell / DrawerShell / RowMenu, EmptyState, MoneyInput / MaskedInput, BatchProgressModal, TableStates / CardShell / DetailShell, ListToolbar, useCachedList, downloadExcelReport, RecordPickerModal, CommandPalette, DocumentPreviewModal, FieldHelp and the security helpers.
    - Review `.ai/standards/data-formatting.md`: currency, numbers, dates and phones (`(809) 578-1234`) formatted per country.
 2. Review available blueprints in `.ai/blueprints/`:
    - `01-openapi-sdk.md` (OpenAPI to type-safe client)
@@ -16,6 +16,13 @@ Consult DEVFORGE architectural specifications:
    - `07-graphql-pagination.md` (Strict pagination & query optimization)
    - `08-authorizations.md` (Sign-off when the risky act is consummated)
    - `09-notifications.md` (Notification bell, socket + REST)
+   - `10-excel-reports.md` (Server Excel generator for `downloadExcelReport`)
+   - `11-document-history.md` (Audit trail per document)
+   - `12-document-delivery.md` (Email / WhatsApp through one gate)
+   - `13-rate-limiting.md` (Limits, trusted proxy, brute force per account)
+   - `14-idempotency-offline.md` (Idempotency-Key, retries, offline queue)
+   - `15-auth-sessions.md` (Session rows, rotation, revoke)
+   - `16-realtime-sockets.md` (Tenant-safe rooms, events as hints)
 3. Check `.ai/standards/project-structure.md` for feature-first code organization.
 4. Check `.ai/standards/module-api.md` before importing any DEVFORGE function; if the module is not in `src/`, tell the user to run `devforge add <module>`.
 5. Close every task with checkpoint 11 (Definition of Done) of `CLAUDE.md`.

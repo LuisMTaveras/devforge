@@ -1,6 +1,6 @@
 # ⚡ DEVFORGE Standard UI Components
 
-<!-- Mandatory components for every DEVFORGE project. Born in Snowlr, proven in production. Exact API: module-api.md §8–§19. -->
+<!-- Mandatory components for every DEVFORGE project. Born in Snowlr, proven in production. Exact API: module-api.md §8–§25. -->
 
 Every listing, form, modal and filter bar uses the same building blocks. They are installed, not rewritten:
 
@@ -16,6 +16,16 @@ devforge add inputs --vue         # MoneyInput, MaskedInput (cédula, RNC, telé
 devforge add batch --vue          # BatchProgressModal: avance de un lote
 devforge add authorizations --vue # AuthorizationDialog + AuthorizationAlerts + interceptor del 403
 devforge add notifications --vue  # NotificationCenter: la campana
+devforge add shells --vue         # CardShell, DetailShell, TableStates: carga en frío y estados de tabla
+devforge add list-toolbar --vue   # ListToolbar, ListTabs, SearchInput, HistoryPeriodFilter
+devforge add list-cache --vue     # useCachedList: la lista se conserva al navegar
+devforge add excel                # downloadExcelReport (servidor: blueprint 10)
+devforge add pickers --vue        # RecordPickerModal: elegir cliente / artículo buscando en el servidor
+devforge add command-palette --vue # CommandPalette (⌘K)
+devforge add documents --vue      # DocumentPreviewModal + openPdfInNewTab
+devforge add field-help --vue     # FieldHelp: la ayuda de un campo
+devforge add app-update           # versión nueva sin perder trabajo
+devforge add security             # escapeHtml, safeLinkUrl, sanitizeTenantCss
 ```
 
 `dates` installs `select`; `pagination` installs `flickerless` and `formatters`; `inputs` installs `formatters`; `batch` installs `overlays` and `formatters`; all of them install `theme`.
@@ -430,3 +440,98 @@ socket.on('notification', receiveNotification);
 - Desktop alerts: the panel offers «Activar avisos de escritorio» (permission asked **on that click**, never on load).
   With permission, a notification that arrives while the tab is hidden also goes to the OS; everything there is also in
   the inbox. Tab-closed web push is backend work (blueprint 09 §5).
+
+---
+
+## 13. Table states and cold loads: `TableStates`, `CardShell`, `DetailShell`
+
+**Banned**: a hand-written «No hay resultados» row, a load error shown as an empty list, a spinner row, and a detail
+screen that renders `0` / blank fields until the request answers.
+
+- Every table puts `<TableStates>` first in its `<tbody>`: cold load ➔ the real rows with `—`; error ➔ the message
+  (`normalizeApiError(e).message`) + «Reintentar»; empty WITH an answer ➔ empty state; the rows that were there stay,
+  dimmed, while reloading. A failed load is NEVER «no results»: it sends the user to change filters that are not the cause.
+- Grids of cards use `<CardShell>` inside the grid; detail screens use `<DetailShell>` only for the first load (a reload
+  keeps the document on screen).
+
+```vue
+<FlickerlessSurface :loading="loading" :empty="!rows.length">
+  <table class="w-full text-small">
+    <thead>…</thead>
+    <tbody>
+      <TableStates :cols="6" :loading="loading" :error="loadError" :empty="!rows.length"
+                   empty-title="Aún no hay facturas" empty-hint="Las facturas que emitas aparecerán aquí." @retry="load" />
+      <tr v-for="row in loadError ? [] : rows" :key="row.id">…</tr>
+    </tbody>
+  </table>
+  <ListPager v-model:page="page" :page-size="pageSize" :total="meta?.total" :has-more="meta?.hasMore" />
+</FlickerlessSurface>
+```
+
+## 14. List toolbar: `ListToolbar` + `ListTabs` + `SearchInput` + `HistoryPeriodFilter`
+
+**Banned**: a filter bar laid out by hand per screen, filtering already-fetched rows in the browser, a search that fires
+on every keystroke, and status counts computed from the current page.
+
+- Same order on every listing: tabs with counts · actions / search · period · scope · more · trailing.
+- Tab counts come from the server for ALL tabs at once, computed with the same filters WITHOUT the status.
+- Search and filters go to the server with `page` reset to 1; `SearchInput` fires after a pause, on Enter or on clear.
+- Pending work is shown entire (`HistoryPeriodFilter :pending`, no date range, and it says why); history is bounded by
+  `DateRangeFilter`. The server applies the same rule.
+- Filters, tab and page live in the URL (blueprint 03) unless the view is kept with `<KeepAlive>` (§15).
+
+## 15. Lists that survive navigation: `useCachedList` + `createTabCache`
+
+Rule: **if the user does not reload, the list does not go to the server.** Going into a detail and back returns the list
+as it was (filters, rows, page, scroll) without a request.
+
+- Vue: the list view lives in `<KeepAlive :include="['FacturasView']" :max="5">` and declares its name with
+  `defineOptions({ name: 'FacturasView' })` (renaming the file must not silently turn the cache off). React: keep the
+  data in the query cache / a store and call `useCachedList` in the list.
+- The detail, AFTER saving and reloading its own data, calls `recordDocumentChange('factura', f.id, f)`; creating or
+  deleting calls `markListShifted('factura')`. The list patches the visible rows (only the keys they already had) and,
+  if rows were added or removed, shows `<ListStaleNotice>` offering to reload. It never reloads by itself.
+- Switching tabs reads `createTabCache`; any other load (filter, action, «Actualizar») clears it.
+- A cached list from ANOTHER tenant / branch is worse than reloading: key the `<KeepAlive>` / query cache by tenant.
+
+## 16. Excel: `downloadExcelReport`, never a hand-made CSV
+
+**Banned**: `XLSX.writeFile`, `json_to_sheet`, a CSV built in a `Blob` (`devforge audit` rejects them). They lose types,
+the header block and the totals, and they add up pesos with dollars.
+
+- The screen declares typed columns (`money`, `date`, `datetime`, `integer`, `percent`…) and `total: true` where it
+  applies; money columns with a total pass `currency(row)`, so the server skips a total that would mix currencies.
+- It exports what the user sees with the same filters. A paginated listing exports through its own server route with the
+  same filters (blueprint 10 §5), not by fetching every page in the browser.
+- Machine formats (bank payment files, tax forms, import templates) keep their own format: they are consumed by another
+  system, not by a person.
+
+## 17. Choosing a record: `RecordPickerModal`; going anywhere: `CommandPalette`
+
+- A field that needs a customer / supplier / product opens `RecordPickerModal` (search on the server, results on open,
+  «Mostrar más», ↑/↓ + Enter). Never a `SelectField` with the whole catalog loaded, never an autocomplete without
+  cancellation. Fetch only the fields the row shows (`fields=`).
+- `CommandPalette` opens with ⌘K / Ctrl+K (`isPaletteShortcut`). `screens` comes from the SAME menu definition the
+  sidebar renders, already filtered by permission; records come from one search endpoint with a minimum of 2 letters.
+
+## 18. Documents: `DocumentPreviewModal` and `openPdfInNewTab`
+
+**Banned**: `window.open('/api/…/pdf')` (the new tab has no session: 401, and the SPA shows its home page),
+`<iframe>` without `sandbox` for HTML built from third-party data, and printing via `window.print()` of the whole app.
+
+- Preview, then print: `DocumentPreviewModal` with `load` returning the HTML template or the PDF Blob fetched with the
+  session. Printing from a new tab: `openPdfInNewTab(() => api.get(url, { responseType: 'blob' }).then(r => r.data))`
+  and tell the user when the browser blocked the popup.
+- Templates are paper: white sheet in both themes, no remote `<img src>` (a fiscal document must not depend on a third
+  party), every third-party string through `escapeHtml`.
+
+## 19. Field help, new versions and third-party data
+
+- `FieldHelp` next to a label answers «what does this do and what changes if I set it otherwise». Never the native
+  `title=""` for help (it does not exist on touch screens); never help that repeats the label.
+- `installAppUpdates()` once in the entrypoint; the router calls `reloadIfUpdateReady(to.fullPath)` before navigating and
+  `recoverFromStaleChunk` when a lazy screen fails to load. Never reload the page on the spot while a form may be dirty.
+- Data written by someone else: links through `safeLinkUrl` (`target="_blank" rel="noopener noreferrer"`), HTML strings
+  through `escapeHtml`, tenant CSS through `sanitizeTenantCss` (and sanitized again on the server). `v-html` /
+  `dangerouslySetInnerHTML` are banned unless justified with `// safe-html: <reason>`.
+

@@ -40,8 +40,8 @@ Before generating ANY component, file, or view, you MUST enforce these 11 checkp
    - Blueprint code is a reference pattern: adapt names to the real code. If a blueprint and an installed module disagree, the installed module wins.
    - If you are not sure, say so and ask. A short question is always better than plausible-looking invented code.
 9. **[ ] STANDARD UI COMPONENTS (NEVER HAND-ROLLED)**:
-   - Banned: Skeletons (`<Skeleton>`, `skeleton`, `animate-pulse`), full-screen spinners, native `<select>`, `<input type="date">`, `window.alert/confirm/prompt`, hand-written modal backdrops or closing on backdrop click (`@click.self`), ad-hoc pagination footers, and `0` / "Sin resultados" before the first response.
-   - Required: Flickerless (`devforge add flickerless`), `<SelectField>` (`select`), `<DateField>` / `<DateRangeFilter>` (`dates`), `<ListPager>` (`pagination`), `confirmDialog()` / `notify()` (`feedback`), `<ModalShell>` / `<DrawerShell>` / `<RowMenu>` (`overlays`), `<EmptyState>` / `<ListStaleNotice>` (`list-states`), `<MoneyInput>` / `<MaskedInput>` (`inputs`), `<BatchProgressModal>` (`batch`). Rules: `.ai/standards/ui-components.md`.
+   - Banned: Skeletons (`<Skeleton>`, `skeleton`, `animate-pulse`), full-screen spinners, native `<select>`, `<input type="date">`, `window.alert/confirm/prompt`, hand-written modal backdrops or closing on backdrop click (`@click.self`), ad-hoc pagination footers, `0` / "Sin resultados" before the first response, a load error shown as an empty list, hand-made CSV / `XLSX.writeFile` exports, `window.open('/api/…')` for documents, `v-html` / `dangerouslySetInnerHTML` with third-party data, a `SelectField` loaded with a whole catalog, and `title=""` as field help.
+   - Required: Flickerless (`devforge add flickerless`), `<SelectField>` (`select`), `<DateField>` / `<DateRangeFilter>` (`dates`), `<ListPager>` (`pagination`), `confirmDialog()` / `notify()` (`feedback`), `<ModalShell>` / `<DrawerShell>` / `<RowMenu>` (`overlays`), `<EmptyState>` / `<ListStaleNotice>` (`list-states`), `<MoneyInput>` / `<MaskedInput>` (`inputs`), `<BatchProgressModal>` (`batch`), `<TableStates>` / `<CardShell>` / `<DetailShell>` (`shells`), `<ListToolbar>` / `<ListTabs>` / `<SearchInput>` / `<HistoryPeriodFilter>` (`list-toolbar`), `useCachedList` (`list-cache`), `downloadExcelReport()` (`excel`), `<RecordPickerModal>` (`pickers`), `<CommandPalette>` (`command-palette`), `<DocumentPreviewModal>` / `openPdfInNewTab()` (`documents`), `<FieldHelp>` (`field-help`), `installAppUpdates()` (`app-update`), `escapeHtml()` / `safeLinkUrl()` / `sanitizeTenantCss()` (`security`). Rules: `.ai/standards/ui-components.md`.
 10. **[ ] AUTHORIZATIONS & NOTIFICATIONS (SINGLE GATES)**:
    - Banned: exception permissions (`'descuentos:override_tope'`, `canOverrideCredit`, `bypassLimit`), hand-made «contraseña del supervisor» prompts, backend errors flattened to their message (`sendError(res, err.message)`, `.json({ error: err.message })`), `new Notification()` / `Notification.requestPermission()` on load, and `alert()` for notices.
    - Required: risky acts go to the authorization catalog and are checked when CONSUMED (`assertAuthorized` / `liftsBlock`, blueprint 08); the frontend installs the interceptor once and mounts `<AuthorizationDialog />` + `<AuthorizationAlerts />` (`devforge add authorizations`). Persistent notices go to the bell (`<NotificationCenter />`, `receiveNotification`, blueprint 09); ephemeral ones are `notify()`; decisions are `confirmDialog()`.
@@ -114,6 +114,13 @@ Consult the standards under `.ai/standards/`:
 - **Strict Pagination & GraphQL Query Optimization**: `.ai/blueprints/07-graphql-pagination.md`
 - **Authorizations (sign-off when consummated)**: `.ai/blueprints/08-authorizations.md`
 - **Notifications (bell)**: `.ai/blueprints/09-notifications.md`
+- **Excel reports (server)**: `.ai/blueprints/10-excel-reports.md`
+- **Document history (audit trail)**: `.ai/blueprints/11-document-history.md`
+- **Document delivery (email / WhatsApp)**: `.ai/blueprints/12-document-delivery.md`
+- **Rate limiting & brute force**: `.ai/blueprints/13-rate-limiting.md`
+- **Idempotency & unreliable networks**: `.ai/blueprints/14-idempotency-offline.md`
+- **Sessions you can see and revoke**: `.ai/blueprints/15-auth-sessions.md`
+- **Realtime with sockets**: `.ai/blueprints/16-realtime-sockets.md`
 
 ---
 
@@ -125,16 +132,21 @@ src/
 ├── core/              # Agnostic utilities, formatters, permission engines, HTTP clients
 │   ├── auth/          # Silent refresh queue & token storage
 │   ├── authorizations/ # Sign-off challenge, interceptor, live alerts
+│   ├── app-update/    # New version without losing work
 │   ├── batch/         # Batch progress state
 │   ├── dates/         # Day keys, ranges and calendar in the business time zone
+│   ├── documents/     # Print / preview / open PDF with the session
 │   ├── errors/        # normalizeApiError
-│   ├── export/        # exportToCSV
+│   ├── export/        # downloadExcelReport, downloadBlob (exportToCSV legacy)
 │   ├── feedback/      # confirmDialog / promptDialog / notify
 │   ├── formatters/    # Localized currency, number, date, phone formatters + input masks
+│   ├── list-cache/    # Document changes + tab cache for lists kept across navigation
 │   ├── notifications/ # Bell store (REST + socket)
 │   ├── overlay/       # Escape layers & scroll lock
 │   ├── pagination/    # Page state & summary
 │   ├── permissions/   # RBAC ability engine
+│   ├── search/        # Record search (server) + nav search (command palette)
+│   ├── security/      # escapeHtml, safeLinkUrl, sanitizeTenantCss
 │   ├── theme/         # Light/Dark theme engine (initTheme, setThemePreference)
 │   └── url-sync/      # URL query param synchronizer
 ├── modules/           # Business feature domains (self-contained)

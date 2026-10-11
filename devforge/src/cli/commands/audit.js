@@ -102,6 +102,38 @@ const AUDIT_RULES = [
     }
   },
   {
+    id: 'HAND_ROLLED_EXPORT',
+    name: 'Standard Excel Export',
+    check: (content, line, lineNum, ext, filePath = '') => {
+      if (!CODE.includes(ext) || isComment(line)) return null;
+      if (/[\\/]core[\\/]export[\\/]/.test(filePath)) return null;
+      const match = line.match(/XLSX\.(?:utils\.(?:json_to_sheet|aoa_to_sheet|book_new)|writeFile)\b|type:\s*['"]text\/csv/);
+      if (match) {
+        return {
+          rule: 'Standard Excel Export',
+          message: `Exportación armada a mano ('${match[0]}'): sale sin tipos, sin membrete y con totales que mezclan monedas. Usa downloadExcelReport() (devforge add excel; servidor: blueprint 10).`,
+        };
+      }
+      return null;
+    }
+  },
+  {
+    id: 'UNSAFE_HTML',
+    name: 'No Raw HTML',
+    check: (content, line, lineNum, ext) => {
+      if (!CODE.includes(ext) || isComment(line)) return null;
+      if (/\/\/\s*safe-html:\s*\S|<!--\s*safe-html:\s*\S/.test(line)) return null; // justified, with escapeHtml/sanitizer
+      const match = line.match(/\bv-html\s*=|dangerouslySetInnerHTML|\.innerHTML\s*=(?!=)/);
+      if (match) {
+        return {
+          rule: 'No Raw HTML',
+          message: `'${match[0].trim()}' pinta HTML crudo: un nombre de cliente con <img onerror> ejecuta código en la sesión. Pinta texto (o highlightSegments); si de verdad es HTML, pásalo por escapeHtml()/un sanitizador y justifícalo en la línea: // safe-html: <motivo>.`,
+        };
+      }
+      return null;
+    }
+  },
+  {
     id: 'NATIVE_DIALOGS',
     name: 'System Dialogs (No window.confirm)',
     check: (content, line, lineNum, ext) => {

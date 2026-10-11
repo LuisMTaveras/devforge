@@ -17,6 +17,8 @@ When this skill is activated:
 - Follow the 60-30-10 color rule and 4px/8px spatial rhythm.
 - Ship light and dark themes from the first commit (`.ai/standards/theming.md`, `devforge add theme`).
 - Risky acts use the authorization catalog checked when consummated (`.ai/blueprints/08-authorizations.md`), never an exception permission; persistent notices go to the bell (`.ai/blueprints/09-notifications.md`).
+- Backend patterns in `.ai/blueprints/10–16`: Excel reports, document history, delivery, rate limiting, idempotency, sessions, sockets.
+- Lists use `TableStates`, `ListToolbar` and `useCachedList`; Excel goes through `downloadExcelReport`; records are chosen with `RecordPickerModal` (`.ai/standards/ui-components.md` §13–§19).
 - Use the standard components (`.ai/standards/ui-components.md`): Flickerless instead of skeletons, SelectField, DateField / DateRangeFilter, ListPager, confirmDialog / notify (never window.confirm), ModalShell / DrawerShell / RowMenu, EmptyState, MoneyInput / MaskedInput, BatchProgressModal.
 - Format currency, numbers, dates and phones per country (`.ai/standards/data-formatting.md`, `devforge add formatters`).
 

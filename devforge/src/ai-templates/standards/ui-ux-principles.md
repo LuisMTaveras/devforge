@@ -86,7 +86,7 @@ Every interactive element (buttons, inputs, rows, menu items) defines:
 - **Fields**: every field has a visible `<label>` bound to it (placeholder is not a label). Required fields are marked and validated on submit AND on blur once touched. The error is shown under the field (`text-xs text-danger`), with `aria-invalid` and `aria-describedby`.
 - **Field types** map to the standard components: closed list ➔ `SelectField`; date ➔ `DateField`; money ➔ `MoneyInput`; phone / cédula / RNC ➔ `MaskedInput`. Never `<input type="number">` for money.
 - **Submit**: one primary button bottom-right (`Guardar`), secondary `Cancelar` to its left. Enter submits, Escape cancels (through `ModalShell`). Leaving with unsaved changes asks with `confirmDialog()`.
-- **Backend errors**: field errors from the API go to their fields; the rest go to `notify({ type: 'error' })` with the message from `normalizeApiError(err)`. Never show stack traces, status codes or English text.
+- **Backend errors**: field errors from the API go to their fields; the rest go to `notify(message, 'error')` with the message from `normalizeApiError(err)`. Never show stack traces, status codes or English text.
 - **Accessibility**: icon-only buttons have `aria-label` (in the UI language); contrast AA in both themes; everything reachable with Tab in visual order; modals trap focus and return it on close; motion respects `prefers-reduced-motion`.
 
 ---

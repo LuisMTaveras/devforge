@@ -81,7 +81,7 @@ Once the user answers the discovery questions:
    # errors: normalizeApiError · feedback: confirmDialog/notify · overlays: ModalShell/DrawerShell/RowMenu
    # flickerless: loading without skeletons · list-states: EmptyState/ListStaleNotice
    ```
-   Then add per feature, before the first screen that needs it: `select`, `dates`, `pagination` (any list), `inputs` (money / cédula / phone), `batch`, `authorizations`, `notifications`. Run `devforge list` to see the real catalog; never hand-write one of these components.
+   Then add per feature, before the first screen that needs it: `select`, `dates`, `pagination` + `shells` + `list-toolbar` (any list), `list-cache` (lists you come back to), `inputs` (money / cédula / phone), `pickers` (choosing a customer / product), `excel` (exports), `documents` (print / PDF), `field-help`, `batch`, `authorizations`, `notifications`, `command-palette`, `app-update`, `security` (any third-party text in HTML, links or CSS). Run `devforge list` to see the real catalog; never hand-write one of these components.
 4. Wire them in the entrypoint (`main.ts` / `main.tsx`): `setFormatCountry('<CODE>')` and `initTheme()`; add the no-flash script to `index.html` and the theme selector (Claro / Oscuro / Sistema) to the app shell.
 5. Apply the data formatting defaults (`.ai/standards/data-formatting.md`) and theming rules (`.ai/standards/theming.md`).
 6. Apply the design directives from `.ai/standards/ui-ux-principles.md`.

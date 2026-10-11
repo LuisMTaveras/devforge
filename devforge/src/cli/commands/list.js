@@ -32,7 +32,7 @@ export function listCommand() {
     'project-kickoff.md      -> Step 0: Developer Calibration, Stack Advisory & Scoping',
     'data-formatting.md      -> Localized Currency, Number, Date, Phone & Null Fallback Rules',
     'theming.md              -> Mandatory Light + Dark themes with semantic design tokens',
-    'ui-components.md        -> Flickerless loading (no skeletons), SelectField, DatePicker, ListPager',
+    'ui-components.md        -> Flickerless, SelectField, DateField, ListPager, TableStates, ListToolbar, pickers, documents',
     'module-api.md           -> Exact API of every module (anti-hallucination source of truth)',
     'ui-ux-principles.md     -> Anti-AI Design System (UI/UX Pro Max & Zero Spanglish)',
     'project-structure.md    -> Production Greenfield Folder & File Hierarchy (Vue 3 / React)',
@@ -59,6 +59,16 @@ export function listCommand() {
     'batch      -> BatchProgressModal + createBatchTracker() («3 de 10»)',
     'authorizations -> Interceptor del 403 + AuthorizationDialog + AuthorizationAlerts',
     'notifications  -> NotificationCenter (la campana) + avisos de escritorio',
+    'shells     -> CardShell, DetailShell, TableStates (carga en frío y estados de tabla)',
+    'list-toolbar -> ListToolbar, ListTabs, SearchInput, HistoryPeriodFilter',
+    'list-cache -> useCachedList + createTabCache (la lista se conserva al navegar)',
+    'excel      -> downloadExcelReport() tipado, totales sin mezclar monedas',
+    'pickers    -> RecordPickerModal (buscar cliente / artículo en el servidor)',
+    'command-palette -> CommandPalette ⌘K (pantallas + registros)',
+    'documents  -> DocumentPreviewModal + openPdfInNewTab (con la sesión)',
+    'field-help -> FieldHelp (la ayuda «?» de un campo, también en táctil)',
+    'app-update -> installAppUpdates (versión nueva sin perder trabajo)',
+    'security   -> escapeHtml, safeLinkUrl, sanitizeTenantCss',
   ]);
 
   console.log('To add any module to your current project:');
@@ -79,7 +89,11 @@ export function listCommand() {
   console.log('  \x1b[32mdevforge add inputs\x1b[0m       -> Injects money and masked inputs (Vue & React)');
   console.log('  \x1b[32mdevforge add batch\x1b[0m        -> Injects live batch progress (Vue & React)');
   console.log('  \x1b[32mdevforge add authorizations\x1b[0m -> Injects the sign-off flow (Vue & React; backend: blueprint 08)');
-  console.log('  \x1b[32mdevforge add notifications\x1b[0m  -> Injects the notification bell (Vue & React; backend: blueprint 09)\n');
+  console.log('  \x1b[32mdevforge add notifications\x1b[0m  -> Injects the notification bell (Vue & React; backend: blueprint 09)');
+  console.log('  \x1b[32mdevforge add shells list-toolbar list-cache\x1b[0m -> Listings: states, toolbar, cache across navigation');
+  console.log('  \x1b[32mdevforge add excel documents\x1b[0m -> Excel reports (backend: blueprint 10) and document preview / print');
+  console.log('  \x1b[32mdevforge add pickers command-palette field-help\x1b[0m -> Record picker, ⌘K, field help');
+  console.log('  \x1b[32mdevforge add app-update security\x1b[0m -> New versions without losing work; third-party data in HTML / links / CSS\n');
 
   console.log('To audit your project for AI compliance:');
   console.log('  \x1b[32mdevforge audit\x1b[0m            -> Scans code for hardcoded arrays, neon colors, and Spanglish');

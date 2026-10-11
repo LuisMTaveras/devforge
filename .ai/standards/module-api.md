@@ -30,10 +30,20 @@
 | authorizations | `devforge add authorizations` | `src/core/authorizations/authorization.ts`, `AuthorizationDialog`, `AuthorizationAlerts` (`.vue` / `.tsx`). Backend: blueprint 08 |
 | notifications | `devforge add notifications` | `src/core/notifications/notifications.ts`, `NotificationCenter` (`.vue` / `.tsx`). Backend: blueprint 09 |
 | pagination   | `devforge add pagination` | `src/core/pagination/pagination.ts`, `src/shared/components/ListPager.vue` (Vue) · `ListPager.tsx`, `icons.tsx` (React) |
+| shells       | `devforge add shells`     | `CardShell`, `DetailShell`, `TableStates` (`.vue` / `.tsx`) |
+| list-toolbar | `devforge add list-toolbar` | `ListToolbar`, `ListTabs`, `SearchInput`, `HistoryPeriodFilter` (`.vue` / `.tsx`) |
+| list-cache   | `devforge add list-cache` | `src/core/list-cache/document-changes.ts`, `src/core/list-cache/tab-cache.ts`, `useCachedList` (composable / hook) |
+| excel        | `devforge add excel`      | `src/core/export/download.ts`, `src/core/export/excel-report.ts`. Backend: blueprint 10 |
+| pickers      | `devforge add pickers`    | `src/core/search/record-search.ts`, `useRecordSearch`, `SearchInput`, `RecordPickerModal` (`.vue` / `.tsx`) |
+| command-palette | `devforge add command-palette` | `src/core/search/nav-search.ts`, `src/core/search/record-search.ts`, `useRecordSearch`, `SearchInput`, `CommandPalette` (`.vue` / `.tsx`) |
+| documents    | `devforge add documents`  | `src/core/documents/print.ts`, `src/core/export/download.ts`, `DocumentPreviewModal` (`.vue` / `.tsx`) |
+| app-update   | `devforge add app-update` | `src/core/app-update/app-update.ts` |
+| field-help   | `devforge add field-help` | `FieldHelp` (`.vue` / `.tsx`) |
+| security     | `devforge add security`   | `src/core/security/escape-html.ts`, `safe-url.ts`, `sanitize-css.ts` |
 
 > Every UI module installs both the Vue and the React adapter. Pass `--vue` or `--react` to install only one.
-> Modules install their dependencies: `dates` ➔ `theme`, `select` · `pagination` ➔ `theme`, `formatters`, `flickerless` · `inputs` ➔ `formatters` · `batch` ➔ `overlays`, `formatters` · `authorizations` ➔ `theme`, `formatters`, `errors`, `feedback` · `notifications` ➔ `theme`, `formatters`, `flickerless`, `feedback`.
-> Components go to `src/shared/components/` (with their helpers `DfIcon.ts` (Vue) / `icons.tsx` + `usePopover.ts` (React) and `icon-paths.ts`); `useOverlay` goes to `src/shared/composables/` (Vue) or `src/shared/hooks/` (React).
+> Modules install their dependencies: `dates` ➔ `theme`, `select` · `pagination` ➔ `theme`, `formatters`, `flickerless` · `inputs` ➔ `formatters` · `batch` ➔ `overlays`, `formatters` · `authorizations` ➔ `theme`, `formatters`, `errors`, `feedback` · `notifications` ➔ `theme`, `formatters`, `flickerless`, `feedback` · `shells` ➔ `theme`, `flickerless` · `list-toolbar` ➔ `theme`, `formatters`, `flickerless`, `dates` · `list-cache` ➔ `list-states` · `pickers` ➔ `theme`, `overlays`, `list-states`, `errors`, `flickerless` · `command-palette` ➔ `theme`, `overlays`, `list-states`, `errors` · `documents` ➔ `theme`, `overlays`, `feedback`, `errors` · `field-help` ➔ `theme`.
+> Components go to `src/shared/components/` (with their helpers `DfIcon.ts` (Vue) / `icons.tsx` + `usePopover.ts` (React) and `icon-paths.ts`); `useOverlay`, `useCachedList` and `useRecordSearch` go to `src/shared/composables/` (Vue) or `src/shared/hooks/` (React).
 > Usage rules for the four UI modules: `.ai/standards/ui-components.md`.
 
 ---
@@ -210,8 +220,56 @@ Copy of [github.com/LuisMTaveras/flickerless](https://github.com/LuisMTaveras/fl
 - Component: `<NotificationCenter />` — Vue emits `navigate(link)`; React prop `onNavigate(link)`.
 - Default categories: `INFO`, `SYSTEM`, `AUTHORIZATION`, `PAYMENT`, `DUE`, `TASK`.
 
-## 19. `devforge audit`
+## 19. `shells` — `CardShell` · `DetailShell` · `TableStates`
 
-- Rules: hardcoded data, neon palette, Spanglish, single-theme colors, unformatted phone / currency, skeletons, native `<select>` / date inputs, `window|globalThis|self.alert/confirm/prompt`, hardcoded currency (`currency: 'DOP'`, `=== 'DOP'`), `@ts-nocheck`, `toLocaleDateString` / `toLocaleTimeString` / `timeZone: 'UTC'`, backdrop-click closing (`@click.self`), **exception permissions** (`'x:override_*'`, `canOverride*`, `bypassLimit`…), **hand-made supervisor passwords**, **flattened errors** (`sendError(res, err.message)`, `.json({ error: err.message })`), **browser notifications** (`new Notification`, `Notification.requestPermission`, `showNotification` outside the service worker).
+- `CardShell`: props `count?` (= 6), `lines?` (= 2), `media?`, `footer?`, `cardClass?` (React `cardClassName?`). Renders the REAL cards with `—`; place it inside the grid only when there is nothing to keep.
+- `DetailShell`: props `cols?` (= 5), `rows?` (= 6), `cards?` (= 3, `0` = none), `announceText?`. First load of a detail screen only.
+- `TableStates`: inside `<tbody>`, before the rows. Props `cols` (required), `loading?`, `error?` (message for the user; empty = no error), `empty?`, `settled?` (default: read from the surrounding `FlickerlessSurface`), `icon?: IconName` (= `'inbox'`), `emptyTitle?` (= `'Sin resultados'`), `emptyHint?`, `errorTitle?`, `retryText?` (= `'Reintentar'`), `shellRows?` (= 4), `cellClass?` (React `cellClassName?`). Vue emits `retry`; React `onRetry`. Default slot / `children` = action of the empty state. Order: cold load ➔ shell; error ➔ message + retry; empty without an answer ➔ shell; empty ➔ empty state.
+
+## 20. `list-toolbar` — `ListToolbar` · `ListTabs` · `SearchInput` · `HistoryPeriodFilter`
+
+- `ListToolbar`: Vue slots `tabs`, `actions`, `search`, `period`, `scope`, `more`, `trailing`; React props with the same names (`ReactNode`).
+- `ListTabs`: Vue `v-model` (tab id) + emits `change`; React `value`, `onChange(id)`. Props `tabs: ListTab[]` (`{ id, label, count?: number | null }` — `null` = `—`, absent = no badge), `label?` (= `'Estados'`). ←/→ move.
+- `SearchInput`: Vue `v-model` + emits `search(q)` (after `debounceMs`, Enter or clear); React `value`, `onChange`, `onSearch?`. Props `placeholder?` (= `'Buscar…'`), `ariaLabel?`, `clearLabel?`, `debounceMs?` (= 300). Exposes `focus()` (Vue `defineExpose`, React `ref`).
+- `HistoryPeriodFilter`: Vue `v-model: DateRange` + `change`; React `value`, `onChange`, `onCommit?`. Props `pending?` (no range; says why), `pendingLabel?`, `allowAll?`.
+
+## 21. `list-cache` — `@/core/list-cache/*` + `useCachedList`
+
+- `document-changes`: `recordDocumentChange(resource, id, snapshot)` (detail screen, after reloading), `markListShifted(resource)` (created / deleted), `drainDocumentChanges(resource)` ➔ `{ id, snapshot }[]` (consumes), `takeListShifted(resource)` ➔ `boolean` (consumes), `patchRows(rows, changes)` ➔ patched count (copies only keys the row already has), type `DocumentSnapshot`.
+- `tab-cache`: `createTabCache<T>({ max? = 12 })` ➔ `{ recall(params), remember(params, data) (clears), add(params, data), clear(), size }`; `tabCacheKey(params)`.
+- Vue `useCachedList({ resource, rows: Ref<T[]>, reload, bind?, unbind?, onChange? })` ➔ `{ listStale: Ref<boolean>, refresh() }` — runs on `onActivated` (`<KeepAlive>`, match by component NAME).
+- React `useCachedList({ resource, setRows(update), reload, onChange? })` ➔ `{ listStale, refresh }` — runs when the list mounts again.
+
+## 22. `excel` — `@/core/export/excel-report` · `@/core/export/download`
+
+- `downloadExcelReport(req)` ➔ `Promise<void>` (downloads `<fileName>.xlsx`; errors bubble up for `normalizeApiError`). `req`: `{ title, fileName (no extension), sheetName?, filters?: [label, value | null][], columns: ExcelReportColumn<T>[], rows: T[] }`.
+- `ExcelReportColumn<T>`: `{ header, value(row), type?: 'text' | 'integer' | 'number' | 'money' | 'percent' | 'date' | 'datetime', width?, total?, currency?(row) }`.
+- `configureExcelReports({ endpoint? = '/api/reports/excel', transport?: { post(url, payload) ➔ Promise<Blob> } })` — pass your HTTP client so the session travels.
+- Pure helpers: `buildExcelReportPayload(req)` ➔ `ExcelReportPayload` (the server contract, blueprint 10), `toExcelCell(value, type)`.
+- `downloadBlob(blob, fileName)`, `readBlobError(data)` ➔ server message of an error that arrived as a Blob.
+
+## 23. `pickers` and `command-palette` — `@/core/search/*`
+
+- `createRecordSearch<T>({ fetch(q, { page, pageSize, signal }) ➔ Promise<{ items, total?, hasMore? }>, pageSize? = 20, debounceMs? = 200, minChars? = 0, toMessage?(error) })` ➔ `{ getState, subscribe, setQuery, flush, loadMore, reset, destroy }`. State: `{ query, items, total, hasMore, page, loading, stale, settled, error }`.
+- `useRecordSearch(options)` ➔ Vue `{ state: Ref<RecordSearchState>, setQuery, flush, loadMore, reset }`; React `{ state, … }`.
+- `RecordPickerModal`: props `open`, `title`, `subtitle?`, `placeholder?`, `fetch`, `getKey(item)`, `getLabel?(item)`, `getHint?(item)`, `selectedKey?`, `emptyTitle?`, `emptyText?`, `pageSize?`. Vue emits `select(item)`, `close`; slots `row({ item, active })`, `empty`, `footer`. React `onSelect`, `onClose`, `renderRow?`, `emptyAction?`, `footer?`.
+- `nav-search`: `scoreEntry(entry, query)` ➔ `{ score, ranges } | null`, `rankEntries(entries, query)`, `fold(s)`, `queryRanges(text, query)`, `highlightSegments(label, ranges)` ➔ `{ text, hit }[]`, `isPaletteShortcut(keyboardEvent)` (⌘K / Ctrl+K). Type `SearchableEntry` (`{ label, trail: string[], keywords? }`).
+- `CommandPalette`: props `open`, `screens: PaletteScreen[]` (`SearchableEntry & { to }`), `fetchRecords?(q, ctx)` ➔ `{ items: PaletteRecord[] }` (`{ id, label, hint?, group, to }`), `placeholder?`, `minChars?` (= 2), `maxScreens?` (= 8). Vue emits `navigate(to)`, `close`; React `onNavigate`, `onClose`.
+
+## 24. `documents` — `@/core/documents/print`
+
+- `openPdfInNewTab(load: () ➔ Promise<Blob>, loadingText?)` ➔ `{ ok, reason?: 'POPUP_BLOCKED' | 'REQUEST_FAILED', message? }` (opens the tab BEFORE awaiting).
+- `printFrame(iframe)` ➔ `boolean`; type `PreviewDocument` = `{ kind: 'html', html } | { kind: 'pdf', blob }`.
+- `DocumentPreviewModal`: props `open`, `title`, `subtitle?`, `fileName?` (= `'documento'`), `loadingText?`, `load: () ➔ Promise<PreviewDocument>`. Vue emits `close`; React `onClose`. HTML renders in a sandboxed iframe without scripts.
+
+## 25. `app-update`, `field-help`, `security`
+
+- `installAppUpdates({ notify?(message), registerServiceWorker?(hooks) })` (once), `reloadIfUpdateReady(href)` ➔ `boolean` (router `beforeEach`), `recoverFromStaleChunk(href)` (router error / lazy route error), `isChunkLoadError(err)`, `markUpdateReady()`.
+- `FieldHelp`: props `label`, `text?`; default slot / `children` for rich content.
+- `escapeHtml(value)` ➔ `string`; `safeLinkUrl(raw, { allowedPaths? = ['/uploads/'], ownOrigins? })` ➔ `string | null`; `sanitizeTenantCss(raw)` ➔ `string`.
+
+## 26. `devforge audit`
+
+- Rules: hardcoded data, neon palette, Spanglish, single-theme colors, unformatted phone / currency, skeletons, native `<select>` / date inputs, `window|globalThis|self.alert/confirm/prompt`, hardcoded currency (`currency: 'DOP'`, `=== 'DOP'`), `@ts-nocheck`, `toLocaleDateString` / `toLocaleTimeString` / `timeZone: 'UTC'`, backdrop-click closing (`@click.self`), **exception permissions** (`'x:override_*'`, `canOverride*`, `bypassLimit`…), **hand-made supervisor passwords**, **flattened errors** (`sendError(res, err.message)`, `.json({ error: err.message })`), **browser notifications** (`new Notification`, `Notification.requestPermission`, `showNotification` outside the service worker), **hand-rolled exports** (`XLSX.writeFile`, `json_to_sheet`, a `text/csv` Blob outside `core/export`), **raw HTML** (`v-html`, `dangerouslySetInnerHTML`, `.innerHTML =` without `// safe-html: <reason>`), `@ts-ignore` and explicit `any` (without `// any: <reason>`).
 - Exit code `1` when there are (new) violations, so CI can block them.
 - `devforge audit --baseline` writes `.devforge-audit-baseline.json` (known debt per file and rule). Later runs fail only on NEW violations and lower the baseline automatically when something is fixed. It can only shrink; never edit it upwards.
