@@ -50,7 +50,7 @@ export function listCommand() {
     'url-sync   -> Bidirectional URL Search Params table synchronizer',
     'flickerless-> Carga sin skeleton: FlickerlessSurface, FlickerlessValue, TableShell',
     'select     -> SelectField (.vue / .tsx): combo estándar (reemplaza <select>)',
-    'dates      -> DatePicker + DateRangeFilter (.vue / .tsx) + date-range.ts',
+    'dates      -> DateField, DateRangeFilter, DatePicker (.vue / .tsx) + date-range.ts',
     'pagination -> ListPager (.vue / .tsx) + pagination.ts («Mostrando 11–20 de 57»)',
     'feedback   -> ConfirmDialog + ToastHost: confirmDialog(), promptDialog(), notify()',
     'overlays   -> ModalShell, DrawerShell, RowMenu (Escape apilado, scroll bloqueado)',

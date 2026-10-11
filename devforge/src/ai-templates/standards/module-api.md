@@ -21,7 +21,7 @@
 | url-sync     | `devforge add url-sync`   | `src/core/url-sync/url-state.ts` |
 | flickerless  | `devforge add flickerless` | `src/shared/flickerless/core/*`, `src/shared/flickerless/vue/*`, `src/shared/flickerless/react/*`, `src/shared/flickerless/flickerless.css` |
 | select       | `devforge add select`     | `src/shared/components/SelectField.vue` (Vue) · `SelectField.tsx`, `usePopover.ts`, `icons.tsx` (React) |
-| dates        | `devforge add dates`      | `src/core/dates/date-range.ts`, `src/shared/components/DatePicker.vue`, `src/shared/components/DateRangeFilter.vue` (Vue) · `DatePicker.tsx`, `DateRangeFilter.tsx` (React) |
+| dates        | `devforge add dates`      | `src/core/dates/date-range.ts`, `DateField`, `DateRangeFilter`, `DatePicker` (`.vue` / `.tsx`) |
 | feedback     | `devforge add feedback`   | `src/core/feedback/dialog.ts`, `src/core/feedback/toast.ts`, `src/core/overlay/escape-layer.ts`, `src/core/overlay/scroll-lock.ts`, `ConfirmDialog` + `ToastHost` (`.vue` / `.tsx`), `useOverlay` |
 | overlays     | `devforge add overlays`   | `src/core/overlay/*.ts`, `ModalShell`, `DrawerShell`, `RowMenu` (`.vue` / `.tsx`), `useOverlay` |
 | list-states  | `devforge add list-states` | `EmptyState`, `ListStaleNotice` (`.vue` / `.tsx`) |
@@ -133,7 +133,10 @@ Copy of [github.com/LuisMTaveras/flickerless](https://github.com/LuisMTaveras/fl
 - React (named export `SelectField`): props `value`, `onChange(value)`, `options`, `label?`, `placeholder?`, `compact?`, `disabled?`, plus any `<button>` attribute (`id`, `aria-*`, `className`). Exports `SelectOption`, `SelectValue`, `SelectFieldProps`. Internal helpers `usePopover`, `cx` (`usePopover.ts`) and `Icon` (`icons.tsx`, names `chevronDown | chevronLeft | chevronRight | check | close | calendar`).
 - There is **no** search/filter-as-you-type, multi-select or async loading. Ask before adding them.
 
-## 10. `dates` — `@/core/dates/date-range` + `DatePicker.vue` + `DateRangeFilter.vue`
+## 10. `dates` — `@/core/dates/date-range` + `DateField` + `DateRangeFilter` + `DatePicker`
+
+- **Which one**: form field ➔ `DateField`; listing period filter ➔ `DateRangeFilter`; free range ➔ `DatePicker range`. Usage guide: `ui-components.md` §3.
+- `DateField`: single date. Same props as `DatePicker` without `range` (`modelValue`/`value`, `label?`, `placeholder?`, `min?`, `max?`, `compact?`, `disabled?`, `clearable?` = true). Emits / returns a day key or `''`. Vue default export; React named export `DateField`.
 
 - `DatePicker`: props `modelValue` (`'YYYY-MM-DD'`, `Date`, or `[from, to]` with `range`), `range?`, `label?`, `placeholder?`, `min?`, `max?` (day keys), `compact?`, `disabled?`, `clearable?` (= true). Emits `update:modelValue` / `change` with a day key or `string[]` (0, 1 or 2 keys). Exposes `focus()`.
 - `DateRangeFilter`: props `modelValue: DateRange`, `allowAll?` (= true). Emits `update:modelValue` and `change` (only when usable).

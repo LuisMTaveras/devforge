@@ -1,116 +1,180 @@
 <template>
   <div class="relative w-full">
+    <!-- Disparador -->
     <button
       ref="triggerRef"
       type="button"
-      aria-haspopup="dialog"
+      role="combobox"
       :aria-expanded="isOpen"
       :aria-label="label || placeholderText"
-      class="flex w-full cursor-pointer select-none items-center gap-2.5 rounded-control border bg-surface text-left transition disabled:cursor-not-allowed disabled:opacity-60"
+      class="flex w-full cursor-pointer select-none items-center justify-between gap-2.5 text-left transition"
       :class="[
-        isOpen ? 'border-primary-border ring-2 ring-ring' : 'border-border hover:border-primary-border',
-        compact ? 'min-h-9 px-3 py-1.5 text-small' : 'min-h-11 px-4 py-2.5 text-body',
+        isOpen ? 'border-primary-border bg-surface ring-2 ring-ring' : 'border-border bg-surface hover:border-primary-border',
+        compact ? 'min-h-9 rounded-control border px-3 py-1.5 text-small' : 'min-h-11 rounded-control border px-4 py-2.5 text-body',
+        disabled ? 'pointer-events-none cursor-not-allowed opacity-60' : '',
         $attrs.class,
       ]"
       :disabled="disabled"
       v-bind="triggerAttrs"
       @click="toggleOpen"
-      @keydown="onTriggerKeydown"
+      @keydown="handleKeydown"
     >
-      <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="size-5 shrink-0" :class="hasSelection ? 'text-foreground' : 'text-muted-foreground'">
-        <path fill-rule="evenodd" d="M5.75 2a.75.75 0 0 1 .75.75V4h7V2.75a.75.75 0 0 1 1.5 0V4h.25A2.75 2.75 0 0 1 18 6.75v8.5A2.75 2.75 0 0 1 15.25 18H4.75A2.75 2.75 0 0 1 2 15.25v-8.5A2.75 2.75 0 0 1 4.75 4H5V2.75A.75.75 0 0 1 5.75 2Zm-1 5.5c-.69 0-1.25.56-1.25 1.25v6.5c0 .69.56 1.25 1.25 1.25h10.5c.69 0 1.25-.56 1.25-1.25v-6.5c0-.69-.56-1.25-1.25-1.25H4.75Z" clip-rule="evenodd" />
-      </svg>
-      <span class="flex min-w-0 flex-1 flex-col">
-        <span v-if="label" class="mb-1 text-caption font-bold uppercase leading-none tracking-wider text-muted-foreground">{{ label }}</span>
-        <span class="truncate font-semibold leading-tight tabular-nums" :class="hasSelection ? 'text-foreground' : 'text-dim-foreground'">
+      <DfIcon name="calendar" class="size-5 shrink-0 transition-colors" :class="isOpen || hasSelection ? 'text-foreground' : 'text-muted-foreground'" />
+
+      <div class="flex min-w-0 flex-1 flex-col">
+        <span v-if="label" class="mb-1 text-caption font-black uppercase leading-none tracking-wider text-primary">{{ label }}</span>
+        <span class="truncate font-bold leading-tight tabular-nums" :class="hasSelection ? 'text-foreground' : 'text-dim-foreground'">
           {{ displayLabel }}
         </span>
-      </span>
+      </div>
+
+      <!-- Limpiar (con valor) o flecha (sin valor) -->
       <span
         v-if="hasSelection && clearable && !disabled"
         role="button"
         tabindex="0"
-        aria-label="Borrar fecha"
-        class="grid size-6 shrink-0 place-items-center rounded-control text-muted-foreground transition hover:bg-surface-hover hover:text-foreground"
-        @click.stop="clear"
-        @keydown.enter.stop.prevent="clear"
-        @keydown.space.stop.prevent="clear"
+        aria-label="Limpiar fecha"
+        class="grid size-6 shrink-0 cursor-pointer place-items-center rounded-control text-muted-foreground transition hover:bg-surface-hover hover:text-foreground"
+        @click.stop="handleClear"
+        @keydown.enter.stop.prevent="handleClear"
+        @keydown.space.stop.prevent="handleClear"
       >
-        <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="size-4"><path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" /></svg>
+        <DfIcon name="close" class="size-4" />
       </span>
+      <DfIcon
+        v-else
+        name="chevronDown"
+        class="size-5 shrink-0 transition-transform duration-200"
+        :class="isOpen ? 'rotate-180 text-foreground' : 'text-muted-foreground'"
+      />
     </button>
 
+    <!-- Calendario flotante -->
     <Teleport to="body">
       <Transition
         enter-active-class="transition duration-150 ease-out"
         enter-from-class="opacity-0 scale-95"
+        enter-to-class="opacity-100 scale-100"
         leave-active-class="transition duration-100 ease-in"
+        leave-from-class="opacity-100 scale-100"
         leave-to-class="opacity-0 scale-95"
       >
         <div
           v-if="isOpen"
           ref="popoverRef"
+          :style="popoverStyle"
           role="dialog"
           :aria-label="range ? 'Seleccionar rango de fechas' : 'Seleccionar fecha'"
+          class="select-none rounded-card border border-border bg-surface-raised p-3 shadow-popover backdrop-blur-md focus:outline-none"
           tabindex="-1"
-          :style="popoverStyle"
-          class="select-none rounded-card border border-border bg-surface-raised p-3 shadow-popover focus:outline-none"
-          @keydown.esc.stop.prevent="close()"
+          @keydown="handlePopoverKeydown"
         >
-          <!-- Vista de meses / años -->
-          <div v-if="viewMode === 'months'">
-            <div class="mb-2 flex items-center justify-between border-b border-border pb-2">
-              <button type="button" :class="navBtn" title="Año anterior" @click="viewYear--"><span v-html="chevronLeft" /></button>
-              <span class="text-body font-semibold text-foreground">{{ viewYear }}</span>
-              <button type="button" :class="navBtn" title="Año siguiente" @click="viewYear++"><span v-html="chevronRight" /></button>
-            </div>
-            <div class="grid grid-cols-3 gap-1.5">
-              <button
-                v-for="(name, idx) in MONTH_NAMES_SHORT"
-                :key="name"
-                type="button"
-                class="cursor-pointer rounded-control py-2 text-small transition"
-                :class="viewMonth === idx ? 'bg-primary font-semibold text-primary-foreground' : 'text-muted-foreground hover:bg-surface-hover hover:text-foreground'"
-                @click="pickMonth(idx)"
-              >
-                {{ name }}
-              </button>
-            </div>
-          </div>
-
-          <!-- Vista de días: un mes, o dos lado a lado en rango -->
-          <div v-else :class="range ? 'grid grid-cols-1 gap-5 sm:grid-cols-2' : ''">
-            <div v-for="(panel, p) in panels" :key="p">
+          <!-- Dos meses lado a lado en rango; uno en fecha suelta -->
+          <div :class="range ? 'grid grid-cols-2 gap-5' : ''">
+            <!-- ── PANEL IZQUIERDO / ÚNICO ── -->
+            <div>
               <div class="mb-2 flex items-center justify-between gap-1 border-b border-border pb-2">
-                <button v-if="p === 0" type="button" :class="navBtn" title="Mes anterior" @click="shiftMonth(-1)"><span v-html="chevronLeft" /></button>
-                <span v-else class="size-8" />
+                <button type="button" :class="navBtn" title="Mes anterior" @click="prevMonth">
+                  <DfIcon name="chevronLeft" class="size-5" />
+                </button>
+
                 <button
                   type="button"
-                  class="cursor-pointer rounded-control px-2.5 py-1 text-small font-semibold text-foreground transition hover:bg-surface-hover"
-                  title="Ver meses y años"
-                  @click="viewMode = 'months'"
+                  class="flex cursor-pointer items-center gap-1.5 rounded-control px-2.5 py-1 text-small font-bold text-foreground transition hover:bg-surface-hover"
+                  :title="viewMode === 'days' ? 'Ver meses y años' : 'Ver días'"
+                  @click="toggleViewMode"
                 >
-                  {{ MONTH_NAMES[panel.month] }} {{ panel.year }}
+                  <span>{{ MONTH_NAMES[viewMonth] }} {{ viewYear }}</span>
+                  <DfIcon name="chevronDown" class="size-4 transition-transform duration-150" :class="{ 'rotate-180': viewMode === 'monthYear' }" />
                 </button>
-                <button v-if="p === panels.length - 1" type="button" :class="navBtn" title="Mes siguiente" @click="shiftMonth(1)"><span v-html="chevronRight" /></button>
-                <span v-else class="size-8" />
+
+                <!-- La flecha derecha va en el panel derecho cuando es rango -->
+                <button v-if="!range" type="button" :class="navBtn" title="Mes siguiente" @click="nextMonth">
+                  <DfIcon name="chevronRight" class="size-5" />
+                </button>
+                <div v-else class="size-8 shrink-0" />
               </div>
-              <div class="mb-1 grid grid-cols-7 gap-1 py-1 text-center text-caption font-bold uppercase tracking-wider text-muted-foreground">
+
+              <!-- Vista rápida de meses y año -->
+              <div v-if="viewMode === 'monthYear'" class="py-1">
+                <div class="flex items-center justify-between px-2 pb-2">
+                  <button type="button" :class="navBtnSmall" title="Año anterior" @click="viewYear--">
+                    <DfIcon name="chevronLeft" class="size-4" />
+                  </button>
+                  <span class="text-body font-bold text-foreground">{{ viewYear }}</span>
+                  <button type="button" :class="navBtnSmall" title="Año siguiente" @click="viewYear++">
+                    <DfIcon name="chevronRight" class="size-4" />
+                  </button>
+                </div>
+                <div class="grid grid-cols-3 gap-1.5 pt-1">
+                  <button
+                    v-for="(name, idx) in MONTH_NAMES_SHORT"
+                    :key="name"
+                    type="button"
+                    class="cursor-pointer rounded-control py-2 text-small font-medium transition"
+                    :class="viewMonth === idx ? 'bg-primary font-bold text-primary-foreground shadow-sm' : 'text-muted-foreground hover:bg-surface-hover hover:text-foreground'"
+                    @click="selectMonth(idx)"
+                  >
+                    {{ name }}
+                  </button>
+                </div>
+              </div>
+
+              <!-- Días (panel izquierdo) -->
+              <div v-else>
+                <div class="mb-1 grid grid-cols-7 gap-1 py-1 text-center text-caption font-black uppercase tracking-wider text-muted-foreground">
+                  <span v-for="wd in WEEK_DAYS" :key="wd">{{ wd }}</span>
+                </div>
+                <div class="grid grid-cols-7 gap-1 text-center">
+                  <button
+                    v-for="cell in leftCells"
+                    :key="cell.dateKey"
+                    type="button"
+                    class="relative grid size-8.5 cursor-pointer place-items-center rounded-control text-small tabular-nums transition"
+                    :class="cellClass(cell)"
+                    :disabled="cell.isDisabled"
+                    :aria-label="formatDayKey(cell.dateKey)"
+                    @click="selectDate(cell.dateKey)"
+                    @mouseenter="setHoverDate(cell.dateKey)"
+                    @mouseleave="setHoverDate('')"
+                  >
+                    {{ cell.day }}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- ── PANEL DERECHO (solo rango): siempre el mes siguiente ── -->
+            <div v-if="range">
+              <div class="mb-2 flex items-center justify-between gap-1 border-b border-border pb-2">
+                <div class="size-8 shrink-0" />
+                <button
+                  type="button"
+                  class="flex cursor-pointer items-center gap-1.5 rounded-control px-2.5 py-1 text-small font-bold text-foreground transition hover:bg-surface-hover"
+                  @click="toggleViewMode"
+                >
+                  <span>{{ MONTH_NAMES[rightMonth] }} {{ rightYear }}</span>
+                  <DfIcon name="chevronDown" class="size-4 transition-transform duration-150" :class="{ 'rotate-180': viewMode === 'monthYear' }" />
+                </button>
+                <button type="button" :class="navBtn" title="Mes siguiente" @click="nextMonth">
+                  <DfIcon name="chevronRight" class="size-5" />
+                </button>
+              </div>
+              <div class="mb-1 grid grid-cols-7 gap-1 py-1 text-center text-caption font-black uppercase tracking-wider text-muted-foreground">
                 <span v-for="wd in WEEK_DAYS" :key="wd">{{ wd }}</span>
               </div>
               <div class="grid grid-cols-7 gap-1 text-center">
                 <button
-                  v-for="cell in panel.cells"
+                  v-for="cell in rightCells"
                   :key="cell.dateKey"
                   type="button"
-                  class="grid size-8.5 place-items-center rounded-control text-small tabular-nums transition"
+                  class="relative grid size-8.5 cursor-pointer place-items-center rounded-control text-small tabular-nums transition"
                   :class="cellClass(cell)"
                   :disabled="cell.isDisabled"
                   :aria-label="formatDayKey(cell.dateKey)"
-                  :aria-pressed="isEndpoint(cell.dateKey)"
-                  @click="pick(cell.dateKey)"
-                  @mouseenter="hoverKey = cell.dateKey"
-                  @mouseleave="hoverKey = ''"
+                  @click="selectDate(cell.dateKey)"
+                  @mouseenter="setHoverDate(cell.dateKey)"
+                  @mouseleave="setHoverDate('')"
                 >
                   {{ cell.day }}
                 </button>
@@ -118,15 +182,24 @@
             </div>
           </div>
 
-          <p v-if="range && viewMode === 'days'" class="mt-2 text-center text-caption text-muted-foreground">
-            <template v-if="rangeValue.length === 1">Ahora selecciona la <strong class="text-foreground">fecha final</strong></template>
-            <template v-else>Haz clic en la <strong class="text-foreground">fecha de inicio</strong></template>
-          </p>
+          <!-- Pista del rango -->
+          <div v-if="range" class="mb-0.5 mt-2 text-center text-caption text-muted-foreground">
+            <span v-if="selectingFirst">Haz clic en la <strong class="text-foreground">fecha de inicio</strong></span>
+            <span v-else>Ahora selecciona la <strong class="text-foreground">fecha final</strong></span>
+          </div>
 
+          <!-- Pie -->
           <div class="mt-2.5 flex items-center justify-between border-t border-border pt-2.5">
-            <button type="button" :class="footerBtn" @click="pickToday">Hoy</button>
+            <button type="button" :class="footerBtn" @click="selectToday">Hoy</button>
             <div class="flex items-center gap-1">
-              <button v-if="hasSelection && clearable" type="button" :class="footerBtn" class="hover:bg-danger/10! hover:text-danger!" @click="clear">Borrar</button>
+              <button
+                v-if="hasSelection && clearable"
+                type="button"
+                class="cursor-pointer rounded-control px-2.5 py-1 text-caption font-bold text-muted-foreground transition hover:bg-danger/10 hover:text-danger"
+                @click="handleClear"
+              >
+                Borrar
+              </button>
               <button type="button" :class="footerBtn" @click="close()">Cerrar</button>
             </div>
           </div>
@@ -138,16 +211,18 @@
 
 <script setup lang="ts">
 /**
- * ⚡ DEVFORGE DatePicker — selector de fecha estándar (una fecha o un rango).
+ * ⚡ DEVFORGE DatePicker — el calendario (port de B2BDatePicker de Snowlr).
  *
- *   <DatePicker v-model="form.fechaVencimiento" label="Vencimiento" :min="hoy" />
- *   <DatePicker v-model="rango" range placeholder="Seleccionar rango" />   // ['2026-10-01', '2026-10-31']
+ * En una pantalla NO se usa directo:
+ *   · campo de formulario  → <DateField v-model="form.fecha" label="Fecha" />
+ *   · filtro de un listado → <DateRangeFilter v-model="periodo" @change="cargar" />
+ * Directo solo cuando hace falta un rango suelto fuera de un listado:
+ *   <DatePicker v-model="rango" range />          // ['2026-10-01', '2026-10-31']
  *
- * El v-model es una CLAVE `YYYY-MM-DD` (o `[desde, hasta]` en rango), nunca un `Date`:
- * así "hoy" no depende de la zona del navegador (ver core/dates/date-range.ts).
- * Muestra `dd/mm/aaaa`. El input nativo `type="date"` está prohibido: ignora el tema.
+ * El valor es una CLAVE `YYYY-MM-DD` (o `[desde, hasta]`), nunca un `Date`: así «hoy»
+ * no depende de la zona del navegador. Muestra `dd/mm/aaaa`.
  */
-import { computed, nextTick, onUnmounted, ref, useAttrs, watch } from 'vue';
+import { computed, onUnmounted, ref, useAttrs, watch } from 'vue';
 import {
   MONTH_NAMES,
   MONTH_NAMES_SHORT,
@@ -159,6 +234,7 @@ import {
   todayKey,
   type CalendarCell,
 } from '../../../core/dates/date-range.js';
+import { DfIcon } from './DfIcon.js';
 
 defineOptions({ inheritAttrs: false });
 
@@ -167,7 +243,9 @@ type Model = string | Date | null | undefined | (string | Date)[];
 const props = withDefaults(
   defineProps<{
     modelValue?: Model;
+    /** Dos meses lado a lado; el valor es `[desde, hasta]`. */
     range?: boolean;
+    /** Rótulo dentro del campo, en mayúsculas (como en Snowlr). */
     label?: string;
     placeholder?: string;
     /** Clave `YYYY-MM-DD` mínima / máxima seleccionable. */
@@ -185,10 +263,9 @@ const emit = defineEmits<{
   change: [value: string | string[]];
 }>();
 
-const chevronLeft = '<svg viewBox="0 0 20 20" fill="currentColor" class="size-5"><path fill-rule="evenodd" d="M11.78 5.22a.75.75 0 0 1 0 1.06L8.06 10l3.72 3.72a.75.75 0 1 1-1.06 1.06l-4.25-4.25a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd"/></svg>';
-const chevronRight = '<svg viewBox="0 0 20 20" fill="currentColor" class="size-5"><path fill-rule="evenodd" d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd"/></svg>';
 const navBtn = 'grid size-8 shrink-0 cursor-pointer place-items-center rounded-control text-muted-foreground transition hover:bg-surface-hover hover:text-foreground';
-const footerBtn = 'cursor-pointer rounded-control px-2.5 py-1 text-caption font-semibold text-muted-foreground transition hover:bg-surface-hover hover:text-foreground';
+const navBtnSmall = 'grid size-7 cursor-pointer place-items-center rounded-control text-muted-foreground transition hover:bg-surface-hover hover:text-foreground';
+const footerBtn = 'cursor-pointer rounded-control px-2.5 py-1 text-caption font-bold text-muted-foreground transition hover:bg-surface-hover hover:text-foreground';
 
 const attrs = useAttrs();
 const triggerAttrs = computed(() => {
@@ -197,81 +274,100 @@ const triggerAttrs = computed(() => {
 });
 
 const triggerRef = ref<HTMLButtonElement | null>(null);
-const popoverRef = ref<HTMLElement | null>(null);
-const popoverStyle = ref<Record<string, string>>({});
+const popoverRef = ref<HTMLDivElement | null>(null);
 const isOpen = ref(false);
-const viewMode = ref<'days' | 'months'>('days');
-const hoverKey = ref('');
+const viewMode = ref<'days' | 'monthYear'>('days');
+/** Día bajo el cursor mientras se elige el final de un rango. */
+const hoverDate = ref('');
 
-/** Rango normalizado: 0, 1 o 2 claves (sin vacíos al final). */
-const rangeValue = computed<string[]>(() =>
-  Array.isArray(props.modelValue) ? props.modelValue.map(v => toDayKey(v)).filter(Boolean).slice(0, 2) : [],
-);
+/** Rango normalizado: 0, 1 o 2 claves (los vacíos del final no cuentan). */
+const rangeValue = computed<string[]>(() => {
+  if (!Array.isArray(props.modelValue)) return [];
+  const keys = props.modelValue.map(v => toDayKey(v));
+  while (keys.length && !keys[keys.length - 1]) keys.pop();
+  return keys.slice(0, 2);
+});
 const singleValue = computed(() => (Array.isArray(props.modelValue) ? '' : toDayKey(props.modelValue)));
 
-const hasSelection = computed(() => (props.range ? rangeValue.value.length > 0 : Boolean(singleValue.value)));
-const placeholderText = computed(() => props.placeholder ?? (props.range ? 'Seleccionar rango' : 'Seleccionar fecha'));
+const hasSelection = computed(() => (props.range ? rangeValue.value.some(Boolean) : Boolean(singleValue.value)));
+const placeholderText = computed(() => props.placeholder || (props.range ? 'Seleccionar rango' : 'Seleccionar fecha'));
 const displayLabel = computed(() => {
-  if (!hasSelection.value) return placeholderText.value;
-  if (!props.range) return formatDayKey(singleValue.value);
-  const [from, to] = rangeValue.value;
-  return `${formatDayKey(from)} — ${to ? formatDayKey(to) : '…'}`;
+  if (props.range) {
+    const [start, end] = rangeValue.value;
+    if (start && end) return `${formatDayKey(start)} — ${formatDayKey(end)}`;
+    if (start) return `${formatDayKey(start)} — ...`;
+    return placeholderText.value;
+  }
+  return singleValue.value ? formatDayKey(singleValue.value) : placeholderText.value;
 });
 
-const viewYear = ref(0);
-const viewMonth = ref(0);
+// Mes a la vista
+const anchor = computed(() => parseYearMonth(props.range ? rangeValue.value[0] : singleValue.value));
+const viewYear = ref(anchor.value.year);
+const viewMonth = ref(anchor.value.month);
+const rightMonth = computed(() => (viewMonth.value === 11 ? 0 : viewMonth.value + 1));
+const rightYear = computed(() => (viewMonth.value === 11 ? viewYear.value + 1 : viewYear.value));
 
-function resetView() {
-  const anchor = parseYearMonth(props.range ? rangeValue.value[0] : singleValue.value);
-  viewYear.value = anchor.year;
-  viewMonth.value = anchor.month;
-  viewMode.value = 'days';
-  hoverKey.value = '';
+const leftCells = computed(() => buildCalendar(viewYear.value, viewMonth.value, { min: props.min, max: props.max }));
+const rightCells = computed(() => buildCalendar(rightYear.value, rightMonth.value, { min: props.min, max: props.max }));
+
+/** Va a elegir el INICIO de un rango (nada elegido, o un rango completo). */
+const selectingFirst = computed(() => rangeValue.value.length === 0 || rangeValue.value.length === 2);
+
+function prevMonth() {
+  if (viewMonth.value === 0) {
+    viewMonth.value = 11;
+    viewYear.value--;
+  } else viewMonth.value--;
 }
 
-const panels = computed(() => {
-  const count = props.range ? 2 : 1;
-  return Array.from({ length: count }, (_, i) => {
-    const offset = viewMonth.value + i;
-    const year = viewYear.value + Math.floor(offset / 12);
-    const month = offset % 12;
-    return { year, month, cells: buildCalendar(year, month, { min: props.min, max: props.max }) };
-  });
-});
-
-function shiftMonth(delta: number) {
-  const total = viewYear.value * 12 + viewMonth.value + delta;
-  viewYear.value = Math.floor(total / 12);
-  viewMonth.value = total % 12;
+function nextMonth() {
+  if (viewMonth.value === 11) {
+    viewMonth.value = 0;
+    viewYear.value++;
+  } else viewMonth.value++;
 }
 
-function pickMonth(idx: number) {
+const toggleViewMode = () => (viewMode.value = viewMode.value === 'days' ? 'monthYear' : 'days');
+
+function selectMonth(idx: number) {
   viewMonth.value = idx;
   viewMode.value = 'days';
 }
 
-const isEndpoint = (key: string) => (props.range ? rangeValue.value.includes(key) : singleValue.value === key);
+function isSelected(key: string) {
+  return props.range ? rangeValue.value.includes(key) : singleValue.value === key;
+}
 
 function isInRange(key: string) {
   if (!props.range) return false;
-  const [from, to] = rangeValue.value;
-  // Con una sola fecha elegida, el hover previsualiza el rango.
-  const end = to ?? (from && hoverKey.value ? hoverKey.value : '');
-  if (!from || !end) return false;
-  const [a, b] = from < end ? [from, end] : [end, from];
-  return key > a && key < b;
+  const [start, end] = rangeValue.value;
+  if (start && end) return key > start && key < end;
+  // Previsualización: con el inicio elegido, el cursor dibuja el rango.
+  if (start && hoverDate.value) {
+    const hover = hoverDate.value;
+    if (hover > start) return key > start && key < hover;
+    if (hover < start) return key > hover && key < start;
+  }
+  return false;
 }
 
-function cellClass(cell: CalendarCell) {
-  if (cell.isDisabled) return 'cursor-not-allowed text-dim-foreground opacity-30';
-  if (isEndpoint(cell.dateKey)) return 'cursor-pointer bg-primary font-bold text-primary-foreground shadow-sm';
-  if (props.range && rangeValue.value.length === 1 && cell.dateKey === hoverKey.value) {
-    return 'cursor-pointer bg-primary/70 font-bold text-primary-foreground';
-  }
-  if (isInRange(cell.dateKey)) return 'cursor-pointer bg-primary-subtle font-semibold text-foreground';
-  if (cell.isToday) return 'cursor-pointer border border-primary font-semibold text-foreground hover:bg-surface-hover';
-  if (cell.isCurrentMonth) return 'cursor-pointer text-foreground hover:bg-surface-hover';
-  return 'cursor-pointer text-dim-foreground opacity-50 hover:bg-surface-hover hover:opacity-90';
+const isHoverEnd = (key: string) => props.range && rangeValue.value.length === 1 && key === hoverDate.value;
+
+function cellClass(cell: CalendarCell): string[] {
+  const cls: string[] = [];
+  if (isSelected(cell.dateKey)) cls.push('z-10', 'bg-primary', 'font-black', 'text-primary-foreground', 'shadow-sm');
+  else if (isHoverEnd(cell.dateKey)) cls.push('bg-primary/70', 'font-black', 'text-primary-foreground');
+  else if (isInRange(cell.dateKey)) cls.push('bg-primary-subtle', 'font-bold', 'text-foreground');
+  else if (cell.isToday) cls.push('border', 'border-primary', 'font-bold', 'text-primary', 'hover:bg-surface-hover');
+  else if (cell.isCurrentMonth) cls.push('text-foreground', 'hover:bg-surface-hover');
+  else cls.push('text-dim-foreground', 'opacity-40', 'hover:bg-surface-hover', 'hover:opacity-90');
+  if (cell.isDisabled) cls.push('pointer-events-none', 'cursor-not-allowed', 'opacity-20');
+  return cls;
+}
+
+function setHoverDate(key: string) {
+  if (props.range && rangeValue.value.length === 1) hoverDate.value = key;
 }
 
 function commit(value: string | string[]) {
@@ -279,42 +375,43 @@ function commit(value: string | string[]) {
   emit('change', value);
 }
 
-function pick(key: string) {
+function selectDate(key: string) {
   if (!props.range) {
     commit(key);
     close();
     return;
   }
-  const current = rangeValue.value;
-  if (current.length !== 1) {
+  if (selectingFirst.value) {
     commit([key]); // empieza un rango nuevo
     return;
   }
-  const [start] = current;
+  const start = rangeValue.value[0];
   commit(key < start ? [key, start] : [start, key]);
+  hoverDate.value = '';
   close();
 }
 
-function pickToday() {
+function selectToday() {
   const today = todayKey();
   if ((props.min && today < props.min) || (props.max && today > props.max)) return;
-  if (props.range) {
-    commit([today, today]);
-    close();
-  } else {
-    pick(today);
-  }
+  const { year, month } = parseYearMonth(today);
+  viewYear.value = year;
+  viewMonth.value = month;
+  selectDate(today);
 }
 
-function clear() {
+function handleClear() {
   commit(props.range ? [] : '');
 }
+
+// ── Posición del calendario ─────────────────────────────────────────────
+const popoverStyle = ref<Record<string, string>>({});
 
 function updatePosition() {
   const rect = triggerRef.value?.getBoundingClientRect();
   if (!rect) return;
-  const height = 360;
-  const openUp = window.innerHeight - rect.bottom < height && rect.top > height;
+  const estimatedHeight = 340;
+  const openUp = window.innerHeight - rect.bottom < estimatedHeight && rect.top > estimatedHeight;
   const width = props.range ? 616 : 304;
   const left = Math.max(8, Math.min(rect.left, window.innerWidth - width - 8));
   popoverStyle.value = {
@@ -324,17 +421,14 @@ function updatePosition() {
     maxWidth: 'calc(100vw - 1rem)',
     zIndex: '9999',
     transformOrigin: openUp ? 'bottom' : 'top',
-    ...(openUp ? { bottom: `${window.innerHeight - rect.top + 6}px` } : { top: `${rect.bottom + 6}px` }),
+    ...(openUp ? { bottom: `${window.innerHeight - rect.top + 6}px`, top: 'auto' } : { top: `${rect.bottom + 6}px`, bottom: 'auto' }),
   };
 }
 
-async function open() {
-  if (props.disabled || isOpen.value) return;
-  resetView();
+function open() {
+  if (props.disabled) return;
   updatePosition();
   isOpen.value = true;
-  await nextTick();
-  popoverRef.value?.focus();
 }
 
 function close(refocus = true) {
@@ -344,26 +438,52 @@ function close(refocus = true) {
 
 const toggleOpen = () => (isOpen.value ? close() : open());
 
-function onTriggerKeydown(e: KeyboardEvent) {
-  if (['ArrowDown', 'Enter', ' '].includes(e.key)) {
+function handleKeydown(e: KeyboardEvent) {
+  if (props.disabled) return;
+  if (e.key === 'Escape' && isOpen.value) {
+    // Cierra el calendario y no el modal que lo contiene.
+    e.stopPropagation();
+    e.preventDefault();
+    close();
+  } else if ((e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') && !isOpen.value) {
     e.preventDefault();
     open();
   }
 }
 
-const onScrollOrResize = () => isOpen.value && updatePosition();
-function onPointerDownOutside(event: PointerEvent) {
+function handlePopoverKeydown(e: KeyboardEvent) {
+  if (e.key === 'Escape') {
+    e.stopPropagation();
+    e.preventDefault();
+    close();
+  }
+}
+
+const handleScrollOrResize = () => isOpen.value && updatePosition();
+function handlePointerDownOutside(event: PointerEvent) {
   const target = event.target as Node | null;
   if (target && !triggerRef.value?.contains(target) && !popoverRef.value?.contains(target)) close(false);
 }
-function listen(on: boolean) {
-  const method = on ? 'addEventListener' : 'removeEventListener';
-  document[method]('pointerdown', onPointerDownOutside as EventListener);
-  window[method]('scroll', onScrollOrResize, true);
-  window[method]('resize', onScrollOrResize);
-}
-watch(isOpen, listen);
-onUnmounted(() => listen(false));
+
+// Los escuchas de `document` solo existen con el calendario ABIERTO.
+watch(isOpen, open => {
+  const method = open ? 'addEventListener' : 'removeEventListener';
+  if (open) {
+    viewMode.value = 'days';
+    hoverDate.value = '';
+    viewYear.value = anchor.value.year;
+    viewMonth.value = anchor.value.month;
+  } else hoverDate.value = '';
+  document[method]('pointerdown', handlePointerDownOutside as EventListener);
+  window[method]('scroll', handleScrollOrResize, true);
+  window[method]('resize', handleScrollOrResize);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('pointerdown', handlePointerDownOutside as EventListener);
+  window.removeEventListener('scroll', handleScrollOrResize, true);
+  window.removeEventListener('resize', handleScrollOrResize);
+});
 
 defineExpose({ focus: () => triggerRef.value?.focus() });
 </script>

@@ -38,7 +38,7 @@ This repository is powered by **DEVFORGE**. You are expected to operate as a Pri
    - If you are not sure, say so and ask. A short question is always better than plausible-looking invented code.
 9. **[ ] STANDARD UI COMPONENTS (NEVER HAND-ROLLED)**:
    - Banned: Skeletons (`<Skeleton>`, `skeleton`, `animate-pulse`), full-screen spinners, native `<select>`, `<input type="date">`, `window.alert/confirm/prompt`, hand-written modal backdrops or closing on backdrop click (`@click.self`), ad-hoc pagination footers, and `0` / "Sin resultados" before the first response.
-   - Required: Flickerless (`devforge add flickerless`), `<SelectField>` (`select`), `<DatePicker>` / `<DateRangeFilter>` (`dates`), `<ListPager>` (`pagination`), `confirmDialog()` / `notify()` (`feedback`), `<ModalShell>` / `<DrawerShell>` / `<RowMenu>` (`overlays`), `<EmptyState>` / `<ListStaleNotice>` (`list-states`), `<MoneyInput>` / `<MaskedInput>` (`inputs`), `<BatchProgressModal>` (`batch`). Rules: `.ai/standards/ui-components.md`.
+   - Required: Flickerless (`devforge add flickerless`), `<SelectField>` (`select`), `<DateField>` / `<DateRangeFilter>` (`dates`), `<ListPager>` (`pagination`), `confirmDialog()` / `notify()` (`feedback`), `<ModalShell>` / `<DrawerShell>` / `<RowMenu>` (`overlays`), `<EmptyState>` / `<ListStaleNotice>` (`list-states`), `<MoneyInput>` / `<MaskedInput>` (`inputs`), `<BatchProgressModal>` (`batch`). Rules: `.ai/standards/ui-components.md`.
 
 ## Order of Truth (When Sources Disagree)
 
@@ -54,7 +54,7 @@ This repository is powered by **DEVFORGE**. You are expected to operate as a Pri
 - **Developer Calibration & Stack Advisory**: Execute `.ai/standards/project-kickoff.md` (Junior/Intermediate/Senior calibration).
 - **Anti-AI Design Excellence**: Follow `.ai/standards/ui-ux-principles.md` (Linear/Stripe aesthetic).
 - **Light + Dark Themes**: Follow `.ai/standards/theming.md`. Every screen must work in both themes.
-- **Standard UI Components**: Follow `.ai/standards/ui-components.md` (Flickerless, SelectField, DatePicker, ListPager, dialogs and toasts, ModalShell, RowMenu, EmptyState, MoneyInput / MaskedInput, BatchProgressModal).
+- **Standard UI Components**: Follow `.ai/standards/ui-components.md` (Flickerless, SelectField, DateField / DateRangeFilter, ListPager, dialogs and toasts, ModalShell, RowMenu, EmptyState, MoneyInput / MaskedInput, BatchProgressModal).
 - **Localized Formatting**: Follow `.ai/standards/data-formatting.md` (currency, numbers, dates, phones per country). Default country: República Dominicana.
 - **Module API**: `.ai/standards/module-api.md` is the exact list of DEVFORGE functions. Nothing else exists.
 - **Strict Adherence to Blueprints**: Check `.ai/blueprints/` before coding.

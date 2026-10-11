@@ -92,12 +92,15 @@ const MODULE_REGISTRY = {
     ]
   },
   'dates': {
-    name: 'DatePicker + DateRangeFilter: selector de fecha/rango y filtro de período (Vue & React)',
+    name: 'DateField + DateRangeFilter + DatePicker: campo de fecha, filtro de período y rango (Vue & React)',
     requires: ['theme', 'select'],
     files: [
       { src: 'src/core/dates/date-range.ts', dest: 'src/core/dates/date-range.ts' },
       { src: 'src/adapters/vue/components/DatePicker.vue', dest: 'src/shared/components/DatePicker.vue', framework: 'vue' },
       { src: 'src/adapters/vue/components/DateRangeFilter.vue', dest: 'src/shared/components/DateRangeFilter.vue', framework: 'vue' },
+      vueFile('DateField.vue'),
+      reactFile('DateField.tsx'),
+      ...ICONS_VUE,
       { src: 'src/adapters/react/components/DatePicker.tsx', dest: 'src/shared/components/DatePicker.tsx', framework: 'react' },
       { src: 'src/adapters/react/components/DateRangeFilter.tsx', dest: 'src/shared/components/DateRangeFilter.tsx', framework: 'react' },
     ]

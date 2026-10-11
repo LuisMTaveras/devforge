@@ -63,3 +63,11 @@ test('pagination: derived state and summary', () => {
   );
   assert.equal(pageSummary({ page: 1, pageSize: 10, total: 0 }, { plural: 'facturas' }), 'Sin facturas');
 });
+
+test('dates: calendar keys are unique for any year (React keys)', () => {
+  for (const [y, m] of [[2026, 9], [999, 0], [2027, 1]] as const) {
+    const keys = buildCalendar(y, m).map(c => c.dateKey);
+    assert.equal(new Set(keys).size, keys.length);
+    assert.ok(keys.every(k => /^\d{4}-\d{2}-\d{2}$/.test(k)));
+  }
+});

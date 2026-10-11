@@ -16,7 +16,7 @@ AI models are only as good as the context, constraints, and blueprints you give 
 5. **Zero Hardcoded Data & Mandatory Pagination**: Mandates that 100% of data flow through typed services and reactive composables/hooks, always paginated, with zero over-fetching.
 6. **Automatic Localized Formatting**: Built-in formatters for currency, numbers, percentages, dates, relative time, and phone numbers, configured per country (`setFormatCountry('DO')`).
 7. **Light + Dark Themes by Default**: Every project ships Claro / Oscuro / Sistema themes with semantic design tokens and the "Warm Slate" palette (graphite in light, ivory in dark) (`devforge add theme`).
-8. **Standard UI Components**: Flickerless loading instead of skeletons, `SelectField`, `DatePicker` / `DateRangeFilter`, `ListPager`, system dialogs and toasts, `ModalShell` / `DrawerShell` / `RowMenu`, `EmptyState`, `MoneyInput` / `MaskedInput` and `BatchProgressModal` — the same in every project, Vue and React (`.ai/standards/ui-components.md`).
+8. **Standard UI Components**: Flickerless loading instead of skeletons, `SelectField`, `DateField` / `DateRangeFilter`, `ListPager`, system dialogs and toasts, `ModalShell` / `DrawerShell` / `RowMenu`, `EmptyState`, `MoneyInput` / `MaskedInput` and `BatchProgressModal` — the same in every project, Vue and React (`.ai/standards/ui-components.md`).
 9. **Battle-Tested Blueprints**: High-leverage architectural patterns (OpenAPI SDK, Zod Schema forms, URL-synced tables, RBAC permissions, In-app devtools, Silent Refresh Auth, and GraphQL Pagination).
 
 ---
@@ -43,7 +43,7 @@ your-project/
 │       ├── data-formatting.md     # Currency, numbers, dates, phone rules
 │       ├── theming.md             # Mandatory light + dark themes
 │       ├── module-api.md          # Exact module API (anti-hallucination)
-│       ├── ui-components.md       # Flickerless, SelectField, DatePicker, ListPager
+│       ├── ui-components.md       # Standard components and how to use each one
 │       ├── ui-ux-principles.md    # Anti-AI design & UI UX Pro Max rules
 │       ├── project-structure.md   # Greenfield folder & file hierarchy
 │       ├── architecture-standards # Domain-driven feature layout & pagination
@@ -151,7 +151,7 @@ devforge add flickerless
 # Injects the standard combo, SelectField (Vue & React; replaces the native <select>)
 devforge add select --vue      # or --react
 
-# Injects DatePicker (single date / range) + DateRangeFilter (Hoy, Ayer, Este mes… + rango), Vue & React
+# Injects DateField (form date), DateRangeFilter (listing period: Hoy, Ayer, Este mes… + rango) and DatePicker (free range), Vue & React
 devforge add dates --vue       # or --react
 
 # Injects ListPager (Vue & React): «Mostrando 11–20 de 57 facturas» + ‹ 2 / 6 ›

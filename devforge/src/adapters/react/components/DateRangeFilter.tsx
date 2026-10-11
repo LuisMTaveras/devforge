@@ -49,7 +49,7 @@ export function DateRangeFilter({ value, onChange, onCommit, allowAll = true }: 
   const step = (delta: number) => apply(stepRangeDay(value, delta));
 
   return (
-    <div className="flex shrink-0 flex-wrap items-center gap-2">
+    <div className="flex shrink-0 flex-nowrap items-center gap-2">
       <div className="flex h-10 shrink-0 items-center gap-1 rounded-control border border-border bg-surface-raised px-2">
         {/* Flechas solo con un día: mover «este mes» un día no significa nada. */}
         {single && (
@@ -92,9 +92,8 @@ export function DateRangeFilter({ value, onChange, onCommit, allowAll = true }: 
           <DatePicker
             range
             compact
-            clearable={false}
             placeholder="Seleccionar rango"
-            className="h-10!"
+            className="h-10! rounded-control! px-3!"
             value={[value.from, value.to].filter(Boolean)}
             onChange={keys => apply({ preset: 'custom', from: keys[0] ?? '', to: keys[1] ?? '' })}
           />

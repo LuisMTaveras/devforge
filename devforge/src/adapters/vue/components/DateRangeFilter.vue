@@ -1,5 +1,5 @@
 <template>
-  <div class="flex shrink-0 flex-wrap items-center gap-2">
+  <div class="flex shrink-0 flex-nowrap items-center gap-2">
     <div class="flex h-10 shrink-0 items-center gap-1 rounded-control border border-border bg-surface-raised px-2">
       <!-- Flechas solo con un día: mover «este mes» un día no significa nada. -->
       <button v-if="single" type="button" :class="iconBtn" title="Día anterior" aria-label="Día anterior" @click="step(-1)">
@@ -40,8 +40,7 @@
         range
         compact
         placeholder="Seleccionar rango"
-        :clearable="false"
-        class="h-10!"
+        class="h-10! rounded-control! px-3!"
         @update:model-value="onRange"
       />
     </div>
