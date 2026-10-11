@@ -19,15 +19,117 @@ Los modelos de IA generativa suelen ser inconsistentes: inventan estructuras de 
 **DEVFORGE resuelve esto de raíz proporcionando:**
 1. **Un CLI determinista**: Comandos instantáneos para inicializar proyectos (`devforge init`), inyectar módulos de arquitectura (`devforge add <modulo>`) y auditar el código fuente en 1 segundo (`devforge audit`).
 2. **Capa Multi-Agente Universal**: Archivos de contexto y configuración nativos para Antigravity (`AGENTS.md`, `.agents/skills/`), Claude Code (`CLAUDE.md`, `.claude/commands/`), Cursor (`.cursorrules`) y Copilot (`.github/copilot-instructions.md`).
-3. **7 Blueprints de Producción**: Recetas de arquitectura probadas en batalla (OpenAPI SDK, Formularios Zod, Tablas sincronizadas con URL, RBAC CASL, In-App DevTools, Auth Silent Refresh y GraphQL Pagination).
+3. **9 Blueprints de Producción**: Recetas de arquitectura probadas en batalla (OpenAPI SDK, Formularios Zod, Tablas sincronizadas con URL, RBAC CASL, In-App DevTools, Auth Silent Refresh, GraphQL Pagination, Autorizaciones y Notificaciones).
 4. **Estándares de Diseño y Gobernanza**: Reglas estrictas de UI/UX Pro Max, paleta «Warm Slate» (grafito en claro, marfil en oscuro), tipografía moderna, formateo localizado de datos y cero Spanglish.
-5. **Componentes UI estándar (Vue y React)**: Flickerless en lugar de skeletons, combo `SelectField`, fechas `DatePicker` / `DateRangeFilter`, paginación `ListPager`, diálogos y avisos, modales, menú de fila, estados de lista, campos de monto y cédula, y avance de lotes, iguales en todos los proyectos.
+5. **Componentes UI estándar (Vue y React)**: Flickerless en lugar de skeletons, combo `SelectField`, fechas `DateField` / `DateRangeFilter`, paginación `ListPager`, diálogos y avisos, modales, menú de fila, estados de lista, campos de monto y cédula, y avance de lotes, iguales en todos los proyectos.
 
 ---
 
-## 🚨 Los 9 Mandamientos DEVFORGE (Pre-Flight Checklist)
+## 📸 Cómo se ve
 
-Cada agente de IA que opere en un repositorio configurado con DEVFORGE tiene la obligación contractual de verificar estos 9 puntos antes de generar o editar cualquier archivo:
+Capturas reales de los módulos instalados con `devforge add` en un proyecto Vue 3 + Tailwind v4, en tema **Claro** y **Oscuro**. La versión React es idéntica (mismas clases y mismos tokens). Las reglas de uso de cada pieza están en `.ai/standards/ui-components.md`.
+
+### Listado: filtro de período, aviso de cambios, menú de fila y paginación
+
+`DateRangeFilter`, `ListStaleNotice`, `RowMenu`, `ListPager` y Flickerless («—» en lo que aún no se sabe). — `devforge add dates` · `devforge add list-states` · `devforge add overlays` · `devforge add pagination` · `devforge add flickerless`
+
+| Claro | Oscuro |
+| :---: | :---: |
+| ![Listado: filtro de período, aviso de cambios, menú de fila y paginación — tema claro](docs/screenshots/listado-light.png) | ![Listado: filtro de período, aviso de cambios, menú de fila y paginación — tema oscuro](docs/screenshots/listado-dark.png) |
+
+### Menú ⋮ de una fila
+
+Vive fuera de la tabla (no se recorta), abre hacia arriba si no cabe y muestra apagada la acción no disponible con su motivo. — `devforge add overlays`
+
+| Claro | Oscuro |
+| :---: | :---: |
+| ![Menú ⋮ de una fila — tema claro](docs/screenshots/menu-fila-light.png) | ![Menú ⋮ de una fila — tema oscuro](docs/screenshots/menu-fila-dark.png) |
+
+### Combo `SelectField`
+
+Reemplaza al `<select>` nativo: sigue el tema, no se recorta en modales y se maneja con el teclado. — `devforge add select`
+
+| Claro | Oscuro |
+| :---: | :---: |
+| ![Combo `SelectField` — tema claro](docs/screenshots/filtro-periodo-light.png) | ![Combo `SelectField` — tema oscuro](docs/screenshots/filtro-periodo-dark.png) |
+
+### Campo de fecha `DateField`
+
+La fecha de un formulario: rótulo dentro del campo, `dd/mm/aaaa`, días pasados apagados con `min` y «Hoy» en la hora de RD. — `devforge add dates`
+
+| Claro | Oscuro |
+| :---: | :---: |
+| ![Campo de fecha `DateField` — tema claro](docs/screenshots/campo-fecha-light.png) | ![Campo de fecha `DateField` — tema oscuro](docs/screenshots/campo-fecha-dark.png) |
+
+### Rango de fechas
+
+«Rango personalizado» del filtro: dos meses lado a lado y previsualización del rango al pasar el cursor. — `devforge add dates`
+
+| Claro | Oscuro |
+| :---: | :---: |
+| ![Rango de fechas — tema claro](docs/screenshots/rango-fechas-light.png) | ![Rango de fechas — tema oscuro](docs/screenshots/rango-fechas-dark.png) |
+
+### Diálogo del sistema
+
+`confirmDialog()` en lugar de `window.confirm`, aquí encima de un modal: tono destructivo y foco en «Cancelar». Escape cierra solo la capa de arriba. — `devforge add feedback` · `devforge add overlays`
+
+| Claro | Oscuro |
+| :---: | :---: |
+| ![Diálogo del sistema — tema claro](docs/screenshots/dialogo-confirmar-light.png) | ![Diálogo del sistema — tema oscuro](docs/screenshots/dialogo-confirmar-dark.png) |
+
+### Monto, cédula y estado vacío
+
+`MoneyInput` (el valor es un número) y `MaskedInput` (cédula, teléfono, RNC / cédula mientras se escribe); `EmptyState` con su acción. — `devforge add inputs` · `devforge add list-states`
+
+| Claro | Oscuro |
+| :---: | :---: |
+| ![Monto, cédula y estado vacío — tema claro](docs/screenshots/campos-y-vacio-light.png) | ![Monto, cédula y estado vacío — tema oscuro](docs/screenshots/campos-y-vacio-dark.png) |
+
+### Avance de un lote
+
+`BatchProgressModal`: «Procesando 3 de 10…», barra y el resultado de cada registro con su motivo. — `devforge add batch`
+
+| Claro | Oscuro |
+| :---: | :---: |
+| ![Avance de un lote — tema claro](docs/screenshots/lote-light.png) | ![Avance de un lote — tema oscuro](docs/screenshots/lote-dark.png) |
+
+### Autorización: quien pide
+
+El servidor respondió 403 `AUTHORIZATION_REQUIRED`: el modal pide la contraseña propia (o la de otra persona) y el motivo, y la pantalla sigue sola al obtener la llave. — `devforge add authorizations`
+
+| Claro | Oscuro |
+| :---: | :---: |
+| ![Autorización: quien pide — tema claro](docs/screenshots/autorizacion-light.png) | ![Autorización: quien pide — tema oscuro](docs/screenshots/autorizacion-dark.png) |
+
+### Autorización: esperando la firma
+
+Solicitud a distancia: la operación continúa sola cuando alguien aprueba. — `devforge add authorizations`
+
+| Claro | Oscuro |
+| :---: | :---: |
+| ![Autorización: esperando la firma — tema claro](docs/screenshots/autorizacion-espera-light.png) | ![Autorización: esperando la firma — tema oscuro](docs/screenshots/autorizacion-espera-dark.png) |
+
+### Autorización: quien firma
+
+`AuthorizationAlerts`: la tarjeta en vivo con cuenta regresiva, resuelta ahí mismo. — `devforge add authorizations`
+
+| Claro | Oscuro |
+| :---: | :---: |
+| ![Autorización: quien firma — tema claro](docs/screenshots/autorizacion-firmante-light.png) | ![Autorización: quien firma — tema oscuro](docs/screenshots/autorizacion-firmante-dark.png) |
+
+### La campana
+
+`NotificationCenter`: contador real, filtros, agrupada por día en la hora del negocio y avisos de escritorio activados con un clic. — `devforge add notifications`
+
+| Claro | Oscuro |
+| :---: | :---: |
+| ![La campana — tema claro](docs/screenshots/campana-light.png) | ![La campana — tema oscuro](docs/screenshots/campana-dark.png) |
+
+---
+
+## 🚨 Los 10 Mandamientos DEVFORGE (Pre-Flight Checklist)
+
+Cada agente de IA que opere en un repositorio configurado con DEVFORGE tiene la obligación contractual de verificar estos 10 puntos antes de generar o editar cualquier archivo:
 
 | # | Mandamiento | Regla Estricta | Alternativa Requerida |
 | :-: | :--- | :--- | :--- |
@@ -39,7 +141,8 @@ Cada agente de IA que opere en un repositorio configurado con DEVFORGE tiene la 
 | **6** | **Seguridad Lógica y Tipado** | Prohibido el uso de `any` y mutaciones directas de `props`. | Encadenamiento opcional `record?.cliente?.nombre`, emisión de eventos (`emit`), tipos estrictos y esquemas Zod. |
 | **7** | **Tema Claro + Oscuro** | Prohibidas las interfaces de un solo tema y los colores hex dentro de componentes. | Tokens semánticos de `tokens.css` (`bg-surface`, `text-foreground`, `border-border`), `initTheme()` y selector Claro / Oscuro / Sistema. |
 | **8** | **Cero Alucinación** | Prohibido inventar funciones, paquetes, endpoints o variables de entorno. | Solo lo que lista `.ai/standards/module-api.md`; si falta, `devforge add <módulo>` o preguntar. |
-| **9** | **Componentes UI Estándar** | Prohibidos los skeletons, `animate-pulse`, el `<select>` nativo, `<input type="date">`, `window.confirm/alert/prompt`, modales hechos a mano que se cierran al tocar el telón y pies de paginación propios. | Flickerless, `SelectField`, `DatePicker` / `DateRangeFilter`, `ListPager`, `confirmDialog()` / `notify()`, `ModalShell` / `DrawerShell` / `RowMenu`, `EmptyState`, `MoneyInput` / `MaskedInput` y `BatchProgressModal` (`.ai/standards/ui-components.md`). |
+| **9** | **Componentes UI Estándar** | Prohibidos los skeletons, `animate-pulse`, el `<select>` nativo, `<input type="date">`, `window.confirm/alert/prompt`, modales hechos a mano que se cierran al tocar el telón y pies de paginación propios. | Flickerless, `SelectField`, `DateField` / `DateRangeFilter`, `ListPager`, `confirmDialog()` / `notify()`, `ModalShell` / `DrawerShell` / `RowMenu`, `EmptyState`, `MoneyInput` / `MaskedInput` y `BatchProgressModal` (`.ai/standards/ui-components.md`). |
+| **10** | **Autorizaciones y Notificaciones** | Prohibidos los permisos de excepción (`'descuentos:override_tope'`, `canOverrideCredit`), la «contraseña del supervisor» hecha a mano, aplanar los errores del backend a `err.message` y `new Notification()` a mano. | El acto riesgoso va al catálogo de autorizaciones y se avala al consumarlo (blueprint 08, `AuthorizationDialog`); lo persistente va a la campana (`NotificationCenter`, blueprint 09); lo efímero es `notify()`. |
 
 ---
 
@@ -54,14 +157,16 @@ tu-proyecto/
 │   ├── CLAUDE.md                         # Contexto para Claude Code
 │   ├── .cursorrules                      # Reglas de contexto para Cursor IDE
 │   ├── copilot-instructions.md           # Instrucciones para GitHub Copilot
-│   ├── blueprints/                       # 📐 7 Blueprints de Arquitectura Empresarial
+│   ├── blueprints/                       # 📐 9 Blueprints de Arquitectura Empresarial
 │   │   ├── 01-openapi-sdk.md             # SDK y hooks tipados desde Swagger/OpenAPI
 │   │   ├── 02-schema-forms.md            # Formularios dinámicos con validación Zod
 │   │   ├── 03-datagrid-url-sync.md       # Tablas sincronizadas con query params de URL
 │   │   ├── 04-rbac-matrix.md             # Matriz de permisos RBAC/ABAC estilo CASL
 │   │   ├── 05-in-app-devtools.md         # Cockpit flotante de depuración y simulación
 │   │   ├── 06-auth-session.md            # Cola de refresco silencioso de tokens JWT
-│   │   └── 07-graphql-pagination.md      # Paginación estricta y colocación de fragmentos
+│   │   ├── 07-graphql-pagination.md      # Paginación estricta y colocación de fragmentos
+│   │   ├── 08-authorizations.md          # Autorizaciones: el aval al consumar, nunca un permiso de excepción
+│   │   └── 09-notifications.md           # La campana, su bandeja y los avisos de escritorio
 │   └── standards/                        # 📋 Estándares de Ingeniería y Diseño
 │       ├── project-kickoff.md            # Protocolo de descubrimiento y calibración
 │       ├── data-formatting.md            # Moneda, números, fechas, teléfonos y manejo de nulos
@@ -204,7 +309,7 @@ devforge <comando> [opciones]
 ### 1. `devforge init`
 Despliega la capa universal de IA en el repositorio actual:
 - Copia las plantillas de agentes (`AGENTS.md`, `CLAUDE.md`, `.cursorrules`, `copilot-instructions.md`).
-- Instala los 7 Blueprints en `.ai/blueprints/`.
+- Instala los 9 Blueprints en `.ai/blueprints/`.
 - Instala las guías de ingeniería y diseño en `.ai/standards/`.
 - Configura comandos slash en `.claude/commands/` y el skill en `.agents/skills/`.
 
@@ -218,6 +323,9 @@ Realiza un escaneo estático ultra rápido (en menos de un segundo) sobre todos 
 - **Moneda escrita a mano**: `currency: 'DOP'` o `=== 'DOP'` en el código (la moneda la trae el documento).
 - **Fechas en la zona equivocada**: `toLocaleDateString()`, `toLocaleTimeString()` o `timeZone: 'UTC'` en lugar de `formatDate()` / `formatTime()`.
 - **TypeScript apagado**: `// @ts-nocheck` en un archivo completo.
+- **Autorizaciones hechas a mano**: permisos de excepción (`'x:override_*'`, `canOverride*`, `bypassLimit`) y contraseñas de supervisor improvisadas.
+- **Errores aplanados**: `sendError(res, err.message)` o `.json({ error: err.message })`, que pierden el `code` y los `details` del reto.
+- **Notificaciones nativas**: `new Notification()`, `Notification.requestPermission()` o `showNotification` fuera del service worker.
 - **Puntuación de Salud Arquitectónica**: Calcula el porcentaje de cumplimiento de 0% a 100%.
 
 Termina con código de salida `1` si hay violaciones, así que sirve para bloquear en CI. En un **proyecto existente**, `devforge audit --baseline` guarda la deuda de hoy en `.devforge-audit-baseline.json` (por archivo y regla); desde ahí la auditoría solo falla con violaciones **nuevas**, y cada arreglo reduce la línea base sola. La deuda solo puede bajar.
@@ -239,17 +347,19 @@ Inyecta módulos de código limpios, probados y con TypeScript estricto en la es
 | **Sincronización URL** | `devforge add url-sync` | `src/core/url-sync/url-state.ts` | Sincronización bidireccional entre estados de filtros/paginación y los `URLSearchParams` del navegador. |
 | **Flickerless** | `devforge add flickerless` | `src/shared/flickerless/core/*`<br>`src/shared/flickerless/vue/*`<br>`src/shared/flickerless/react/*`<br>`src/shared/flickerless/flickerless.css` | Reemplazo del skeleton ([github.com/LuisMTaveras/flickerless](https://github.com/LuisMTaveras/flickerless)): lo que estaba se queda atenuado con una barra de 2 px, lo que no se sabe es «—», y la carga en frío pinta la tabla real. |
 | **Combo** | `devforge add select` | `src/shared/components/SelectField.vue` (Vue)<br>`src/shared/components/SelectField.tsx` (React) | Desplegable estándar que reemplaza al `<select>` nativo: menú teleportado (no se recorta en modales), tema claro/oscuro, grupos, opciones deshabilitadas y teclado. |
-| **Fechas** | `devforge add dates` | `src/core/dates/date-range.ts`<br>`src/shared/components/DatePicker.vue`<br>`src/shared/components/DateRangeFilter.vue`<br>`DatePicker.tsx` / `DateRangeFilter.tsx` (React) | Selector de fecha o rango (dos meses lado a lado, `dd/mm/aaaa`) y filtro de período con atajos (Hoy, Ayer, Este mes…), flechas de día y rango personalizado. «Hoy» se calcula en la zona de RD. |
+| **Fechas** | `devforge add dates` | `src/core/dates/date-range.ts`<br>`DateField`, `DateRangeFilter`, `DatePicker` (`.vue` / `.tsx`) | `DateField` para la fecha de un formulario, `DateRangeFilter` para el período de un listado (Hoy, Ayer, Este mes…, flechas de día y rango personalizado) y `DatePicker range` para un rango suelto. El valor es la clave `'2026-10-15'`; «Hoy» se calcula en la zona de RD. |
 | **Diálogos y avisos** | `devforge add feedback` | `src/core/feedback/dialog.ts`<br>`src/core/feedback/toast.ts`<br>`ConfirmDialog` y `ToastHost` (`.vue` / `.tsx`) | `confirmDialog()`, `alertDialog()`, `promptDialog()` y `notify()`: el diálogo del sistema que reemplaza a `window.confirm`, con tono destructivo, Escape y Enter. |
 | **Modales** | `devforge add overlays` | `src/core/overlay/*.ts`<br>`ModalShell`, `DrawerShell`, `RowMenu` (`.vue` / `.tsx`)<br>`useOverlay` | Armazón de modal y panel lateral (el telón no cierra, Escape cierra la capa de arriba, fondo sin scroll) y menú «⋮» de fila que no se recorta. |
 | **Estados de lista** | `devforge add list-states` | `EmptyState`, `ListStaleNotice` (`.vue` / `.tsx`) | Lista vacía con acción directa y aviso de cambios nuevos sin recargar sola. |
 | **Campos** | `devforge add inputs` | `src/core/formatters/input-masks.ts`<br>`MoneyInput`, `MaskedInput` (`.vue` / `.tsx`) | Monto con los separadores del país (valor numérico) y cédula `001-1234567-8`, RNC `1-01-23456-7` y teléfono `(809) 578-1234` mientras se escribe. |
 | **Lotes** | `devforge add batch` | `src/core/batch/batch-progress.ts`<br>`BatchProgressModal` (`.vue` / `.tsx`) | Avance en vivo de un proceso uno a uno: «Procesando 3 de 10…», barra y resultado de cada registro. |
+| **Autorizaciones** | `devforge add authorizations` | `src/core/authorizations/authorization.ts`<br>`AuthorizationDialog`, `AuthorizationAlerts` (`.vue` / `.tsx`) | El interceptor reconoce el 403 `AUTHORIZATION_REQUIRED`, abre el modal (mi contraseña, credenciales de otro o solicitud a distancia) y reintenta la misma petición con la llave. Quien firma recibe una tarjeta en vivo con cuenta regresiva. El backend es el blueprint 08. |
+| **Notificaciones** | `devforge add notifications` | `src/core/notifications/notifications.ts`<br>`NotificationCenter` (`.vue` / `.tsx`) | La campana: contador real, filtros, agrupada por día en la hora del negocio, acuse reversible y avisos de escritorio activados con un clic. El backend es el blueprint 09. |
 | **Paginación** | `devforge add pagination` | `src/core/pagination/pagination.ts`<br>`src/shared/components/ListPager.vue`<br>`ListPager.tsx` (React) | Pie de listado estándar: «Mostrando 11–20 de 57 facturas» y ‹ 2 / 6 ›, con «—» hasta la primera respuesta. |
 
 ---
 
-## 📐 Los 7 Blueprints de Arquitectura Empresarial
+## 📐 Los 9 Blueprints de Arquitectura Empresarial
 
 Ubicados en `.ai/blueprints/`, estos documentos son recetas canónicas que instruyen a tu IA exactamente sobre cómo estructurar patrones complejos:
 
@@ -276,6 +386,10 @@ Ubicados en `.ai/blueprints/`, estos documentos son recetas canónicas que instr
 
 7. **`07-graphql-pagination.md` (Paginación Estricta y Optimización GraphQL)**:
    - Asegura paginación obligatoria basada en cursores o desplazamiento, colocación de fragmentos por componente y cero sobreconsulta de campos a la base de datos.
+8. **`08-authorizations.md` (Autorizaciones)**:
+   - Un permiso dice qué pantalla se puede tocar; una autorización dice si ESTE acto, con ESTE importe, puede consumarse. Catálogo de actos (todo nace apagado), política por empresa, autorizadores con tope, huella del acto, llave de un solo uso, el importe como techo, `liftsBlock` para excepciones a un muro existente, el contrato del 403 y los trinquetes. El dueño y el ADMIN siempre pueden avalar.
+9. **`09-notifications.md` (Notificaciones)**:
+   - Cuándo es diálogo, toast, notificación o tarjeta de autorización; modelo y API de la bandeja con aislamiento por usuario y empresa; cómo se emite un aviso (categoría, enlace sin prefijo, a quién); avisos de escritorio y web push.
 
 ---
 
@@ -302,7 +416,7 @@ DEVFORGE destierra la estética predecible y sobrecargada que suelen generar los
 Las mismas piezas en todos los proyectos, instaladas con `devforge add` (reglas en `.ai/standards/ui-components.md`):
 - **Carga sin skeleton (Flickerless)**: lo que ya estaba se queda atenuado bajo una barra de 2 px; lo que aún no se sabe es «—» (nunca `RD$0.00` mientras carga); la primera carga pinta la tabla real con `FlickerlessTableShell`.
 - **Combo `SelectField`**: reemplaza al `<select>` nativo; el menú no se recorta en modales y sigue el tema.
-- **Fechas `DatePicker` / `DateRangeFilter`**: fecha o rango (dos meses lado a lado, `dd/mm/aaaa`) y filtro de período con atajos (Hoy, Ayer, Este mes…). «Hoy» se calcula en la hora de RD.
+- **Fechas**: `DateField` es el campo de fecha de los formularios; `DateRangeFilter`, el filtro de período de los listados (Hoy, Ayer, Este mes…, flechas de día y rango personalizado); `DatePicker range`, un rango suelto. El valor es la clave `'2026-10-15'`, se envía tal cual a la API, se muestra `dd/mm/aaaa` y «Hoy» se calcula en la hora de RD. Guía: `.ai/standards/ui-components.md` §3.
 - **Paginación `ListPager`**: «Mostrando 11–20 de 57 facturas» y ‹ 2 / 6 ›.
 - **Diálogos y avisos (`feedback`)**: `confirmDialog()`, `alertDialog()` y `promptDialog()` en lugar de `window.confirm`, con tono destructivo (`tone: 'danger'`) para lo que no se deshace; `notify()` para lo que no interrumpe.
 - **Modales (`overlays`)**: `ModalShell` y `DrawerShell` no se cierran al tocar el telón, Escape cierra solo la capa de arriba y el fondo no se desplaza. `RowMenu` es el menú «⋮» de las filas, con las acciones no disponibles apagadas y su motivo.

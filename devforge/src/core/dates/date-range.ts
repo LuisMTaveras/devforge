@@ -108,7 +108,7 @@ export function buildCalendar(year: number, month: number, opts: { min?: DayKey;
   const today = todayKey();
   const pad = (n: number) => String(n).padStart(2, '0');
   const firstWeekday = new Date(Date.UTC(year, month, 1)).getUTCDay();
-  const first = `${year}-${pad(month + 1)}-01`;
+  const first = `${String(year).padStart(4, '0')}-${pad(month + 1)}-01`;
   const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
   const total = firstWeekday + daysInMonth > 35 ? 42 : 35;
   const start = shiftDayKey(first, -firstWeekday);

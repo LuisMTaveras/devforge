@@ -21,16 +21,18 @@
 | url-sync     | `devforge add url-sync`   | `src/core/url-sync/url-state.ts` |
 | flickerless  | `devforge add flickerless` | `src/shared/flickerless/core/*`, `src/shared/flickerless/vue/*`, `src/shared/flickerless/react/*`, `src/shared/flickerless/flickerless.css` |
 | select       | `devforge add select`     | `src/shared/components/SelectField.vue` (Vue) · `SelectField.tsx`, `usePopover.ts`, `icons.tsx` (React) |
-| dates        | `devforge add dates`      | `src/core/dates/date-range.ts`, `src/shared/components/DatePicker.vue`, `src/shared/components/DateRangeFilter.vue` (Vue) · `DatePicker.tsx`, `DateRangeFilter.tsx` (React) |
+| dates        | `devforge add dates`      | `src/core/dates/date-range.ts`, `DateField`, `DateRangeFilter`, `DatePicker` (`.vue` / `.tsx`) |
 | feedback     | `devforge add feedback`   | `src/core/feedback/dialog.ts`, `src/core/feedback/toast.ts`, `src/core/overlay/escape-layer.ts`, `src/core/overlay/scroll-lock.ts`, `ConfirmDialog` + `ToastHost` (`.vue` / `.tsx`), `useOverlay` |
 | overlays     | `devforge add overlays`   | `src/core/overlay/*.ts`, `ModalShell`, `DrawerShell`, `RowMenu` (`.vue` / `.tsx`), `useOverlay` |
 | list-states  | `devforge add list-states` | `EmptyState`, `ListStaleNotice` (`.vue` / `.tsx`) |
 | inputs       | `devforge add inputs`     | `MoneyInput`, `MaskedInput` (`.vue` / `.tsx`) |
 | batch        | `devforge add batch`      | `src/core/batch/batch-progress.ts`, `BatchProgressModal` (`.vue` / `.tsx`) |
+| authorizations | `devforge add authorizations` | `src/core/authorizations/authorization.ts`, `AuthorizationDialog`, `AuthorizationAlerts` (`.vue` / `.tsx`). Backend: blueprint 08 |
+| notifications | `devforge add notifications` | `src/core/notifications/notifications.ts`, `NotificationCenter` (`.vue` / `.tsx`). Backend: blueprint 09 |
 | pagination   | `devforge add pagination` | `src/core/pagination/pagination.ts`, `src/shared/components/ListPager.vue` (Vue) · `ListPager.tsx`, `icons.tsx` (React) |
 
 > Every UI module installs both the Vue and the React adapter. Pass `--vue` or `--react` to install only one.
-> Modules install their dependencies: `dates` ➔ `theme`, `select` · `pagination` ➔ `theme`, `formatters`, `flickerless` · `inputs` ➔ `formatters` · `batch` ➔ `overlays`, `formatters`.
+> Modules install their dependencies: `dates` ➔ `theme`, `select` · `pagination` ➔ `theme`, `formatters`, `flickerless` · `inputs` ➔ `formatters` · `batch` ➔ `overlays`, `formatters` · `authorizations` ➔ `theme`, `formatters`, `errors`, `feedback` · `notifications` ➔ `theme`, `formatters`, `flickerless`, `feedback`.
 > Components go to `src/shared/components/` (with their helpers `DfIcon.ts` (Vue) / `icons.tsx` + `usePopover.ts` (React) and `icon-paths.ts`); `useOverlay` goes to `src/shared/composables/` (Vue) or `src/shared/hooks/` (React).
 > Usage rules for the four UI modules: `.ai/standards/ui-components.md`.
 
@@ -94,7 +96,7 @@ Returns `{ theme, preference, labels, setPreference, toggle }` (in Vue, `theme` 
 ## 4. `errors` — `@/core/errors/api-error`
 
 - `normalizeApiError(error: unknown, fallbackMessage?) => NormalizedError`
-- `NormalizedError`: `{ message: string; status: number; fieldErrors: Record<string, string>; original: unknown }`
+- `NormalizedError`: `{ message: string; status: number; fieldErrors: Record<string, string>; code?: string; details?: unknown; original: unknown }` — `details` is only kept when the response has a `code` (it carries e.g. the authorization challenge).
 
 ## 5. `export` — `@/core/export/export-engine`
 
@@ -133,7 +135,10 @@ Copy of [github.com/LuisMTaveras/flickerless](https://github.com/LuisMTaveras/fl
 - React (named export `SelectField`): props `value`, `onChange(value)`, `options`, `label?`, `placeholder?`, `compact?`, `disabled?`, plus any `<button>` attribute (`id`, `aria-*`, `className`). Exports `SelectOption`, `SelectValue`, `SelectFieldProps`. Internal helpers `usePopover`, `cx` (`usePopover.ts`) and `Icon` (`icons.tsx`, names `chevronDown | chevronLeft | chevronRight | check | close | calendar`).
 - There is **no** search/filter-as-you-type, multi-select or async loading. Ask before adding them.
 
-## 10. `dates` — `@/core/dates/date-range` + `DatePicker.vue` + `DateRangeFilter.vue`
+## 10. `dates` — `@/core/dates/date-range` + `DateField` + `DateRangeFilter` + `DatePicker`
+
+- **Which one**: form field ➔ `DateField`; listing period filter ➔ `DateRangeFilter`; free range ➔ `DatePicker range`. Usage guide: `ui-components.md` §3.
+- `DateField`: single date. Same props as `DatePicker` without `range` (`modelValue`/`value`, `label?`, `placeholder?`, `min?`, `max?`, `compact?`, `disabled?`, `clearable?` = true). Emits / returns a day key or `''`. Vue default export; React named export `DateField`.
 
 - `DatePicker`: props `modelValue` (`'YYYY-MM-DD'`, `Date`, or `[from, to]` with `range`), `range?`, `label?`, `placeholder?`, `min?`, `max?` (day keys), `compact?`, `disabled?`, `clearable?` (= true). Emits `update:modelValue` / `change` with a day key or `string[]` (0, 1 or 2 keys). Exposes `focus()`.
 - `DateRangeFilter`: props `modelValue: DateRange`, `allowAll?` (= true). Emits `update:modelValue` and `change` (only when usable).
@@ -182,8 +187,30 @@ Copy of [github.com/LuisMTaveras/flickerless](https://github.com/LuisMTaveras/fl
 - Types: `BatchState`, `BatchItem`, `BatchItemStatus` (`'PENDING' | 'RUNNING' | 'DONE' | 'SKIPPED' | 'FAILED'`), `BatchOutcome`, `BatchEvent`, `BatchTracker`. Helpers `recountBatch`, `batchSummary(state, format?)`, `batchCountLabel(n, 'done' | 'skipped', format?)`.
 - `BatchProgressModal`: prop `tracker: BatchTracker`.
 
-## 17. `devforge audit`
+## 17. `authorizations` — `@/core/authorizations/authorization`
 
-- Rules: hardcoded data, neon palette, Spanglish, single-theme colors, unformatted phone / currency, skeletons, native `<select>` / date inputs, `window.alert/confirm/prompt`, hardcoded currency (`currency: 'DOP'`, `=== 'DOP'`), `@ts-nocheck`, `toLocaleDateString` / `toLocaleTimeString` / `timeZone: 'UTC'`, backdrop-click closing (`@click.self`).
+- Setup: `configureAuthorizations({ transport?, currentUserEmail?, pollMs? = 15000 })`; `createFetchTransport({ baseUrl? = '/api/authorizations', headers?, credentials? = 'include' })` ➔ `AuthorizationTransport` (`challenge`, `requestRemote`, `collectGrant`, `cancelRequest`, `cancelAttempt`, `decide(id, 'APPROVED' | 'REJECTED', note?)`); `AuthorizationTransportError` (`message`, `status`, `code?`).
+- Interceptor: `installAuthorizationInterceptor(axiosLikeInstance, { onInvalid? })` ➔ interceptor id; `withAuthorization(send: (headers) => Promise<T>)` ➔ `Promise<T>` (retries once); `isAuthorizationChallenge(error)`, `readApiError(error)` ➔ `{ status?, code?, details?, message? }`.
+- Constants: `AUTHORIZATION_GRANT_HEADER` (`'X-Authorization-Grant'`), `AUTHORIZATION_REQUIRED`, `AUTHORIZATION_INVALID`.
+- Challenge store (used by the dialog): `requestAuthorization(challenge)` ➔ `Promise<AuthorizationOutcome>` (one at a time), `grantAuthorization(grant)`, `cancelAuthorization()`, `getAuthorizationState()`, `subscribeAuthorization(fn)`.
+- Remote decision: `notifyAuthorizationResolved({ requestId, status, decidedBy? })` (feed it the socket), `onAuthorizationResolved(fn)`.
+- Live cards: `pushAuthorizationAlert(alert, { currentUserId? })`, `closeAuthorizationAlert(id)`, `dismissAuthorizationAlert(id)` (remembered for the session), `pruneAuthorizationAlerts()`, `getAuthorizationAlerts()`, `subscribeAuthorizationAlerts(fn)`, `timeLeftLabel(expiresAt, now?)` ➔ `'4:12'` | `null`, `AUTHORIZATION_ALERTS_VISIBLE` (3).
+- Types: `AuthorizationChallenge` (shape in blueprint 08 §6), `AuthorizationOutcome`, `AuthorizationAlert` (`{ requestId, actionName, requestedBy, amount?, currency?, note?, expiresAt, requestedById? }`), `AuthorizationResolvedEvent`, `AuthorizationSeverity`, `RequestStatus`.
+- Components (no props, once in the root): `<AuthorizationDialog />`, `<AuthorizationAlerts />`. Vue default export; React named exports.
+- There are **no** inbox, policy or authorizer screens: build them from blueprint 08 §7 when the backend exists.
+
+## 18. `notifications` — `@/core/notifications/notifications`
+
+- Setup: `configureNotifications({ transport?, pageSize? = 20, rootPrefix? = '' })`; `createNotificationFetchTransport({ baseUrl? = '/api/notifications', headers?, credentials? })` ➔ `NotificationTransport` (`list`, `summary`, `markRead`, `markUnread`, `markAllRead(type?)`, `remove`, `clearRead`).
+- Store: `loadNotifications({ more? })`, `refreshNotificationSummary()`, `setNotificationFilter({ status?, type? })`, `toggleNotificationRead(id)`, `markNotificationRead(id)`, `markAllNotificationsRead()`, `removeNotification(id)`, `clearReadNotifications()`, `receiveNotification(raw)` (socket), `resetNotifications()` (logout), `getNotificationState()`, `subscribeNotifications(fn)`.
+- Helpers: `toNotification(raw)`, `notificationKind(type)` ➔ `{ type, label, tone, icon }` (unknown ➔ generic), `registerNotificationKinds(kinds)`, `notificationKindOrder()`, `groupNotificationsByDay(items, now?)` ➔ `{ key, label, items }[]`, `resolveNotificationLink(link, rootPrefix?)`.
+- Desktop: `desktopNotificationPermission()` ➔ `'unsupported' | 'default' | 'granted' | 'denied'`, `enableDesktopNotifications()` (from a click only), `showDesktopNotification(n, { onClick? })` (only when the tab is hidden).
+- Types: `AppNotification` (`{ id, title, body, type, link, createdAt, isRead }`), `NotificationSummary`, `NotificationState`, `NotificationKind`, `NotificationTone` (`'neutral' | 'accent' | 'success' | 'warning' | 'danger'`), `NotificationStatusFilter`, `DesktopPermission`.
+- Component: `<NotificationCenter />` — Vue emits `navigate(link)`; React prop `onNavigate(link)`.
+- Default categories: `INFO`, `SYSTEM`, `AUTHORIZATION`, `PAYMENT`, `DUE`, `TASK`.
+
+## 19. `devforge audit`
+
+- Rules: hardcoded data, neon palette, Spanglish, single-theme colors, unformatted phone / currency, skeletons, native `<select>` / date inputs, `window|globalThis|self.alert/confirm/prompt`, hardcoded currency (`currency: 'DOP'`, `=== 'DOP'`), `@ts-nocheck`, `toLocaleDateString` / `toLocaleTimeString` / `timeZone: 'UTC'`, backdrop-click closing (`@click.self`), **exception permissions** (`'x:override_*'`, `canOverride*`, `bypassLimit`…), **hand-made supervisor passwords**, **flattened errors** (`sendError(res, err.message)`, `.json({ error: err.message })`), **browser notifications** (`new Notification`, `Notification.requestPermission`, `showNotification` outside the service worker).
 - Exit code `1` when there are (new) violations, so CI can block them.
 - `devforge audit --baseline` writes `.devforge-audit-baseline.json` (known debt per file and rule). Later runs fail only on NEW violations and lower the baseline automatically when something is fixed. It can only shrink; never edit it upwards.

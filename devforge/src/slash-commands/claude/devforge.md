@@ -3,7 +3,8 @@
 Consult DEVFORGE architectural specifications:
 1. Review `.ai/standards/ui-ux-principles.md` for Anti-AI design rules and 60-30-10 color guidelines.
    - Review `.ai/standards/theming.md`: every screen must work in light and dark themes.
-   - Review `.ai/standards/ui-components.md`: Flickerless loading (no skeletons), SelectField, DatePicker / DateRangeFilter, ListPager, confirmDialog / notify, ModalShell / DrawerShell / RowMenu, EmptyState, MoneyInput / MaskedInput and BatchProgressModal.
+   - Review `.ai/blueprints/08-authorizations.md` and `09-notifications.md`: risky acts are signed off when consummated (never an exception permission); persistent notices go to the bell.
+   - Review `.ai/standards/ui-components.md`: Flickerless loading (no skeletons), SelectField, DateField / DateRangeFilter, ListPager, confirmDialog / notify, ModalShell / DrawerShell / RowMenu, EmptyState, MoneyInput / MaskedInput and BatchProgressModal.
    - Review `.ai/standards/data-formatting.md`: currency, numbers, dates and phones (`(809) 578-1234`) formatted per country.
 2. Review available blueprints in `.ai/blueprints/`:
    - `01-openapi-sdk.md` (OpenAPI to type-safe client)

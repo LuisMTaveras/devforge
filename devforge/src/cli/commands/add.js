@@ -92,12 +92,15 @@ const MODULE_REGISTRY = {
     ]
   },
   'dates': {
-    name: 'DatePicker + DateRangeFilter: selector de fecha/rango y filtro de período (Vue & React)',
+    name: 'DateField + DateRangeFilter + DatePicker: campo de fecha, filtro de período y rango (Vue & React)',
     requires: ['theme', 'select'],
     files: [
       { src: 'src/core/dates/date-range.ts', dest: 'src/core/dates/date-range.ts' },
       { src: 'src/adapters/vue/components/DatePicker.vue', dest: 'src/shared/components/DatePicker.vue', framework: 'vue' },
       { src: 'src/adapters/vue/components/DateRangeFilter.vue', dest: 'src/shared/components/DateRangeFilter.vue', framework: 'vue' },
+      vueFile('DateField.vue'),
+      reactFile('DateField.tsx'),
+      ...ICONS_VUE,
       { src: 'src/adapters/react/components/DatePicker.tsx', dest: 'src/shared/components/DatePicker.tsx', framework: 'react' },
       { src: 'src/adapters/react/components/DateRangeFilter.tsx', dest: 'src/shared/components/DateRangeFilter.tsx', framework: 'react' },
     ]
@@ -175,6 +178,26 @@ const MODULE_REGISTRY = {
       coreFile('batch/batch-progress.ts'),
       vueFile('BatchProgressModal.vue'),
       reactFile('BatchProgressModal.tsx'),
+    ]
+  },
+  'authorizations': {
+    name: 'Autorizaciones: interceptor del 403, AuthorizationDialog y AuthorizationAlerts (Vue & React; backend: blueprint 08)',
+    requires: ['theme', 'formatters', 'errors', 'feedback'],
+    files: [
+      coreFile('authorizations/authorization.ts'),
+      vueFile('AuthorizationDialog.vue'),
+      vueFile('AuthorizationAlerts.vue'),
+      reactFile('AuthorizationDialog.tsx'),
+      reactFile('AuthorizationAlerts.tsx'),
+    ]
+  },
+  'notifications': {
+    name: 'NotificationCenter: la campana con su bandeja y avisos de escritorio (Vue & React; backend: blueprint 09)',
+    requires: ['theme', 'formatters', 'flickerless', 'feedback'],
+    files: [
+      coreFile('notifications/notifications.ts'),
+      vueFile('NotificationCenter.vue'),
+      reactFile('NotificationCenter.tsx'),
     ]
   },
   'url-sync': {

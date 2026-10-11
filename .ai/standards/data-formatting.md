@@ -76,7 +76,12 @@ formatPercent(12.5, { isRatio: false });  // "12.5%"
 ## 3. Dates & Timestamps
 
 - **Banned**: Displaying raw ISO strings (`"2026-10-05T15:50:00Z"`) or naive slicing (`date.split('T')[0]`).
-- **Required**: Use `Intl.DateTimeFormat` or `formatDate()` / `formatRelativeTime()`.
+- **Banned**: `toLocaleDateString()` / `toLocaleTimeString()` and `timeZone: 'UTC'` written by hand: they format in the
+  time zone of the PROCESS. A server pinned to UTC shows 9:00 p. m. in Santo Domingo as the next day. `devforge audit` rejects them.
+- **Required**: `formatDate()` / `formatTime()` / `formatRelativeTime()`. They use `formatConfig.timeZone`, the business
+  time zone (`America/Santo_Domingo` by default; `setFormatCountry()` sets the country's).
+- **Filters**: a calendar day is a day key (`YYYY-MM-DD`), not a `Date`. Build ranges with `@/core/dates/date-range`
+  (`todayKey()`, `resolveRange()`), never with `new Date('2026-09-03')` as an upper bound (that is the START of the day in UTC).
 - **Rules**:
   - Tables / Lists: Short or medium date (`"11 sept 2026"` or `"11 sept 07:51"`).
   - Activity Feeds / Logs: Relative time (`"hace 5 minutos"`, `"hace 2 horas"`).
@@ -86,7 +91,8 @@ formatPercent(12.5, { isRatio: false });  // "12.5%"
 import { formatDate, formatRelativeTime } from '@/core/formatters/formatters';
 
 // Usage:
-formatDate('2026-09-11T07:51:00Z', 'datetime'); // "11 sept 2026, 07:51"
+formatDate('2026-09-11T07:51:00Z', 'datetime'); // "11 sept de 2026, 03:51 a. m." (RD, UTC-4)
+formatTime('2026-10-06T01:00:00Z');             // "9:00 p. m." (still Oct 5 in RD)
 formatRelativeTime('2026-10-05T15:45:00Z');     // "hace 5 minutos"
 ```
 
@@ -108,6 +114,10 @@ formatRelativeTime('2026-10-05T15:45:00Z');     // "hace 5 minutos"
   - Perú (`PE`): `912 345 678` ➔ `+51 912 345 678`
 - Input with or without country code, dashes or spaces is accepted (`809-578-1234`, `+1 809 578 1234`).
 - Store phones as digits in the database; format only at render time.
+- **While typing** (forms), mask live with `<MaskedInput mask="phone">` / `formatPhoneInput()`, and the cédula / RNC
+  with `mask="cedula"` (`001-1234567-8`), `mask="rnc"` (`1-01-23456-7`) or `mask="taxId"` (auto). Save `onlyDigits(value)`.
+  When a form opens for editing, the raw DB value is normalized by the same mask (`devforge add inputs`).
+- **Money fields** use `<MoneyInput>`: the model is a number or `null`, never a formatted string.
 
 ```typescript
 import { formatPhoneNumber, setFormatDefaults } from '@/core/formatters/formatters';

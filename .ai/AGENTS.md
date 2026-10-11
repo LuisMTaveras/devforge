@@ -19,6 +19,7 @@ Before generating ANY component, file, or view, you MUST mentally verify and str
    - Never display unformatted phone digits (`8095781234`). Use `formatPhoneNumber(phone, country)` -> `(809) 578-1234` (national) or `+1 (809) 578-1234` (international).
    - Configure the country once with `setFormatCountry('<CODE>')` in the entrypoint.
    - Fallback for null/undefined/empty: always render `—` (em-dash), never `"null"`, `"undefined"` or blank spaces.
+   - Dates in the business time zone: never `toLocaleDateString()` / `timeZone: 'UTC'` by hand. Currency comes from the document, never `currency: 'DOP'` written in code.
 4. **[ ] ZERO SPANGLISH / 100% SPANISH**:
    - If the user/app is in Spanish, NOT A SINGLE English word is permitted in UI text, table headers, buttons, or statuses.
    - Banned: `Close`, `Save`, `Status`, `Amount`, `Actions`, `Flagged`, `Settled`, `Pending`.
@@ -39,6 +40,12 @@ Before generating ANY component, file, or view, you MUST mentally verify and str
    - Only run scripts that exist in `package.json`. The DEVFORGE CLI is the globally linked `devforge` command — **never `npx devforge`** (that npm package is an unrelated project).
    - Blueprint code is a reference pattern: adapt names to the real code. If a blueprint and an installed module disagree, the installed module wins.
    - If you are not sure, say so and ask. A short question is always better than plausible-looking invented code.
+9. **[ ] STANDARD UI COMPONENTS (NEVER HAND-ROLLED)**:
+   - Banned: Skeletons (`<Skeleton>`, `skeleton`, `animate-pulse`), full-screen spinners, native `<select>`, `<input type="date">`, `window.alert/confirm/prompt`, hand-written modal backdrops or closing on backdrop click (`@click.self`), ad-hoc pagination footers, and `0` / "Sin resultados" before the first response.
+   - Required: Flickerless (`devforge add flickerless`), `<SelectField>` (`select`), `<DateField>` / `<DateRangeFilter>` (`dates`), `<ListPager>` (`pagination`), `confirmDialog()` / `notify()` (`feedback`), `<ModalShell>` / `<DrawerShell>` / `<RowMenu>` (`overlays`), `<EmptyState>` / `<ListStaleNotice>` (`list-states`), `<MoneyInput>` / `<MaskedInput>` (`inputs`), `<BatchProgressModal>` (`batch`). Rules: `.ai/standards/ui-components.md`.
+10. **[ ] AUTHORIZATIONS & NOTIFICATIONS (SINGLE GATES)**:
+   - Banned: exception permissions (`'descuentos:override_tope'`, `canOverrideCredit`, `bypassLimit`), hand-made «contraseña del supervisor» prompts, backend errors flattened to their message (`sendError(res, err.message)`, `.json({ error: err.message })`), `new Notification()` / `Notification.requestPermission()` on load, and `alert()` for notices.
+   - Required: risky acts go to the authorization catalog and are checked when CONSUMED (`assertAuthorized` / `liftsBlock`, blueprint 08); the frontend installs the interceptor once and mounts `<AuthorizationDialog />` + `<AuthorizationAlerts />` (`devforge add authorizations`). Persistent notices go to the bell (`<NotificationCenter />`, `receiveNotification`, blueprint 09); ephemeral ones are `notify()`; decisions are `confirmDialog()`.
 
 ## Order of Truth (When Sources Disagree)
 

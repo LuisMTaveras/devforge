@@ -50,13 +50,15 @@ export function listCommand() {
     'url-sync   -> Bidirectional URL Search Params table synchronizer',
     'flickerless-> Carga sin skeleton: FlickerlessSurface, FlickerlessValue, TableShell',
     'select     -> SelectField (.vue / .tsx): combo estándar (reemplaza <select>)',
-    'dates      -> DatePicker + DateRangeFilter (.vue / .tsx) + date-range.ts',
+    'dates      -> DateField, DateRangeFilter, DatePicker (.vue / .tsx) + date-range.ts',
     'pagination -> ListPager (.vue / .tsx) + pagination.ts («Mostrando 11–20 de 57»)',
     'feedback   -> ConfirmDialog + ToastHost: confirmDialog(), promptDialog(), notify()',
     'overlays   -> ModalShell, DrawerShell, RowMenu (Escape apilado, scroll bloqueado)',
     'list-states-> EmptyState, ListStaleNotice',
     'inputs     -> MoneyInput, MaskedInput (cédula, RNC, teléfono) + input-masks.ts',
     'batch      -> BatchProgressModal + createBatchTracker() («3 de 10»)',
+    'authorizations -> Interceptor del 403 + AuthorizationDialog + AuthorizationAlerts',
+    'notifications  -> NotificationCenter (la campana) + avisos de escritorio',
   ]);
 
   console.log('To add any module to your current project:');
@@ -75,7 +77,9 @@ export function listCommand() {
   console.log('  \x1b[32mdevforge add overlays\x1b[0m     -> Injects modal, side panel and row menu (Vue & React)');
   console.log('  \x1b[32mdevforge add list-states\x1b[0m  -> Injects empty state and stale-list notice (Vue & React)');
   console.log('  \x1b[32mdevforge add inputs\x1b[0m       -> Injects money and masked inputs (Vue & React)');
-  console.log('  \x1b[32mdevforge add batch\x1b[0m        -> Injects live batch progress (Vue & React)\n');
+  console.log('  \x1b[32mdevforge add batch\x1b[0m        -> Injects live batch progress (Vue & React)');
+  console.log('  \x1b[32mdevforge add authorizations\x1b[0m -> Injects the sign-off flow (Vue & React; backend: blueprint 08)');
+  console.log('  \x1b[32mdevforge add notifications\x1b[0m  -> Injects the notification bell (Vue & React; backend: blueprint 09)\n');
 
   console.log('To audit your project for AI compliance:');
   console.log('  \x1b[32mdevforge audit\x1b[0m            -> Scans code for hardcoded arrays, neon colors, and Spanglish');
