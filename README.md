@@ -25,6 +25,108 @@ Los modelos de IA generativa suelen ser inconsistentes: inventan estructuras de 
 
 ---
 
+## 📸 Cómo se ve
+
+Capturas reales de los módulos instalados con `devforge add` en un proyecto Vue 3 + Tailwind v4, en tema **Claro** y **Oscuro**. La versión React es idéntica (mismas clases y mismos tokens). Las reglas de uso de cada pieza están en `.ai/standards/ui-components.md`.
+
+### Listado: filtro de período, aviso de cambios, menú de fila y paginación
+
+`DateRangeFilter`, `ListStaleNotice`, `RowMenu`, `ListPager` y Flickerless («—» en lo que aún no se sabe). — `devforge add dates` · `devforge add list-states` · `devforge add overlays` · `devforge add pagination` · `devforge add flickerless`
+
+| Claro | Oscuro |
+| :---: | :---: |
+| ![Listado: filtro de período, aviso de cambios, menú de fila y paginación — tema claro](docs/screenshots/listado-light.png) | ![Listado: filtro de período, aviso de cambios, menú de fila y paginación — tema oscuro](docs/screenshots/listado-dark.png) |
+
+### Menú ⋮ de una fila
+
+Vive fuera de la tabla (no se recorta), abre hacia arriba si no cabe y muestra apagada la acción no disponible con su motivo. — `devforge add overlays`
+
+| Claro | Oscuro |
+| :---: | :---: |
+| ![Menú ⋮ de una fila — tema claro](docs/screenshots/menu-fila-light.png) | ![Menú ⋮ de una fila — tema oscuro](docs/screenshots/menu-fila-dark.png) |
+
+### Combo `SelectField`
+
+Reemplaza al `<select>` nativo: sigue el tema, no se recorta en modales y se maneja con el teclado. — `devforge add select`
+
+| Claro | Oscuro |
+| :---: | :---: |
+| ![Combo `SelectField` — tema claro](docs/screenshots/filtro-periodo-light.png) | ![Combo `SelectField` — tema oscuro](docs/screenshots/filtro-periodo-dark.png) |
+
+### Campo de fecha `DateField`
+
+La fecha de un formulario: rótulo dentro del campo, `dd/mm/aaaa`, días pasados apagados con `min` y «Hoy» en la hora de RD. — `devforge add dates`
+
+| Claro | Oscuro |
+| :---: | :---: |
+| ![Campo de fecha `DateField` — tema claro](docs/screenshots/campo-fecha-light.png) | ![Campo de fecha `DateField` — tema oscuro](docs/screenshots/campo-fecha-dark.png) |
+
+### Rango de fechas
+
+«Rango personalizado» del filtro: dos meses lado a lado y previsualización del rango al pasar el cursor. — `devforge add dates`
+
+| Claro | Oscuro |
+| :---: | :---: |
+| ![Rango de fechas — tema claro](docs/screenshots/rango-fechas-light.png) | ![Rango de fechas — tema oscuro](docs/screenshots/rango-fechas-dark.png) |
+
+### Diálogo del sistema
+
+`confirmDialog()` en lugar de `window.confirm`, aquí encima de un modal: tono destructivo y foco en «Cancelar». Escape cierra solo la capa de arriba. — `devforge add feedback` · `devforge add overlays`
+
+| Claro | Oscuro |
+| :---: | :---: |
+| ![Diálogo del sistema — tema claro](docs/screenshots/dialogo-confirmar-light.png) | ![Diálogo del sistema — tema oscuro](docs/screenshots/dialogo-confirmar-dark.png) |
+
+### Monto, cédula y estado vacío
+
+`MoneyInput` (el valor es un número) y `MaskedInput` (cédula, teléfono, RNC / cédula mientras se escribe); `EmptyState` con su acción. — `devforge add inputs` · `devforge add list-states`
+
+| Claro | Oscuro |
+| :---: | :---: |
+| ![Monto, cédula y estado vacío — tema claro](docs/screenshots/campos-y-vacio-light.png) | ![Monto, cédula y estado vacío — tema oscuro](docs/screenshots/campos-y-vacio-dark.png) |
+
+### Avance de un lote
+
+`BatchProgressModal`: «Procesando 3 de 10…», barra y el resultado de cada registro con su motivo. — `devforge add batch`
+
+| Claro | Oscuro |
+| :---: | :---: |
+| ![Avance de un lote — tema claro](docs/screenshots/lote-light.png) | ![Avance de un lote — tema oscuro](docs/screenshots/lote-dark.png) |
+
+### Autorización: quien pide
+
+El servidor respondió 403 `AUTHORIZATION_REQUIRED`: el modal pide la contraseña propia (o la de otra persona) y el motivo, y la pantalla sigue sola al obtener la llave. — `devforge add authorizations`
+
+| Claro | Oscuro |
+| :---: | :---: |
+| ![Autorización: quien pide — tema claro](docs/screenshots/autorizacion-light.png) | ![Autorización: quien pide — tema oscuro](docs/screenshots/autorizacion-dark.png) |
+
+### Autorización: esperando la firma
+
+Solicitud a distancia: la operación continúa sola cuando alguien aprueba. — `devforge add authorizations`
+
+| Claro | Oscuro |
+| :---: | :---: |
+| ![Autorización: esperando la firma — tema claro](docs/screenshots/autorizacion-espera-light.png) | ![Autorización: esperando la firma — tema oscuro](docs/screenshots/autorizacion-espera-dark.png) |
+
+### Autorización: quien firma
+
+`AuthorizationAlerts`: la tarjeta en vivo con cuenta regresiva, resuelta ahí mismo. — `devforge add authorizations`
+
+| Claro | Oscuro |
+| :---: | :---: |
+| ![Autorización: quien firma — tema claro](docs/screenshots/autorizacion-firmante-light.png) | ![Autorización: quien firma — tema oscuro](docs/screenshots/autorizacion-firmante-dark.png) |
+
+### La campana
+
+`NotificationCenter`: contador real, filtros, agrupada por día en la hora del negocio y avisos de escritorio activados con un clic. — `devforge add notifications`
+
+| Claro | Oscuro |
+| :---: | :---: |
+| ![La campana — tema claro](docs/screenshots/campana-light.png) | ![La campana — tema oscuro](docs/screenshots/campana-dark.png) |
+
+---
+
 ## 🚨 Los 10 Mandamientos DEVFORGE (Pre-Flight Checklist)
 
 Cada agente de IA que opere en un repositorio configurado con DEVFORGE tiene la obligación contractual de verificar estos 10 puntos antes de generar o editar cualquier archivo:

@@ -22,6 +22,12 @@ AI models are only as good as the context, constraints, and blueprints you give 
 
 ---
 
+## 📸 Screenshots
+
+Real screenshots of every UI module in light and dark themes (Vue and React look the same): see the [**«Cómo se ve» gallery** in the main README](../README.md#-cómo-se-ve) and the files in [`docs/screenshots/`](../docs/screenshots/).
+
+---
+
 ## 📦 What's Inside?
 
 ```text
