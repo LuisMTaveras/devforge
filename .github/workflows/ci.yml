@@ -10,14 +10,11 @@ jobs:
       run:
         working-directory: devforge
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          package_json_file: devforge/package.json
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
-          cache: pnpm
-          cache-dependency-path: devforge/pnpm-lock.yaml
+          package-manager-cache: false # pnpm aún no existe aquí: lo activa corepack en el paso siguiente
+      - run: corepack enable
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
