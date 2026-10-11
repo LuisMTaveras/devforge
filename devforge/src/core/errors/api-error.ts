@@ -8,6 +8,14 @@ export interface NormalizedError {
   message: string;
   status: number;
   fieldErrors: Record<string, string>;
+  /**
+   * Machine-readable code from the backend (`AUTHORIZATION_REQUIRED`, `MFA_REQUIRED`…).
+   * The server must send it WITH `details` (never flatten the error to its message):
+   * it is how the client recognizes a challenge and opens the right flow.
+   */
+  code?: string;
+  /** Structured payload that travels with `code` (e.g. the authorization challenge). */
+  details?: unknown;
   original: unknown;
 }
 
@@ -87,10 +95,15 @@ export function normalizeApiError(error: unknown, fallbackMessage = 'Ocurrió un
     }
   }
 
+  const code = data && typeof data === 'object' && typeof data.code === 'string' ? data.code : undefined;
+  const details = code && data && typeof data === 'object' ? data.details : undefined;
+
   return {
     message,
     status,
     fieldErrors,
+    code,
+    details,
     original: error,
   };
 }

@@ -180,6 +180,26 @@ const MODULE_REGISTRY = {
       reactFile('BatchProgressModal.tsx'),
     ]
   },
+  'authorizations': {
+    name: 'Autorizaciones: interceptor del 403, AuthorizationDialog y AuthorizationAlerts (Vue & React; backend: blueprint 08)',
+    requires: ['theme', 'formatters', 'errors', 'feedback'],
+    files: [
+      coreFile('authorizations/authorization.ts'),
+      vueFile('AuthorizationDialog.vue'),
+      vueFile('AuthorizationAlerts.vue'),
+      reactFile('AuthorizationDialog.tsx'),
+      reactFile('AuthorizationAlerts.tsx'),
+    ]
+  },
+  'notifications': {
+    name: 'NotificationCenter: la campana con su bandeja y avisos de escritorio (Vue & React; backend: blueprint 09)',
+    requires: ['theme', 'formatters', 'flickerless', 'feedback'],
+    files: [
+      coreFile('notifications/notifications.ts'),
+      vueFile('NotificationCenter.vue'),
+      reactFile('NotificationCenter.tsx'),
+    ]
+  },
   'url-sync': {
     name: 'URL Search Params Synchronizer',
     files: [

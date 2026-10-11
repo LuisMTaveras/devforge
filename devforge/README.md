@@ -16,8 +16,9 @@ AI models are only as good as the context, constraints, and blueprints you give 
 5. **Zero Hardcoded Data & Mandatory Pagination**: Mandates that 100% of data flow through typed services and reactive composables/hooks, always paginated, with zero over-fetching.
 6. **Automatic Localized Formatting**: Built-in formatters for currency, numbers, percentages, dates, relative time, and phone numbers, configured per country (`setFormatCountry('DO')`).
 7. **Light + Dark Themes by Default**: Every project ships Claro / Oscuro / Sistema themes with semantic design tokens and the "Warm Slate" palette (graphite in light, ivory in dark) (`devforge add theme`).
-8. **Standard UI Components**: Flickerless loading instead of skeletons, `SelectField`, `DateField` / `DateRangeFilter`, `ListPager`, system dialogs and toasts, `ModalShell` / `DrawerShell` / `RowMenu`, `EmptyState`, `MoneyInput` / `MaskedInput` and `BatchProgressModal` — the same in every project, Vue and React (`.ai/standards/ui-components.md`).
-9. **Battle-Tested Blueprints**: High-leverage architectural patterns (OpenAPI SDK, Zod Schema forms, URL-synced tables, RBAC permissions, In-app devtools, Silent Refresh Auth, and GraphQL Pagination).
+8. **Authorizations & Notifications**: Risky acts are signed off when consummated (blueprint 08), never through exception permissions; persistent notices go to the bell (blueprint 09).
+9. **Standard UI Components**: Flickerless loading instead of skeletons, `SelectField`, `DateField` / `DateRangeFilter`, `ListPager`, system dialogs and toasts, `ModalShell` / `DrawerShell` / `RowMenu`, `EmptyState`, `MoneyInput` / `MaskedInput` and `BatchProgressModal` — the same in every project, Vue and React (`.ai/standards/ui-components.md`).
+10. **Battle-Tested Blueprints**: High-leverage architectural patterns (OpenAPI SDK, Zod Schema forms, URL-synced tables, RBAC permissions, In-app devtools, Silent Refresh Auth, GraphQL Pagination, Authorizations and Notifications).
 
 ---
 
@@ -37,7 +38,9 @@ your-project/
 │   │   ├── 04-rbac-matrix.md
 │   │   ├── 05-in-app-devtools.md
 │   │   ├── 06-auth-session.md
-│   │   └── 07-graphql-pagination.md
+│   │   ├── 07-graphql-pagination.md
+│   │   ├── 08-authorizations.md
+│   │   └── 09-notifications.md
 │   └── standards/            # Governance & Design System
 │       ├── project-kickoff.md     # Discovery interview & stack advisory
 │       ├── data-formatting.md     # Currency, numbers, dates, phone rules
@@ -54,7 +57,7 @@ your-project/
 
 ---
 
-## 📐 The 7 Architectural Blueprints
+## 📐 The 9 Architectural Blueprints
 
 | # | Blueprint | What It Solves | Canonical Recipe |
 | :-: | :--- | :--- | :--- |
@@ -65,6 +68,8 @@ your-project/
 | **05** | **In-App DevTools Cockpit** | Floating dev bar to switch roles, simulate 3G latency, and inject 500/401 errors. | `05-in-app-devtools.md` |
 | **06** | **Enterprise Auth & Refresh Queue** | Silent token refresh queue preventing race conditions on parallel 401s. | `06-auth-session.md` |
 | **07** | **Strict Pagination & GraphQL Query Optimization** | Always paginated queries, fragment colocation, and zero over-fetching from DB. | `07-graphql-pagination.md` |
+| **08** | **Authorizations** | Sign-off when an act is consummated (catalog, policy, authorizers with limits, single-use grant, 403 challenge contract) instead of exception permissions. | `08-authorizations.md` |
+| **09** | **Notifications** | The bell: persistent inbox, emission rules, isolation, desktop alerts and web push; which channel for which message. | `09-notifications.md` |
 
 ---
 
@@ -90,7 +95,7 @@ devforge init
 
 ### 3. Audit Your Code for AI Rule Compliance
 
-Runs an automated scan for hardcoded arrays, neon colors, Spanglish, single-theme colors, skeletons, native selects / date inputs / `window.confirm`, backdrop-closing modals, hardcoded currencies, hand-formatted dates and `@ts-nocheck`. It exits with code `1` on violations, so CI can block them:
+Runs an automated scan for hardcoded arrays, neon colors, Spanglish, single-theme colors, skeletons, native selects / date inputs / `window.confirm`, backdrop-closing modals, hardcoded currencies, hand-formatted dates, `@ts-nocheck`, exception permissions and supervisor-password prompts, errors flattened to `err.message`, and hand-made browser notifications. It exits with code `1` on violations, so CI can block them:
 
 ```bash
 devforge audit
@@ -171,6 +176,12 @@ devforge add inputs --vue      # or --react
 
 # Injects BatchProgressModal + createBatchTracker() («Procesando 3 de 10…»)
 devforge add batch --vue       # or --react
+
+# Injects the 403 interceptor + AuthorizationDialog + AuthorizationAlerts (backend: blueprint 08)
+devforge add authorizations --vue  # or --react
+
+# Injects NotificationCenter: the bell, its inbox and desktop alerts (backend: blueprint 09)
+devforge add notifications --vue   # or --react
 ```
 
 Modules install their dependencies (`dates` -> `theme` + `select`, `pagination` -> `theme` + `formatters` + `flickerless`, `inputs` -> `formatters`, `batch` -> `overlays` + `formatters`). `--vue` / `--react` installs only that framework's adapter files.

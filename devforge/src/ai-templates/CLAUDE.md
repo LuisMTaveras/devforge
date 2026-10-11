@@ -39,6 +39,9 @@ This repository is powered by **DEVFORGE**. You are expected to operate as a Pri
 9. **[ ] STANDARD UI COMPONENTS (NEVER HAND-ROLLED)**:
    - Banned: Skeletons (`<Skeleton>`, `skeleton`, `animate-pulse`), full-screen spinners, native `<select>`, `<input type="date">`, `window.alert/confirm/prompt`, hand-written modal backdrops or closing on backdrop click (`@click.self`), ad-hoc pagination footers, and `0` / "Sin resultados" before the first response.
    - Required: Flickerless (`devforge add flickerless`), `<SelectField>` (`select`), `<DateField>` / `<DateRangeFilter>` (`dates`), `<ListPager>` (`pagination`), `confirmDialog()` / `notify()` (`feedback`), `<ModalShell>` / `<DrawerShell>` / `<RowMenu>` (`overlays`), `<EmptyState>` / `<ListStaleNotice>` (`list-states`), `<MoneyInput>` / `<MaskedInput>` (`inputs`), `<BatchProgressModal>` (`batch`). Rules: `.ai/standards/ui-components.md`.
+10. **[ ] AUTHORIZATIONS & NOTIFICATIONS (SINGLE GATES)**:
+   - Banned: exception permissions (`'descuentos:override_tope'`, `canOverrideCredit`, `bypassLimit`), hand-made «contraseña del supervisor» prompts, backend errors flattened to their message (`sendError(res, err.message)`, `.json({ error: err.message })`), `new Notification()` / `Notification.requestPermission()` on load, and `alert()` for notices.
+   - Required: risky acts go to the authorization catalog and are checked when CONSUMED (`assertAuthorized` / `liftsBlock`, blueprint 08); the frontend installs the interceptor once and mounts `<AuthorizationDialog />` + `<AuthorizationAlerts />` (`devforge add authorizations`). Persistent notices go to the bell (`<NotificationCenter />`, `receiveNotification`, blueprint 09); ephemeral ones are `notify()`; decisions are `confirmDialog()`.
 
 ## Order of Truth (When Sources Disagree)
 
@@ -56,6 +59,7 @@ This repository is powered by **DEVFORGE**. You are expected to operate as a Pri
 - **Light + Dark Themes**: Follow `.ai/standards/theming.md`. Every screen must work in both themes.
 - **Standard UI Components**: Follow `.ai/standards/ui-components.md` (Flickerless, SelectField, DateField / DateRangeFilter, ListPager, dialogs and toasts, ModalShell, RowMenu, EmptyState, MoneyInput / MaskedInput, BatchProgressModal).
 - **Localized Formatting**: Follow `.ai/standards/data-formatting.md` (currency, numbers, dates, phones per country). Default country: República Dominicana.
+- **Authorizations & Notifications**: Follow `.ai/blueprints/08-authorizations.md` and `.ai/blueprints/09-notifications.md`; usage in `.ai/standards/ui-components.md` §11–§12.
 - **Module API**: `.ai/standards/module-api.md` is the exact list of DEVFORGE functions. Nothing else exists.
 - **Strict Adherence to Blueprints**: Check `.ai/blueprints/` before coding.
 

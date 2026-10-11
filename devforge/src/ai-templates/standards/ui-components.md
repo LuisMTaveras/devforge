@@ -1,6 +1,6 @@
 # ⚡ DEVFORGE Standard UI Components
 
-<!-- Mandatory components for every DEVFORGE project. Born in Snowlr, proven in production. Exact API: module-api.md §8–§16. -->
+<!-- Mandatory components for every DEVFORGE project. Born in Snowlr, proven in production. Exact API: module-api.md §8–§19. -->
 
 Every listing, form, modal and filter bar uses the same building blocks. They are installed, not rewritten:
 
@@ -14,6 +14,8 @@ devforge add overlays --vue       # ModalShell, DrawerShell, RowMenu
 devforge add list-states --vue    # EmptyState, ListStaleNotice
 devforge add inputs --vue         # MoneyInput, MaskedInput (cédula, RNC, teléfono)
 devforge add batch --vue          # BatchProgressModal: avance de un lote
+devforge add authorizations --vue # AuthorizationDialog + AuthorizationAlerts + interceptor del 403
+devforge add notifications --vue  # NotificationCenter: la campana
 ```
 
 `dates` installs `select`; `pagination` installs `flickerless` and `formatters`; `inputs` installs `formatters`; `batch` installs `overlays` and `formatters`; all of them install `theme`.
@@ -334,3 +336,90 @@ await lote.run({
 - One failed row does **not** stop the batch. Closing the modal while it runs only hides it («Seguir en segundo plano»).
 - If the **server** processes the batch, use `lote.track({ request: key => api.lote({ progressKey: key }), settle })`
   and feed socket / SSE events to `lote.apply(event)`.
+
+---
+
+## 11. Authorizations: sign-off at the moment of truth, never an exception permission
+
+A permission is checked when entering a screen; an **authorization** is checked when the act is **consummated**, with
+the amount the server computed (blueprint 08). `devforge audit` rejects the shortcuts: exception permissions
+(`'descuentos:override_tope'`, `canOverrideCredit`, `bypassLimit`), a hand-made «contraseña del supervisor» prompt, and
+backend errors flattened to their message (they lose the challenge).
+
+**Wiring it in the frontend is done ONCE, never per screen:**
+
+```ts
+// main.ts
+import { configureAuthorizations, createFetchTransport, installAuthorizationInterceptor } from '@/core/authorizations/authorization';
+import { notify } from '@/core/feedback/toast';
+
+configureAuthorizations({
+  transport: createFetchTransport({ headers: () => ({ Authorization: `Bearer ${tokenStorage.getAccessToken()}` }) }),
+  currentUserEmail: () => auth.user?.email ?? null,
+});
+installAuthorizationInterceptor(api, { onInvalid: msg => notify(msg, 'warning') }); // axios-like instance
+// with fetch / another client: await withAuthorization(headers => myClient.post(url, body, { headers }))
+
+socket.on('authorization:resolved', notifyAuthorizationResolved);                   // the waiting dialog continues
+socket.on('authorization:requested', a => pushAuthorizationAlert(a, { currentUserId: auth.user?.id }));
+socket.on('authorization:closed', e => closeAuthorizationAlert(e.requestId));
+```
+
+```vue
+<!-- App.vue, once, next to ConfirmDialog -->
+<AuthorizationDialog />
+<AuthorizationAlerts />
+```
+
+After that, the screen that saves does **nothing special**: its `await api.post('/notas-credito', body)` takes a bit
+longer and returns 201. When the server answers `403 AUTHORIZATION_REQUIRED`, the interceptor opens the dialog, waits,
+and retries the SAME request with `X-Authorization-Grant`. If the user cancels, the original error reaches the screen.
+
+The dialog (port of Snowlr's):
+
+- Opens on the path with least friction: **«Mi contraseña»** if the person can self-authorize, someone else's
+  **credentials** typed here if the company allows it, or **«Solicitar»** (remote: the bell, push and a live card reach
+  the authorizers; the screen waits and continues by itself when someone approves).
+- Shows the act, the amount (in the document's currency), «Supera el límite libre de …», the quorum, and the server's
+  message with the way out («Pídesela a Ana Reyes o Luis Taveras»).
+- Asks for the **reason** when the policy requires it. Never sends the amount or describes the act: only the `pendingKey`.
+- One at a time: a second challenge while one is open is cancelled. It sits above every modal; Escape closes only it.
+
+`<AuthorizationAlerts />` is for whoever SIGNS: a card that arrives by socket with who is waiting, the amount and a live
+countdown («Caduca en 4:12», red under two minutes), resolved right there with Autorizar / Rechazar. Unlike a toast it
+does not go away by itself; it leaves when decided, expired, dismissed, or when someone else already signed.
+
+---
+
+## 12. Notifications: the bell
+
+Choose the channel before writing any message:
+
+| Need | Use |
+| --- | --- |
+| Interrupt and decide | `confirmDialog()` / `alertDialog()` |
+| «Guardado», «No se pudo cargar» | `notify()` |
+| Persistent and actionable (por vencer, pedido nuevo, respuesta de soporte) | the bell — emitted by the server (blueprint 09) |
+| Someone waits for your signature now | `<AuthorizationAlerts />` |
+
+**Never** `new Notification()`, `Notification.requestPermission()` on load, or `alert()`; `devforge audit` rejects them.
+
+```ts
+// main.ts
+configureNotifications({ transport: createNotificationFetchTransport({ headers }), rootPrefix: '/admin' });
+registerNotificationKinds([{ type: 'ORDER_STATUS', label: 'Pedidos', tone: 'accent', icon: 'inbox' }]);
+socket.on('notification', receiveNotification);
+// on logout: resetNotifications()
+```
+
+```vue
+<NotificationCenter @navigate="link => router.push(link)" />          <!-- React: onNavigate={navigate} -->
+```
+
+- The badge is the server's real counter. Grouped Hoy / Ayer / date in the business time zone; «Todas / Sin leer» plus
+  only the categories present; reversible ack (under «Sin leer» the row leaves when marked); a click marks it read and
+  opens its `link`; «Limpiar leídas» never deletes unread ones; three different empty states; nothing claims «Sin
+  notificaciones» before the first answer.
+- Desktop alerts: the panel offers «Activar avisos de escritorio» (permission asked **on that click**, never on load).
+  With permission, a notification that arrives while the tab is hidden also goes to the OS; everything there is also in
+  the inbox. Tab-closed web push is backend work (blueprint 09 §5).

@@ -19,15 +19,15 @@ Los modelos de IA generativa suelen ser inconsistentes: inventan estructuras de 
 **DEVFORGE resuelve esto de raíz proporcionando:**
 1. **Un CLI determinista**: Comandos instantáneos para inicializar proyectos (`devforge init`), inyectar módulos de arquitectura (`devforge add <modulo>`) y auditar el código fuente en 1 segundo (`devforge audit`).
 2. **Capa Multi-Agente Universal**: Archivos de contexto y configuración nativos para Antigravity (`AGENTS.md`, `.agents/skills/`), Claude Code (`CLAUDE.md`, `.claude/commands/`), Cursor (`.cursorrules`) y Copilot (`.github/copilot-instructions.md`).
-3. **7 Blueprints de Producción**: Recetas de arquitectura probadas en batalla (OpenAPI SDK, Formularios Zod, Tablas sincronizadas con URL, RBAC CASL, In-App DevTools, Auth Silent Refresh y GraphQL Pagination).
+3. **9 Blueprints de Producción**: Recetas de arquitectura probadas en batalla (OpenAPI SDK, Formularios Zod, Tablas sincronizadas con URL, RBAC CASL, In-App DevTools, Auth Silent Refresh, GraphQL Pagination, Autorizaciones y Notificaciones).
 4. **Estándares de Diseño y Gobernanza**: Reglas estrictas de UI/UX Pro Max, paleta «Warm Slate» (grafito en claro, marfil en oscuro), tipografía moderna, formateo localizado de datos y cero Spanglish.
 5. **Componentes UI estándar (Vue y React)**: Flickerless en lugar de skeletons, combo `SelectField`, fechas `DateField` / `DateRangeFilter`, paginación `ListPager`, diálogos y avisos, modales, menú de fila, estados de lista, campos de monto y cédula, y avance de lotes, iguales en todos los proyectos.
 
 ---
 
-## 🚨 Los 9 Mandamientos DEVFORGE (Pre-Flight Checklist)
+## 🚨 Los 10 Mandamientos DEVFORGE (Pre-Flight Checklist)
 
-Cada agente de IA que opere en un repositorio configurado con DEVFORGE tiene la obligación contractual de verificar estos 9 puntos antes de generar o editar cualquier archivo:
+Cada agente de IA que opere en un repositorio configurado con DEVFORGE tiene la obligación contractual de verificar estos 10 puntos antes de generar o editar cualquier archivo:
 
 | # | Mandamiento | Regla Estricta | Alternativa Requerida |
 | :-: | :--- | :--- | :--- |
@@ -40,6 +40,7 @@ Cada agente de IA que opere en un repositorio configurado con DEVFORGE tiene la 
 | **7** | **Tema Claro + Oscuro** | Prohibidas las interfaces de un solo tema y los colores hex dentro de componentes. | Tokens semánticos de `tokens.css` (`bg-surface`, `text-foreground`, `border-border`), `initTheme()` y selector Claro / Oscuro / Sistema. |
 | **8** | **Cero Alucinación** | Prohibido inventar funciones, paquetes, endpoints o variables de entorno. | Solo lo que lista `.ai/standards/module-api.md`; si falta, `devforge add <módulo>` o preguntar. |
 | **9** | **Componentes UI Estándar** | Prohibidos los skeletons, `animate-pulse`, el `<select>` nativo, `<input type="date">`, `window.confirm/alert/prompt`, modales hechos a mano que se cierran al tocar el telón y pies de paginación propios. | Flickerless, `SelectField`, `DateField` / `DateRangeFilter`, `ListPager`, `confirmDialog()` / `notify()`, `ModalShell` / `DrawerShell` / `RowMenu`, `EmptyState`, `MoneyInput` / `MaskedInput` y `BatchProgressModal` (`.ai/standards/ui-components.md`). |
+| **10** | **Autorizaciones y Notificaciones** | Prohibidos los permisos de excepción (`'descuentos:override_tope'`, `canOverrideCredit`), la «contraseña del supervisor» hecha a mano, aplanar los errores del backend a `err.message` y `new Notification()` a mano. | El acto riesgoso va al catálogo de autorizaciones y se avala al consumarlo (blueprint 08, `AuthorizationDialog`); lo persistente va a la campana (`NotificationCenter`, blueprint 09); lo efímero es `notify()`. |
 
 ---
 
@@ -54,14 +55,16 @@ tu-proyecto/
 │   ├── CLAUDE.md                         # Contexto para Claude Code
 │   ├── .cursorrules                      # Reglas de contexto para Cursor IDE
 │   ├── copilot-instructions.md           # Instrucciones para GitHub Copilot
-│   ├── blueprints/                       # 📐 7 Blueprints de Arquitectura Empresarial
+│   ├── blueprints/                       # 📐 9 Blueprints de Arquitectura Empresarial
 │   │   ├── 01-openapi-sdk.md             # SDK y hooks tipados desde Swagger/OpenAPI
 │   │   ├── 02-schema-forms.md            # Formularios dinámicos con validación Zod
 │   │   ├── 03-datagrid-url-sync.md       # Tablas sincronizadas con query params de URL
 │   │   ├── 04-rbac-matrix.md             # Matriz de permisos RBAC/ABAC estilo CASL
 │   │   ├── 05-in-app-devtools.md         # Cockpit flotante de depuración y simulación
 │   │   ├── 06-auth-session.md            # Cola de refresco silencioso de tokens JWT
-│   │   └── 07-graphql-pagination.md      # Paginación estricta y colocación de fragmentos
+│   │   ├── 07-graphql-pagination.md      # Paginación estricta y colocación de fragmentos
+│   │   ├── 08-authorizations.md          # Autorizaciones: el aval al consumar, nunca un permiso de excepción
+│   │   └── 09-notifications.md           # La campana, su bandeja y los avisos de escritorio
 │   └── standards/                        # 📋 Estándares de Ingeniería y Diseño
 │       ├── project-kickoff.md            # Protocolo de descubrimiento y calibración
 │       ├── data-formatting.md            # Moneda, números, fechas, teléfonos y manejo de nulos
@@ -204,7 +207,7 @@ devforge <comando> [opciones]
 ### 1. `devforge init`
 Despliega la capa universal de IA en el repositorio actual:
 - Copia las plantillas de agentes (`AGENTS.md`, `CLAUDE.md`, `.cursorrules`, `copilot-instructions.md`).
-- Instala los 7 Blueprints en `.ai/blueprints/`.
+- Instala los 9 Blueprints en `.ai/blueprints/`.
 - Instala las guías de ingeniería y diseño en `.ai/standards/`.
 - Configura comandos slash en `.claude/commands/` y el skill en `.agents/skills/`.
 
@@ -218,6 +221,9 @@ Realiza un escaneo estático ultra rápido (en menos de un segundo) sobre todos 
 - **Moneda escrita a mano**: `currency: 'DOP'` o `=== 'DOP'` en el código (la moneda la trae el documento).
 - **Fechas en la zona equivocada**: `toLocaleDateString()`, `toLocaleTimeString()` o `timeZone: 'UTC'` en lugar de `formatDate()` / `formatTime()`.
 - **TypeScript apagado**: `// @ts-nocheck` en un archivo completo.
+- **Autorizaciones hechas a mano**: permisos de excepción (`'x:override_*'`, `canOverride*`, `bypassLimit`) y contraseñas de supervisor improvisadas.
+- **Errores aplanados**: `sendError(res, err.message)` o `.json({ error: err.message })`, que pierden el `code` y los `details` del reto.
+- **Notificaciones nativas**: `new Notification()`, `Notification.requestPermission()` o `showNotification` fuera del service worker.
 - **Puntuación de Salud Arquitectónica**: Calcula el porcentaje de cumplimiento de 0% a 100%.
 
 Termina con código de salida `1` si hay violaciones, así que sirve para bloquear en CI. En un **proyecto existente**, `devforge audit --baseline` guarda la deuda de hoy en `.devforge-audit-baseline.json` (por archivo y regla); desde ahí la auditoría solo falla con violaciones **nuevas**, y cada arreglo reduce la línea base sola. La deuda solo puede bajar.
@@ -245,11 +251,13 @@ Inyecta módulos de código limpios, probados y con TypeScript estricto en la es
 | **Estados de lista** | `devforge add list-states` | `EmptyState`, `ListStaleNotice` (`.vue` / `.tsx`) | Lista vacía con acción directa y aviso de cambios nuevos sin recargar sola. |
 | **Campos** | `devforge add inputs` | `src/core/formatters/input-masks.ts`<br>`MoneyInput`, `MaskedInput` (`.vue` / `.tsx`) | Monto con los separadores del país (valor numérico) y cédula `001-1234567-8`, RNC `1-01-23456-7` y teléfono `(809) 578-1234` mientras se escribe. |
 | **Lotes** | `devforge add batch` | `src/core/batch/batch-progress.ts`<br>`BatchProgressModal` (`.vue` / `.tsx`) | Avance en vivo de un proceso uno a uno: «Procesando 3 de 10…», barra y resultado de cada registro. |
+| **Autorizaciones** | `devforge add authorizations` | `src/core/authorizations/authorization.ts`<br>`AuthorizationDialog`, `AuthorizationAlerts` (`.vue` / `.tsx`) | El interceptor reconoce el 403 `AUTHORIZATION_REQUIRED`, abre el modal (mi contraseña, credenciales de otro o solicitud a distancia) y reintenta la misma petición con la llave. Quien firma recibe una tarjeta en vivo con cuenta regresiva. El backend es el blueprint 08. |
+| **Notificaciones** | `devforge add notifications` | `src/core/notifications/notifications.ts`<br>`NotificationCenter` (`.vue` / `.tsx`) | La campana: contador real, filtros, agrupada por día en la hora del negocio, acuse reversible y avisos de escritorio activados con un clic. El backend es el blueprint 09. |
 | **Paginación** | `devforge add pagination` | `src/core/pagination/pagination.ts`<br>`src/shared/components/ListPager.vue`<br>`ListPager.tsx` (React) | Pie de listado estándar: «Mostrando 11–20 de 57 facturas» y ‹ 2 / 6 ›, con «—» hasta la primera respuesta. |
 
 ---
 
-## 📐 Los 7 Blueprints de Arquitectura Empresarial
+## 📐 Los 9 Blueprints de Arquitectura Empresarial
 
 Ubicados en `.ai/blueprints/`, estos documentos son recetas canónicas que instruyen a tu IA exactamente sobre cómo estructurar patrones complejos:
 
@@ -276,6 +284,10 @@ Ubicados en `.ai/blueprints/`, estos documentos son recetas canónicas que instr
 
 7. **`07-graphql-pagination.md` (Paginación Estricta y Optimización GraphQL)**:
    - Asegura paginación obligatoria basada en cursores o desplazamiento, colocación de fragmentos por componente y cero sobreconsulta de campos a la base de datos.
+8. **`08-authorizations.md` (Autorizaciones)**:
+   - Un permiso dice qué pantalla se puede tocar; una autorización dice si ESTE acto, con ESTE importe, puede consumarse. Catálogo de actos (todo nace apagado), política por empresa, autorizadores con tope, huella del acto, llave de un solo uso, el importe como techo, `liftsBlock` para excepciones a un muro existente, el contrato del 403 y los trinquetes. El dueño y el ADMIN siempre pueden avalar.
+9. **`09-notifications.md` (Notificaciones)**:
+   - Cuándo es diálogo, toast, notificación o tarjeta de autorización; modelo y API de la bandeja con aislamiento por usuario y empresa; cómo se emite un aviso (categoría, enlace sin prefijo, a quién); avisos de escritorio y web push.
 
 ---
 

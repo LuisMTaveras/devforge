@@ -108,7 +108,7 @@ const AUDIT_RULES = [
       if (!CODE.includes(ext) || isComment(line)) return null;
       // A definition (`confirm() {`, `function alert(`) is not a call to the browser dialog.
       if (/(?:function\s+|^\s*(?:async\s+)?)(?:alert|confirm|prompt)\s*\([^)]*\)\s*[{:]/.test(line)) return null;
-      const match = line.match(/(?:\bwindow\.|(?<![\w.$]))(alert|confirm|prompt)\s*\(/);
+      const match = line.match(/(?:\b(?:window|globalThis|self|top|parent)\.|(?<![\w.$]))(alert|confirm|prompt)\s*\(/);
       if (match) {
         return {
           rule: 'System Dialogs (No window.confirm)',
@@ -174,6 +174,72 @@ const AUDIT_RULES = [
         return {
           rule: 'Modals Do Not Close on Backdrop Click',
           message: 'Cerrar al pulsar el telón pierde formularios a medias. Usa <ModalShell> / <DrawerShell> (devforge add overlays): se cierran con su botón o Escape.',
+        };
+      }
+      return null;
+    }
+  },
+  {
+    id: 'EXCEPTION_PERMISSION',
+    name: 'Authorizations, Not Exception Permissions',
+    check: (content, line, lineNum, ext) => {
+      if (!CODE.includes(ext) || isComment(line)) return null;
+      const match =
+        line.match(/['"`][\w.-]+:[\w:.-]*?(?:override|bypass|exceed|skip|unlock|force)[\w:.-]*['"`]/i) ||
+        line.match(/\bcan(?:Override|Bypass|Skip|Exceed|Unlock|Force)[A-Z]\w*/) ||
+        line.match(/\b(?:override|bypass|skip)(?:Credit|Limit|Floor|Cap|Price|Discount|Approval|Threshold)\w*/);
+      if (match) {
+        return {
+          rule: 'Authorizations, Not Exception Permissions',
+          message: `Permiso de excepción '${match[0]}': es un sí permanente, sin importe y sin rastro. Añade el acto al catálogo de autorizaciones y pídelo al CONSUMAR (blueprint 08: requireAuthorization / liftsBlock).`,
+        };
+      }
+      return null;
+    }
+  },
+  {
+    id: 'HAND_ROLLED_AUTHORIZATION',
+    name: 'Authorizations, Not Ad-hoc Supervisor Passwords',
+    check: (content, line, lineNum, ext) => {
+      if (!CODE.includes(ext) || isComment(line)) return null;
+      const people = /(supervisor|gerente|autorizador|encargad[oa]|manager)/i;
+      const secret = /(password|contrase(?:ñ|n)a|clave|\bpin\b)/i;
+      if (people.test(line) && secret.test(line)) {
+        return {
+          rule: 'Authorizations, Not Ad-hoc Supervisor Passwords',
+          message: 'Contraseña de supervisor hecha a mano. El aval se pide con el 403 AUTHORIZATION_REQUIRED y lo resuelve <AuthorizationDialog> (devforge add authorizations, blueprint 08): con rastro, tope por importe y un solo uso.',
+        };
+      }
+      return null;
+    }
+  },
+  {
+    id: 'FLATTENED_ERROR',
+    name: 'Errors Keep Their Code and Details',
+    check: (content, line, lineNum, ext) => {
+      if (!['.ts', '.js'].includes(ext) || isComment(line)) return null;
+      const match = line.match(/sendError\(\s*res\s*,\s*\w+\.message\b|\.json\(\s*\{\s*(?:error|message)\s*:\s*(?:err|error|e|ex)\.message\s*\}\s*\)/);
+      if (match) {
+        return {
+          rule: 'Errors Keep Their Code and Details',
+          message: `Error aplanado a su mensaje '${match[0]}': se pierden 'code' y 'details', y el reto AUTHORIZATION_REQUIRED nunca abre su modal. Responde { message, code, details } (blueprint 08 §6, sendErrorFrom).`,
+        };
+      }
+      return null;
+    }
+  },
+  {
+    id: 'BROWSER_NOTIFICATION',
+    name: 'Notifications Through the Bell',
+    check: (content, line, lineNum, ext, file) => {
+      if (!CODE.includes(ext) || isComment(line)) return null;
+      // The single gate, and service workers that receive web push, are the only legal callers.
+      if (/core[\\/]notifications[\\/]notifications\.ts$/.test(file) || /(?:^|[\\/])(?:sw|service-worker|push-sw)\.(?:js|ts)$/.test(file)) return null;
+      const match = line.match(/new\s+(?:window\.)?Notification\s*\(|Notification\.requestPermission\s*\(|\.showNotification\s*\(/);
+      if (match) {
+        return {
+          rule: 'Notifications Through the Bell',
+          message: `Notificación del navegador a mano '${match[0]}'. Lo persistente va a la campana (receiveNotification / <NotificationCenter>), lo efímero es notify(), y el escritorio sale por showDesktopNotification() con permiso pedido con un clic (devforge add notifications).`,
         };
       }
       return null;
@@ -302,7 +368,8 @@ export async function auditCommand(options = {}) {
       console.log('  - Tema claro y oscuro en cada color');
       console.log('  - 100% español sin Spanglish');
       console.log('  - Formatos localizados correctos');
-      console.log('  - Componentes estándar (sin skeletons, diálogos ni controles nativos)\n');
+      console.log('  - Componentes estándar (sin skeletons, diálogos ni controles nativos)');
+      console.log('  - Autorizaciones y notificaciones por su puerta única\n');
     }
     return { violations, newViolations };
   }

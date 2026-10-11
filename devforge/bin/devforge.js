@@ -43,7 +43,7 @@ Commands:
   \x1b[36maudit\x1b[0m             Audit current repo for hardcoded data, neon classes, and Spanglish
                     [--baseline] records today's debt; later runs fail only on new violations
   \x1b[36mlist\x1b[0m              List all available architectural blueprints and modules
-  \x1b[36madd <module>\x1b[0m      Inject a ready-to-run module (theme, dates, feedback, overlays, inputs, batch, ...)
+  \x1b[36madd <module>\x1b[0m      Inject a ready-to-run module (theme, dates, feedback, authorizations, notifications, ...)
                     [--vue | --react] installs only that framework's adapter
   \x1b[36mhelp\x1b[0m              Show this help screen
 

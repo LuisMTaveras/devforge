@@ -91,4 +91,6 @@ Every interactive component (buttons, inputs, cards, rows) must have all 5 state
   2. A clear headline (e.g., "Aún no hay transacciones registradas").
   3. A short explanatory description.
   4. A direct Primary Action button (e.g., "[Nueva transacción]").
-- **Skeleton Loaders**: Must mirror the exact layout geometry of the expected content instead of using a generic spinning circle in the middle of the screen.
+- **Loading (Zero Skeletons)**: Skeletons and full-screen spinners are banned. Use Flickerless: what was there stays dimmed under a 2 px bar, what is not known yet is `—`, cold loads paint the real table shell. Rules: `.ai/standards/ui-components.md` §1.
+- **Standard controls**: combos use `SelectField`, form dates use `DateField`, listing filters `DateRangeFilter`, lists end with `ListPager`, empty lists show `EmptyState`, modals use `ModalShell`, interruptions `confirmDialog()`, feedback `notify()` (`ui-components.md`).
+- **Every action gives feedback**: a save ends in a toast or a visible change; a failure says what failed and what to do. A destructive action asks first with `tone: 'danger'`.
