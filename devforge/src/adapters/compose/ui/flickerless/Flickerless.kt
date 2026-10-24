@@ -1,7 +1,7 @@
 package devforge.ui.flickerless
 
 /**
- * ⚡ DEVFORGE Flickerless (Compose) — cargar SIN skeleton. Gemelo de `vendor/flickerless`.
+ * ⚡ DEVFORGE Flickerless (Compose) — así carga DEVFORGE. Gemelo de `vendor/flickerless`.
  *
  *  - Lo que ya está en pantalla se QUEDA mientras recarga (atenuado) y arriba corre una barra de 2 dp.
  *  - Una carga más rápida que `delayMs` (180 ms) no enseña ningún indicador: cero parpadeo.
@@ -256,8 +256,8 @@ private fun FlickerlessInlineError(text: String, onRetry: (() -> Unit)?) {
 }
 
 /**
- * La lista REAL antes de la primera respuesta: sus filas con «—» en cada dato (no un skeleton que
- * imita contenido). Va solo cuando no hay filas que conservar.
+ * Flickerless en frío: la lista REAL antes de la primera respuesta, con «—» en cada dato.
+ * Va solo cuando no hay filas que conservar.
  */
 @Composable
 fun FlickerlessListShell(rows: Int = 4, cells: Int = 2, modifier: Modifier = Modifier) {

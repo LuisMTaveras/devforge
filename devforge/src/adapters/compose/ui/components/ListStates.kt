@@ -20,7 +20,7 @@ package devforge.ui.components
  *       if (ui.error == null) items(ui.rows, key = { it.id }) { FacturaRow(it) }
  *   }
  *
- * CardShell / DetailShell: la forma REAL (tarjetas, detalle) con «—» antes de la primera respuesta.
+ * CardShell / DetailShell: Flickerless en frío — la forma REAL (tarjetas, detalle) con «—» antes de la primera respuesta.
  */
 
 import androidx.compose.foundation.background
@@ -139,8 +139,8 @@ fun ListStates(
 }
 
 /**
- * Las tarjetas REALES con «—» donde va cada dato, antes de la primera respuesta (no un skeleton
- * que imita contenido). Usa el mismo `cardModifier` de las tarjetas de verdad: nada salta al llegar.
+ * Flickerless en frío para tarjetas: las tarjetas REALES con «—» donde va cada dato, antes de la
+ * primera respuesta. Usa el mismo `cardModifier` de las tarjetas de verdad: nada salta al llegar.
  */
 @Composable
 fun CardShell(
