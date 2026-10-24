@@ -18,3 +18,26 @@ jobs:
       - run: corepack enable
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
+
+  # Versión Kotlin / Jetpack Compose (devforge add <módulo> --compose): compila los componentes,
+  # cada módulo instalado por separado con el paquete reescrito, y corre las pruebas del núcleo.
+  compose:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: devforge
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          package-manager-cache: false
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.14.3
+      - run: node compose-verify/install-modules.mjs
+      - run: gradle --project-dir compose-verify :core:test compileKotlin --console=plain

@@ -21,7 +21,7 @@ Los modelos de IA generativa suelen ser inconsistentes: inventan estructuras de 
 2. **Capa Multi-Agente Universal**: Archivos de contexto y configuración nativos para Antigravity (`AGENTS.md`, `.agents/skills/`), Claude Code (`CLAUDE.md`, `.claude/commands/`), Cursor (`.cursorrules`) y Copilot (`.github/copilot-instructions.md`).
 3. **9 Blueprints de Producción**: Recetas de arquitectura probadas en batalla (OpenAPI SDK, Formularios Zod, Tablas sincronizadas con URL, RBAC CASL, In-App DevTools, Auth Silent Refresh, GraphQL Pagination, Autorizaciones y Notificaciones).
 4. **Estándares de Diseño y Gobernanza**: Reglas estrictas de UI/UX Pro Max, paleta «Warm Slate» (grafito en claro, marfil en oscuro), tipografía moderna, formateo localizado de datos y cero Spanglish.
-5. **Componentes UI estándar (Vue y React)**: Flickerless en lugar de skeletons, combo `SelectField`, fechas `DateField` / `DateRangeFilter`, paginación `ListPager`, diálogos y avisos, modales, menú de fila, estados de lista, campos de monto y cédula, y avance de lotes, iguales en todos los proyectos.
+5. **Componentes UI estándar (Vue, React y Android / Jetpack Compose)**: Flickerless en lugar de skeletons, combo `SelectField`, fechas `DateField` / `DateRangeFilter`, paginación `ListPager`, diálogos y avisos, modales, menú de fila, estados de lista, campos de monto y cédula, y avance de lotes, iguales en todos los proyectos.
 
 ---
 
@@ -441,6 +441,45 @@ Inyecta módulos de código limpios, probados y con TypeScript estricto en la es
 | **Ayuda de campo** | `devforge add field-help` | `FieldHelp` (`.vue` / `.tsx`) | El «?» junto a la etiqueta que funciona también en el teléfono, donde el `title` no existe. |
 | **Versión nueva** | `devforge add app-update` | `src/core/app-update/app-update.ts` | Despliegue nuevo con la pestaña abierta: se aplica en la próxima navegación (no se pierde lo que se estaba tecleando) y se recupera la pantalla que no carga. |
 | **Seguridad** | `devforge add security` | `src/core/security/*` | `escapeHtml`, `safeLinkUrl` y `sanitizeTenantCss` para el texto, los enlaces y el CSS que escriben terceros. |
+
+
+### 5. `devforge add <módulo> --compose` (Android: Kotlin + Jetpack Compose)
+
+Los mismos módulos para una app Android en Kotlin con Jetpack Compose (Material 3 como base, la apariencia es «Warm Slate»): mismos tokens Claro / Oscuro, mismos textos en español, mismos formatos de RD y los mismos componentes. Reglas: `.ai/standards/compose.md`; API exacta: `.ai/standards/module-api.md` §27.
+
+```bash
+devforge add formatters theme errors feedback overlays flickerless list-states --compose   # base
+devforge add select dates pagination inputs list-toolbar pickers --compose               # según la pantalla
+```
+
+- El paquete sale del `namespace` de `app/build.gradle.kts` (o `--package com.empresa.app`) y los archivos van a `app/src/main/java/<paquete>/core/…` y `…/ui/…` (o `app/src/main/kotlin` si existe; `--module` / `--source-dir` para cambiarlo). Los imports quedan con el paquete de la app.
+- **Con versión Compose (19)**: `formatters`, `theme`, `errors`, `rbac`, `flickerless`, `select`, `overlays`, `dates`, `pagination`, `feedback`, `list-states`, `shells`, `inputs`, `batch`, `list-toolbar`, `list-cache`, `pickers`, `field-help`, `security`.
+- **Aún sin versión Compose** (la CLI lo rechaza en vez de instalar algo a medias): `auth`, `export`, `url-sync`, `authorizations`, `notifications`, `excel`, `command-palette`, `documents`, `app-update`.
+- Requiere `minSdk 26` (o desugaring) por `java.time`, `kotlinx-coroutines-core` y, para `errors`, `kotlinx-serialization-json` (solo el runtime). La CLI lista las dependencias de Gradle que necesitan los módulos instalados.
+- `devforge audit` también revisa los `.kt`: `Color(0xFF…)`, shimmer / `CircularProgressIndicator`, `AlertDialog` / `Toast.makeText` / `DatePicker` de Material en una pantalla, `String.format("%.2f")`, `ZoneId.systemDefault()`, `Text(e.message)`, `currency = "DOP"`, textos en inglés y enlaces sin `safeLinkUrl`.
+
+```kotlin
+setContent {
+    DevforgeTheme {                                   // Claro / Oscuro / Sistema (ThemeEngine)
+        Box(Modifier.fillMaxSize()) { AppNavHost(); ToastHost(); ConfirmDialogHost() }
+    }
+}
+
+DateRangeFilter(value = periodo, onValueChange = { periodo = it }, onChange = { vm.load(page = 1) })
+FlickerlessSurface(loading = ui.loading, empty = ui.rows.isEmpty(), error = ui.error, onRetry = vm::load, modifier = Modifier.fillMaxSize()) {
+    LazyColumn(Modifier.weight(1f)) { items(ui.rows, key = { it.id }) { FacturaRow(it) } }
+    ListPager(page = ui.page, pageSize = 20, total = ui.meta?.total, onPageChange = vm::load, singular = "factura", plural = "facturas")
+}
+if (confirmDialog("Anular factura", "No se puede deshacer.", "Anular", tone = DialogTone.DANGER)) vm.anular()
+```
+
+**Mantenimiento**: el código fuente está en `devforge/src/adapters/compose/`. `devforge/compose-verify/` lo compila con Compose Multiplatform (las mismas APIs que `androidx.compose`), instala y compila **cada módulo por separado** con el paquete reescrito, y corre las pruebas del núcleo en Kotlin (los mismos casos que la web). `pnpm test` además falla si los colores o los iconos de Kotlin se separan de `tokens.css` / `icon-paths.ts`. CI corre ambos.
+
+```bash
+cd devforge
+node compose-verify/install-modules.mjs
+gradle --project-dir compose-verify :core:test compileKotlin
+```
 
 ---
 

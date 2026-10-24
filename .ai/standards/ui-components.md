@@ -2,7 +2,7 @@
 
 <!-- Mandatory components for every DEVFORGE project. Born in Snowlr, proven in production. Exact API: module-api.md §8–§25. -->
 
-Every listing, form, modal and filter bar uses the same building blocks. They are installed, not rewritten:
+Every listing, form, modal and filter bar uses the same building blocks. **Android (Kotlin / Jetpack Compose)** has the same components with the same rules: `devforge add <module> --compose` (`compose.md`, API in `module-api.md` §27). They are installed, not rewritten:
 
 ```bash
 devforge add flickerless --vue    # carga sin skeleton           (o --react)

@@ -4,7 +4,7 @@
 
 ## 1. The Dual-Theme Rule
 
-Every project built under DEVFORGE **must ship with two themes: Claro (light) and Oscuro (dark)**, plus a **Sistema** option that follows the OS preference.
+Every project built under DEVFORGE **must ship with two themes: Claro (light) and Oscuro (dark)**, plus a **Sistema** option that follows the OS preference. On Android (Jetpack Compose) the same tokens live in `DevforgeTheme.colors` and the choice in `ThemeEngine` (`devforge add theme --compose`, see `compose.md`).
 
 - **Banned**: Dark-only or light-only interfaces. "We'll add dark mode later" is not allowed.
 - **Banned**: A color class without its counterpart in the other theme (`bg-white` alone, `text-zinc-100` alone).

@@ -17,7 +17,7 @@ AI models are only as good as the context, constraints, and blueprints you give 
 6. **Automatic Localized Formatting**: Built-in formatters for currency, numbers, percentages, dates, relative time, and phone numbers, configured per country (`setFormatCountry('DO')`).
 7. **Light + Dark Themes by Default**: Every project ships Claro / Oscuro / Sistema themes with semantic design tokens and the "Warm Slate" palette (graphite in light, ivory in dark) (`devforge add theme`).
 8. **Authorizations & Notifications**: Risky acts are signed off when consummated (blueprint 08), never through exception permissions; persistent notices go to the bell (blueprint 09).
-9. **Standard UI Components**: Flickerless loading instead of skeletons, `SelectField`, `DateField` / `DateRangeFilter`, `ListPager`, system dialogs and toasts, `ModalShell` / `DrawerShell` / `RowMenu`, `EmptyState`, `MoneyInput` / `MaskedInput` and `BatchProgressModal` — the same in every project, Vue and React (`.ai/standards/ui-components.md`).
+9. **Standard UI Components**: Flickerless loading instead of skeletons, `SelectField`, `DateField` / `DateRangeFilter`, `ListPager`, system dialogs and toasts, `ModalShell` / `DrawerShell` / `RowMenu`, `EmptyState`, `MoneyInput` / `MaskedInput` and `BatchProgressModal` — the same in every project, Vue and React (`.ai/standards/ui-components.md`), and in Kotlin / Jetpack Compose for Android with `devforge add <module> --compose` (`.ai/standards/compose.md`).
 10. **Battle-Tested Blueprints**: High-leverage architectural patterns (OpenAPI SDK, Zod Schema forms, URL-synced tables, RBAC permissions, In-app devtools, Silent Refresh Auth, GraphQL Pagination, Authorizations and Notifications).
 
 ---

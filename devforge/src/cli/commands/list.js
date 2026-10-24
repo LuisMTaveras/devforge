@@ -34,6 +34,7 @@ export function listCommand() {
     'theming.md              -> Mandatory Light + Dark themes with semantic design tokens',
     'ui-components.md        -> Flickerless, SelectField, DateField, ListPager, TableStates, ListToolbar, pickers, documents',
     'module-api.md           -> Exact API of every module (anti-hallucination source of truth)',
+    'compose.md              -> Android: the same modules in Kotlin + Jetpack Compose (--compose)',
     'ui-ux-principles.md     -> Anti-AI Design System (UI/UX Pro Max & Zero Spanglish)',
     'project-structure.md    -> Production Greenfield Folder & File Hierarchy (Vue 3 / React)',
     'architecture-standards  -> Zero Hardcoded Data & Domain-Driven architecture',
@@ -93,7 +94,8 @@ export function listCommand() {
   console.log('  \x1b[32mdevforge add shells list-toolbar list-cache\x1b[0m -> Listings: states, toolbar, cache across navigation');
   console.log('  \x1b[32mdevforge add excel documents\x1b[0m -> Excel reports (backend: blueprint 10) and document preview / print');
   console.log('  \x1b[32mdevforge add pickers command-palette field-help\x1b[0m -> Record picker, ⌘K, field help');
-  console.log('  \x1b[32mdevforge add app-update security\x1b[0m -> New versions without losing work; third-party data in HTML / links / CSS\n');
+  console.log('  \x1b[32mdevforge add app-update security\x1b[0m -> New versions without losing work; third-party data in HTML / links / CSS');
+  console.log('  \x1b[32mdevforge add <módulo…> --compose\x1b[0m -> Android: the Kotlin / Jetpack Compose version (19 modules, see .ai/standards/compose.md)\n');
 
   console.log('To audit your project for AI compliance:');
   console.log('  \x1b[32mdevforge audit\x1b[0m            -> Scans code for hardcoded arrays, neon colors, and Spanglish');

@@ -105,5 +105,6 @@ export async function initCommand(options = {}) {
 
   logger.info('Foundation modules (install before the first screen):');
   console.log('  - \x1b[32mdevforge add formatters theme errors feedback overlays flickerless list-states\x1b[0m');
-  console.log('    formatters, Claro / Oscuro / Sistema, normalizeApiError, dialogs + toasts, modals, loading without skeletons, empty states\n');
+  console.log('    formatters, Claro / Oscuro / Sistema, normalizeApiError, dialogs + toasts, modals, loading without skeletons, empty states');
+  console.log('  - Android (Kotlin / Jetpack Compose): the same modules with \x1b[32m--compose\x1b[0m (.ai/standards/compose.md)\n');
 }

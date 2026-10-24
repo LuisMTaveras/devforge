@@ -8,6 +8,115 @@ const BASELINE_FILE = '.devforge-audit-baseline.json';
 const isComment = line => /^\s*(\/\/|\/\*|\*|<!--)/.test(line);
 const CODE = ['.vue', '.tsx', '.jsx', '.ts', '.js'];
 
+/**
+ * Kotlin / Compose files installed by `devforge add --compose`: they ARE the single gate (the theme
+ * defines the colors, Overlays.kt the only Dialog, Formatters.kt the only NumberFormat), so the
+ * Kotlin rules that ban those calls in screens do not apply to them.
+ */
+const DEVFORGE_KOTLIN = new Set([
+  'Formatters.kt', 'InputMasks.kt', 'DateRange.kt', 'ApiError.kt', 'Dialog.kt', 'Toast.kt', 'ThemeEngine.kt',
+  'SharedPreferencesThemeStore.kt', 'DevforgeTheme.kt', 'DfIcon.kt', 'Controls.kt', 'ThemeSelector.kt', 'Flickerless.kt',
+  'SelectField.kt', 'Overlays.kt', 'Dates.kt', 'ListPager.kt', 'Feedback.kt', 'ListStates.kt', 'Inputs.kt',
+  'BatchProgressModal.kt', 'ListToolbar.kt', 'SearchInput.kt', 'RecordPickerModal.kt', 'FieldHelp.kt', 'SafeUrl.kt',
+]);
+const ownKotlin = file => DEVFORGE_KOTLIN.has(path.basename(file || ''));
+const kotlinRule = (id, name, pattern, message, { own = false } = {}) => ({
+  id,
+  name,
+  check: (content, line, lineNum, ext, file) => {
+    if (ext !== '.kt' || isComment(line) || (!own && ownKotlin(file))) return null;
+    const match = line.match(pattern);
+    return match ? { rule: name, message: message(match[0].trim()) } : null;
+  },
+});
+
+const KOTLIN_RULES = [
+  kotlinRule(
+    'KT_HARDCODED_COLOR',
+    'Mandatory Light + Dark Theme',
+    /\bColor\(\s*0x[0-9A-Fa-f]{6,8}\s*\)|\bColor\.(?:White|Black|Red|Blue|Green|Cyan|Yellow|Magenta|Gray|DarkGray|LightGray)\b/,
+    m => `Color fijo '${m}': no cambia con Claro / Oscuro. Usa DevforgeTheme.colors (surface, foreground, mutedForeground, border, primary, success / warning / danger).`,
+  ),
+  kotlinRule(
+    'KT_SKELETON',
+    'Flickerless Loading (Zero Skeletons)',
+    /\bshimmer\b|\.placeholder\(|\b\w*Skeleton\w*\s*\(|\bCircularProgressIndicator\s*\(/i,
+    m => `'${m}': skeleton o spinner. Usa FlickerlessSurface (conserva lo que había y corre una barra de 2 dp) y FlickerlessValue («—» hasta saber) (devforge add flickerless --compose).`,
+  ),
+  kotlinRule(
+    'KT_SYSTEM_DIALOGS',
+    'System Dialogs and Toasts',
+    /\b(?:AlertDialog|BasicAlertDialog|ModalBottomSheet|Dialog)\s*\(|\bToast\.makeText\b|\bSnackbarHost\s*\(/,
+    m => `'${m}' armado en la pantalla. Decidir: confirmDialog() / promptDialog(); avisar: notify(); contenido propio: ModalShell / DrawerShell (devforge add feedback overlays --compose).`,
+  ),
+  kotlinRule(
+    'KT_NATIVE_CONTROLS',
+    'Standard Form Controls',
+    /\bDatePicker(?:Dialog)?\s*\(|\brememberDatePickerState\b|\bDateRangePicker\s*\(|\bExposedDropdownMenuBox\s*\(|\bSpinner\s*\(/,
+    m => `Control de Material / Android '${m}': toma la zona y el idioma del teléfono e ignora los tokens. Usa SelectField / DateField / DateRangeFilter (devforge add select dates --compose).`,
+  ),
+  kotlinRule(
+    'KT_BACKDROP_CLOSE',
+    'Modals Do Not Close on Backdrop Click',
+    /dismissOnClickOutside\s*=\s*true/,
+    () => 'Cerrar al tocar el telón pierde formularios a medias. Usa ModalShell / DrawerShell: se cierran con su botón o con atrás.',
+    { own: true },
+  ),
+  kotlinRule(
+    'KT_HAND_FORMATTING',
+    'Automatic Localized Formatting',
+    /\bSimpleDateFormat\s*\(|\bDateTimeFormatter\.ofPattern\s*\(|\bNumberFormat\.get\w*Instance\s*\(|\bDecimalFormat\s*\(|"%[.,]?\d*f"|\.format\(\s*"%|\bString\.format\s*\(\s*"%[.,]?\d*f/,
+    m => `Formato a mano '${m}'. Usa formatCurrency / formatNumber / formatPercent / formatDate / formatTime / formatPhoneNumber (devforge add formatters --compose).`,
+  ),
+  kotlinRule(
+    'KT_TIMEZONE',
+    'Dates in the Business Time Zone',
+    /\bZoneId\.systemDefault\s*\(|\bTimeZone\.getDefault\s*\(|\bZoneOffset\.UTC\b|\bLocalDate\.now\s*\(\s*\)/,
+    m => `'${m}' usa la zona del teléfono (o UTC), no la del negocio. Usa todayKey() / formatDate() (zona del negocio, por defecto Santo Domingo).`,
+  ),
+  kotlinRule(
+    'KT_HARDCODED_CURRENCY',
+    'Currency Comes From the Document',
+    /\bcurrency\s*=\s*"[A-Z]{3}"|==\s*"(?:DOP|USD|COP|MXN|EUR|CLP|PEN|ARS)"/,
+    m => `Moneda escrita a mano '${m}'. La moneda la trae el documento (factura?.moneda) o es la del proyecto (formatConfig.defaultCurrency).`,
+  ),
+  kotlinRule(
+    'KT_SPANGLISH',
+    'Zero-Spanglish',
+    /\b(?:Text|DfButton|EmptyState)\(\s*(?:text\s*=\s*)?"(?:Close|Save|Cancel|Delete|Edit|Status|Amount|Actions|Search|Submit|Retry|Loading\.\.\.|Loading…|No results|Pending|Settled|Flagged|Reversed|OK)"|contentDescription\s*=\s*"(?:Close|Back|Search|Menu|More|Delete|Edit)"/,
+    m => `Texto en inglés en la UI '${m}'. Tradúcelo (Cerrar, Guardar, Cancelar, Estado, Monto, Acciones, Cargando…, Sin resultados).`,
+  ),
+  kotlinRule(
+    'KT_RAW_ERROR',
+    'Errors Reach the User Normalized',
+    /\b(?:e|err|error|ex|exception|throwable|cause)\.(?:message|localizedMessage)\b/,
+    m => `'${m}' es el mensaje técnico (en inglés, con nombres de clases). Muestra normalizeApiError(e).message (devforge add errors --compose).`,
+  ),
+  {
+    id: 'KT_UNSAFE_LINK',
+    name: 'Safe Links',
+    check: (content, line, lineNum, ext, file) => {
+      if (ext !== '.kt' || isComment(line) || ownKotlin(file) || content.includes('safeLinkUrl')) return null;
+      const match = line.match(/\bopenUri\s*\(|Intent\.ACTION_VIEW/);
+      return match
+        ? { rule: 'Safe Links', message: `'${match[0]}' abre una URL sin validar: un 'intent:' o 'file:' guardado por otra persona se ejecuta en el teléfono. Pásala por safeLinkUrl() (devforge add security --compose).` }
+        : null;
+    },
+  },
+  {
+    id: 'KT_HARDCODED_DATA',
+    name: 'Zero Hardcoded Data',
+    check: (content, line, lineNum, ext, file) => {
+      if (ext !== '.kt' || isComment(line) || ownKotlin(file) || /[\\/](?:test|androidTest)[\\/]/.test(file || '')) return null;
+      const match = line.match(/\b(?:val|var)\s+(\w+)\s*(?::[^=]+)?=\s*(?:listOf|mutableListOf|arrayOf|mutableStateListOf)\(\s*[A-Z]\w*\(\s*(?:\w+\s*=\s*)?["\d]/);
+      if (match && !/option|column|tab|action|nav|route|preset|menu|item[s]?Config/i.test(match[1])) {
+        return { rule: 'Zero Hardcoded Data', message: `Lista de registros escrita en el código ('${match[1]}'). Los datos llegan del servicio (repositorio -> ViewModel), paginados.` };
+      }
+      return null;
+    },
+  },
+];
+
 const AUDIT_RULES = [
   {
     id: 'NO_HARDCODED_DATA',
@@ -245,7 +354,7 @@ const AUDIT_RULES = [
     id: 'EXCEPTION_PERMISSION',
     name: 'Authorizations, Not Exception Permissions',
     check: (content, line, lineNum, ext) => {
-      if (!CODE.includes(ext) || isComment(line)) return null;
+      if (!(CODE.includes(ext) || ext === '.kt') || isComment(line)) return null;
       const match =
         line.match(/['"`][\w.-]+:[\w:.-]*?(?:override|bypass|exceed|skip|unlock|force)[\w:.-]*['"`]/i) ||
         line.match(/\bcan(?:Override|Bypass|Skip|Exceed|Unlock|Force)[A-Z]\w*/) ||
@@ -263,7 +372,7 @@ const AUDIT_RULES = [
     id: 'HAND_ROLLED_AUTHORIZATION',
     name: 'Authorizations, Not Ad-hoc Supervisor Passwords',
     check: (content, line, lineNum, ext) => {
-      if (!CODE.includes(ext) || isComment(line)) return null;
+      if (!(CODE.includes(ext) || ext === '.kt') || isComment(line)) return null;
       const people = /(supervisor|gerente|autorizador|encargad[oa]|manager)/i;
       const secret = /(password|contrase(?:ñ|n)a|clave|\bpin\b)/i;
       if (people.test(line) && secret.test(line)) {
@@ -336,7 +445,8 @@ const AUDIT_RULES = [
       }
       return null;
     }
-  }
+  },
+  ...KOTLIN_RULES,
 ];
 
 export async function auditCommand(options = {}) {
@@ -348,7 +458,7 @@ export async function auditCommand(options = {}) {
   collectFiles(targetDir, filesToScan);
 
   if (filesToScan.length === 0) {
-    logger.warn('No hay archivos .vue, .tsx, .ts, o .jsx para auditar.');
+    logger.warn('No hay archivos .vue, .tsx, .ts, .jsx o .kt para auditar.');
     return;
   }
 
@@ -499,7 +609,7 @@ function shrinkBaseline(baseline, counts) {
 }
 
 function collectFiles(dir, fileList) {
-  const ignoreDirs = ['node_modules', '.git', 'dist', '.ai', '.next', '.nuxt', 'coverage'];
+  const ignoreDirs = ['node_modules', '.git', 'dist', '.ai', '.next', '.nuxt', 'coverage', 'build', '.gradle', '.kotlin', '.idea'];
   try {
     const entries = fs.readdirSync(dir, { withFileTypes: true });
     for (const entry of entries) {
@@ -510,7 +620,7 @@ function collectFiles(dir, fileList) {
         }
       } else if (entry.isFile()) {
         const ext = path.extname(entry.name);
-        if (['.vue', '.tsx', '.ts', '.jsx', '.js'].includes(ext) && !entry.name.endsWith('.d.ts')) {
+        if (['.vue', '.tsx', '.ts', '.jsx', '.js', '.kt'].includes(ext) && !entry.name.endsWith('.d.ts')) {
           fileList.push(fullPath);
         }
       }

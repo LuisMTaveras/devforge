@@ -2,6 +2,14 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { logger } from '../logger.js';
+import {
+  COMPOSE_DEPENDENCIES,
+  COMPOSE_MODULES,
+  detectAndroidPackage,
+  detectSourceRoot,
+  isValidPackage,
+  rewriteKotlinPackage,
+} from './compose-modules.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -324,6 +332,11 @@ export async function addCommand(moduleKeys, options = {}) {
     return;
   }
 
+  if (options.framework === 'compose') {
+    addComposeModules(keys, targetDir, options);
+    return;
+  }
+
   const ctx = { installed: options._installed || new Set(), skipped: [], missing: [], force: !!options.force };
   for (const key of keys) installModule(key, targetDir, ctx, options.framework);
 
@@ -393,4 +406,80 @@ function installModule(key, targetDir, ctx, framework) {
     fs.writeFileSync(destPath, content);
     logger.success(`${existed ? 'Updated' : 'Created'}: ${f.dest}`);
   });
+}
+
+/**
+ * `devforge add <module...> --compose [--package com.empresa.app] [--module app]`
+ * Installs the Kotlin / Jetpack Compose version of each module into an Android module.
+ */
+function addComposeModules(keys, targetDir, options) {
+  const unported = keys.filter(k => !COMPOSE_MODULES[k]);
+  if (unported.length) {
+    logger.error(`Sin versión Compose todavía: ${unported.join(', ')}.`);
+    console.log(`\nMódulos disponibles con --compose: ${Object.keys(COMPOSE_MODULES).join(', ')}`);
+    process.exitCode = 1;
+    return;
+  }
+  const moduleDir = options.module || 'app';
+  const pkg = options.package || detectAndroidPackage(fs, path, targetDir, moduleDir);
+  if (!isValidPackage(pkg)) {
+    logger.error(pkg
+      ? `Paquete inválido: '${pkg}'.`
+      : `No encontré el paquete de la app (namespace en ${moduleDir}/build.gradle.kts ni package en el AndroidManifest).`);
+    console.log('  Indícalo: devforge add <módulo> --compose --package com.empresa.app');
+    process.exitCode = 1;
+    return;
+  }
+  const sourceRoot = options.sourceDir || detectSourceRoot(fs, path, targetDir, moduleDir);
+  const base = path.join(sourceRoot, ...pkg.split('.'));
+  const ctx = { installed: new Set(), skipped: [], missing: [], deps: new Set(), force: !!options.force };
+
+  const install = key => {
+    if (ctx.installed.has(key)) return;
+    ctx.installed.add(key);
+    const mod = COMPOSE_MODULES[key];
+    for (const dep of mod.requires || []) {
+      if (!ctx.installed.has(dep)) logger.info(`'${key}' requiere '${dep}'.`);
+      install(dep);
+    }
+    (mod.deps || []).forEach(d => ctx.deps.add(d));
+    for (const f of mod.files) {
+      const srcPath = path.join(ROOT_DIR, f.src);
+      const dest = path.join(base, f.dest);
+      if (!fs.existsSync(srcPath)) {
+        ctx.missing.push(f.src);
+        continue;
+      }
+      const content = Buffer.from(rewriteKotlinPackage(fs.readFileSync(srcPath, 'utf8'), pkg), 'utf8');
+      const destPath = path.join(targetDir, dest);
+      const existed = fs.existsSync(destPath);
+      if (existed) {
+        if (fs.readFileSync(destPath).equals(content)) continue;
+        if (!ctx.force) {
+          ctx.skipped.push(dest);
+          continue;
+        }
+      }
+      fs.mkdirSync(path.dirname(destPath), { recursive: true });
+      fs.writeFileSync(destPath, content);
+      logger.success(`${existed ? 'Updated' : 'Created'}: ${dest}`);
+    }
+  };
+
+  logger.info(`Compose -> ${base} (paquete ${pkg})\n`);
+  keys.forEach(install);
+
+  if (ctx.missing.length) {
+    logger.error(`Package is incomplete, these source files are missing: ${ctx.missing.join(', ')}`);
+    process.exitCode = 1;
+  }
+  if (ctx.skipped.length) {
+    logger.warn(`Kept ${ctx.skipped.length} existing file(s) with local changes (re-run with --force to overwrite):`);
+    ctx.skipped.forEach(f => console.log(`  - ${f}`));
+  }
+  if (ctx.deps.size) {
+    logger.info('Dependencias de Gradle que necesitan estos módulos (usa la versión de tu catálogo libs.versions.toml):');
+    [...ctx.deps].forEach(d => console.log(`  - implementation("${COMPOSE_DEPENDENCIES[d]}:<versión>")`));
+  }
+  logger.success(`\nModule(s) ready to use (Compose): ${keys.join(', ')}`);
 }
