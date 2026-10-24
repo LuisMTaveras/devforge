@@ -1,248 +1,53 @@
-# ⚡ DEVFORGE
+# ⚡ DEVFORGE — la CLI
 
-> **The Universal Architecture & AI Orchestration Toolkit for Modern Developers**  
-> Compatible with **Claude Code**, **Cursor**, **Codex**, **Antigravity**, **GitHub Copilot**, and any AI coding assistant. Works seamlessly across **Vue 3**, **React**, and fullstack repositories.
+Este directorio es el paquete del comando `devforge`: los módulos que instala, las plantillas para los agentes, los blueprints, los estándares y la auditoría. La explicación completa (qué es DEVFORGE, los 11 mandamientos, capturas) está en el [README principal](../README.md).
 
----
-
-## 🚀 The Philosophy: Why DEVFORGE?
-
-AI models are only as good as the context, constraints, and blueprints you give them. Instead of constantly re-explaining your architecture, folder structures, design rules, and data contracts every time you switch repositories or open a new chat:
-
-1. **One Command Initialization**: `devforge init` deploys the Universal AI Context Layer into any repository in seconds.
-2. **Deterministic CLI Auditor**: `devforge audit` scans code in 1 second to catch hardcoded arrays, neon cyberpunk colors, and Spanglish automatically.
-3. **Interactive Discovery First**: Forces AI agents to calibrate developer level (Junior/Intermediate/Senior) and recommend the ideal stack before writing code.
-4. **Anti-AI Design Excellence**: Injects UI/UX Pro Max principles (60-30-10 palette, 4px/8px grid, soft-tint badges, no generic purple gradients, zero Spanglish).
-5. **Zero Hardcoded Data & Mandatory Pagination**: Mandates that 100% of data flow through typed services and reactive composables/hooks, always paginated, with zero over-fetching.
-6. **Automatic Localized Formatting**: Built-in formatters for currency, numbers, percentages, dates, relative time, and phone numbers, configured per country (`setFormatCountry('DO')`).
-7. **Light + Dark Themes by Default**: Every project ships Claro / Oscuro / Sistema themes with semantic design tokens and the "Warm Slate" palette (graphite in light, ivory in dark) (`devforge add theme`).
-8. **Authorizations & Notifications**: Risky acts are signed off when consummated (blueprint 08), never through exception permissions; persistent notices go to the bell (blueprint 09).
-9. **Standard UI Components**: Flickerless loading instead of skeletons, `SelectField`, `DateField` / `DateRangeFilter`, `ListPager`, system dialogs and toasts, `ModalShell` / `DrawerShell` / `RowMenu`, `EmptyState`, `MoneyInput` / `MaskedInput` and `BatchProgressModal` — the same in every project, Vue and React (`.ai/standards/ui-components.md`), and in Kotlin / Jetpack Compose for Android with `devforge add <module> --compose` (`.ai/standards/compose.md`).
-10. **Battle-Tested Blueprints**: High-leverage architectural patterns (OpenAPI SDK, Zod Schema forms, URL-synced tables, RBAC permissions, In-app devtools, Silent Refresh Auth, GraphQL Pagination, Authorizations and Notifications).
-
----
-
-## 📸 Screenshots
-
-Real screenshots of every UI module in light and dark themes (Vue and React look the same): see the [**«Cómo se ve» gallery** in the main README](../README.md#-cómo-se-ve) and the files in [`docs/screenshots/`](../docs/screenshots/).
-
----
-
-## 📦 What's Inside?
-
-```text
-your-project/
-├── .ai/                      # 🧠 Universal AI Brain
-│   ├── AGENTS.md             # For Antigravity, Gemini, OpenAI Codex
-│   ├── CLAUDE.md             # For Claude Code / Anthropic
-│   ├── .cursorrules          # For Cursor IDE
-│   ├── copilot-instructions  # For GitHub Copilot
-│   ├── blueprints/           # 📐 Production Architecture Recipes
-│   │   ├── 01-openapi-sdk.md
-│   │   ├── 02-schema-forms.md
-│   │   ├── 03-datagrid-url-sync.md
-│   │   ├── 04-rbac-matrix.md
-│   │   ├── 05-in-app-devtools.md
-│   │   ├── 06-auth-session.md
-│   │   ├── 07-graphql-pagination.md
-│   │   ├── 08-authorizations.md
-│   │   └── 09-notifications.md
-│   └── standards/            # Governance & Design System
-│       ├── project-kickoff.md     # Discovery interview & stack advisory
-│       ├── data-formatting.md     # Currency, numbers, dates, phone rules
-│       ├── theming.md             # Mandatory light + dark themes
-│       ├── module-api.md          # Exact module API (anti-hallucination)
-│       ├── ui-components.md       # Standard components and how to use each one
-│       ├── ui-ux-principles.md    # Anti-AI design & UI UX Pro Max rules
-│       ├── project-structure.md   # Greenfield folder & file hierarchy
-│       ├── architecture-standards # Domain-driven feature layout & pagination
-│       └── typescript-rules.md    # Strict types & Zod schemas
-├── .claude/commands/         # ⚡ Native Slash Commands (/kickoff, /devforge)
-└── .agents/skills/devforge/  # ⚡ Antigravity Native Skill
-```
-
----
-
-## 📐 The 9 Architectural Blueprints
-
-| # | Blueprint | What It Solves | Canonical Recipe |
-| :-: | :--- | :--- | :--- |
-| **01** | **OpenAPI / Swagger to SDK** | 100% type-safe API clients and hooks without manual interfaces. | `01-openapi-sdk.md` |
-| **02** | **Schema-Driven Forms (Zod)** | Reactive forms dynamically rendered and validated from a single schema. | `02-schema-forms.md` |
-| **03** | **Data-Grid + URL-State Sync** | TanStack tables bidirectional sync with URL query params (`?page=2&search=foo`). | `03-datagrid-url-sync.md` |
-| **04** | **Declarative RBAC / ABAC** | Clean CASL-style permissions (`<Can I="update" an="Invoice">`, `v-can`). | `04-rbac-matrix.md` |
-| **05** | **In-App DevTools Cockpit** | Floating dev bar to switch roles, simulate 3G latency, and inject 500/401 errors. | `05-in-app-devtools.md` |
-| **06** | **Enterprise Auth & Refresh Queue** | Silent token refresh queue preventing race conditions on parallel 401s. | `06-auth-session.md` |
-| **07** | **Strict Pagination & GraphQL Query Optimization** | Always paginated queries, fragment colocation, and zero over-fetching from DB. | `07-graphql-pagination.md` |
-| **08** | **Authorizations** | Sign-off when an act is consummated (catalog, policy, authorizers with limits, single-use grant, 403 challenge contract) instead of exception permissions. | `08-authorizations.md` |
-| **09** | **Notifications** | The bell: persistent inbox, emission rules, isolation, desktop alerts and web push; which channel for which message. | `09-notifications.md` |
-
----
-
-## 🛠️ CLI Commands & Quickstart
-
-### 1. Global Installation (Link once on your machine)
-
-From inside the `devforge` directory:
+## Instalación (una vez por máquina)
 
 ```bash
 pnpm install
-pnpm link --global   # first time: run `pnpm setup` and open a new terminal
+pnpm link --global      # la primera vez: `pnpm setup` y abre otra terminal
+devforge --version
 ```
 
-Now `devforge` is globally available anywhere in your terminal!
+El paquete de npm que se llama `devforge` es **otro proyecto**: nunca `npx devforge` ni `pnpm dlx devforge`.
 
-### 2. Initialize in ANY Repository
+## Comandos
 
-Navigate to any existing or new project (React, Vue, Node, Python, etc.):
+| Comando | Qué hace |
+| :--- | :--- |
+| `devforge init` | Contexto para agentes: `.ai/` (blueprints, estándares), `CLAUDE.md`, `AGENTS.md`, `.cursorrules`, Copilot, `/kickoff` y `/devforge`. Si ya tenías alguno de esos archivos, lo conserva y añade el bloque de DEVFORGE. |
+| `devforge add <módulo…>` | Instala módulos. Detecta Vue, React o Android (`--vue` / `--react` / `--compose` lo fuerzan). Nunca pisa lo que editaste (`--force` sí). |
+| `devforge status` | Qué está instalado, qué cambió, qué tiene versión nueva y qué falta conectar (`setFormatCountry`, `initTheme()`, `<ToastHost />`…). |
+| `devforge update` | Trae la versión nueva de lo instalado y repone lo que falta; conserva lo que editaste. |
+| `devforge audit` | Las reglas de DEVFORGE sobre `.vue`, `.tsx`, `.ts`, `.jsx`, `.js` y `.kt`. Código `1` si hay violaciones. `--baseline` para proyectos existentes. |
+| `devforge list` | Blueprints, estándares y módulos (los que también existen para Android). |
 
-```bash
-devforge init
-```
+Todo lo que instala queda en `.devforge/manifest.json` con el hash de cada archivo: así `add`, `status` y `update` saben si un archivo sigue igual al instalado (se puede actualizar) o lo editaste (se conserva).
 
-### 3. Audit Your Code for AI Rule Compliance
+La auditoría no revisa pruebas, mocks ni fixtures, ni lo que ignora `.gitignore`. Más exclusiones en `devforge.config.json` (`{ "audit": { "ignore": ["src/generated/**"] } }`); una línea concreta se justifica con `// devforge-ignore: <motivo>`.
 
-Runs an automated scan for hardcoded arrays, neon colors, Spanglish, single-theme colors, skeletons, native selects / date inputs / `window.confirm`, backdrop-closing modals, hardcoded currencies, hand-formatted dates, `@ts-nocheck`, exception permissions and supervisor-password prompts, errors flattened to `err.message`, and hand-made browser notifications. It exits with code `1` on violations, so CI can block them:
-
-```bash
-devforge audit
-devforge audit --baseline   # existing project: record today's debt; later runs fail only on NEW violations
-```
-
-The baseline (`.devforge-audit-baseline.json`) is per file and rule and can only shrink: each fix lowers it automatically.
-
-Example audit output:
+## Estructura del paquete
 
 ```text
-ℹ Auditing repository for DEVFORGE compliance in: C:\DEV\MiProyecto
-
-Archivos escaneados: 24
-Problemas encontrados: 2 en 1 archivo(s)
-
-  [1] src\modules\clientes\ClientesTable.vue:14 (Zero Hardcoded Data)
-      Detalle: Arreglo estático de datos incrustado en el componente.
-  [2] src\modules\clientes\ClientesTable.vue:42 (Zero-Spanglish)
-      Detalle: Palabra en inglés detectada en UI: 'Status'. Traducir al español.
-
-Puntuación de Salud Arquitectónica: 95%
+devforge/
+├── bin/devforge.js              # punto de entrada
+├── src/cli/                     # comandos (init, add, status, update, audit, list), registro y detección
+├── src/core/ · src/adapters/    # los módulos: núcleo TypeScript, Vue, React y Compose (Kotlin)
+├── src/vendor/flickerless/      # Flickerless
+├── src/ai-templates/            # CLAUDE.md, AGENTS.md, .cursorrules, Copilot y .ai/standards/
+├── src/blueprints/              # .ai/blueprints/
+├── src/slash-commands/          # /kickoff, /devforge y el skill de Antigravity
+├── test/                        # pnpm test
+└── compose-verify/              # compila y prueba la versión Kotlin (Gradle)
 ```
 
-### 4. List All Available Blueprints and Modules
+## Desarrollo
 
 ```bash
-devforge list
+pnpm test                                               # CLI, módulos TypeScript y coherencia de la documentación
+node compose-verify/install-modules.mjs                 # versión Kotlin: instala cada módulo por separado…
+gradle --project-dir compose-verify :core:test compileKotlin   # …y lo compila, con las pruebas del núcleo
 ```
 
-### 5. Inject Ready-to-Use Code Modules
-
-```bash
-# Injects authentication engine + silent refresh queue + auth.store.ts
-devforge add auth
-
-# Injects universal API error normalizer (Laravel/Express/FastAPI/NestJS)
-devforge add errors
-
-# Injects UTF-8 BOM CSV & Excel data export utility
-devforge add export
-
-# Injects localized currency, number, date, and phone formatters
-devforge add formatters
-
-# Injects light/dark theme engine, tokens.css and useTheme() (Vue & React)
-devforge add theme
-
-# Injects pure TypeScript RBAC engine + <Can /> (React) + v-can (Vue)
-devforge add rbac
-
-# Injects bidirectional URL query param synchronizer
-devforge add url-sync
-
-# Injects Flickerless (skeleton replacement): FlickerlessSurface, FlickerlessValue, FlickerlessTableShell (Vue & React)
-devforge add flickerless
-
-# Injects the standard combo, SelectField (Vue & React; replaces the native <select>)
-devforge add select --vue      # or --react
-
-# Injects DateField (form date), DateRangeFilter (listing period: Hoy, Ayer, Este mes… + rango) and DatePicker (free range), Vue & React
-devforge add dates --vue       # or --react
-
-# Injects ListPager (Vue & React): «Mostrando 11–20 de 57 facturas» + ‹ 2 / 6 ›
-devforge add pagination --vue  # or --react
-
-# Injects confirmDialog() / promptDialog() / notify() + <ConfirmDialog /> and <ToastHost />
-devforge add feedback --vue    # or --react
-
-# Injects ModalShell, DrawerShell and RowMenu (stacked Escape, scroll lock, backdrop never closes)
-devforge add overlays --vue    # or --react
-
-# Injects EmptyState and ListStaleNotice
-devforge add list-states --vue # or --react
-
-# Injects MoneyInput and MaskedInput (cédula, RNC, phone masked while typing)
-devforge add inputs --vue      # or --react
-
-# Injects BatchProgressModal + createBatchTracker() («Procesando 3 de 10…»)
-devforge add batch --vue       # or --react
-
-# Injects the 403 interceptor + AuthorizationDialog + AuthorizationAlerts (backend: blueprint 08)
-devforge add authorizations --vue  # or --react
-
-# Injects NotificationCenter: the bell, its inbox and desktop alerts (backend: blueprint 09)
-devforge add notifications --vue   # or --react
-```
-
-Modules install their dependencies (`dates` -> `theme` + `select`, `pagination` -> `theme` + `formatters` + `flickerless`, `inputs` -> `formatters`, `batch` -> `overlays` + `formatters`). `--vue` / `--react` installs only that framework's adapter files.
-
----
-
-## 🎨 UI/UX Pro Max & Governance Standards
-
-### 1. The Anti-AI Aesthetic Protocol
-
-- **Strictly Banned**: Saturated neon cyan/green accents (`cyan-*`, `teal-*`, `#00ff9d`), dark-teal sci-fi backgrounds, purple/indigo gradients, floating blur orbs, and emoji spam in headers.
-- **Light + Dark Themes (Mandatory)**: Every project ships both themes. Components use semantic tokens (`bg-background`, `bg-surface`, `text-foreground`, `border-border`) defined in `tokens.css`.
-- **The 60-30-10 Palette**: 60% pure neutral surfaces (white / zinc-50 on light, `zinc-950` / `zinc-900` on dark), 30% crisp typography hierarchy, and 10% functional accent for actions.
-- **Soft-Tint Badges**: Translucent 10% backgrounds (`bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20`), never eye-straining radioactive pills.
-
-### 2. Zero-Spanglish Rule
-
-If the project is in Spanish, 100% of UI text, headers, and statuses must be in natural Spanish:
-- `Close` ➔ `Cerrar`
-- `Save` ➔ `Guardar`
-- `Status` ➔ `Estado`
-- `Amount` ➔ `Monto`
-- `Flagged` ➔ `Observado`
-- `Settled` ➔ `Completado`
-- `Pending` ➔ `Pendiente`
-- `Reversed` ➔ `Revertido`
-
-### 3. Localized Data Formatters
-
-- **Country Preset**: República Dominicana by default (`es-DO`, `DOP`, `(809) 578-1234`); switch with `setFormatCountry('CO')`.
-- **Currency**: `formatCurrency(17870000)` ➔ `"RD$17,870,000.00"` (es-DO) or `"$ 17.870.000,00"` (es-CO).
-- **Numbers & Percentages**: `formatNumber(1234567.891)` ➔ `"1,234,567.89"` (es-DO) / `"1.234.567,89"` (es-CO); `formatPercent(0.125)` ➔ `"12.5%"`.
-- **Dates**: `formatDate(date, 'medium')` ➔ `"11 sept 2026, 07:51"` or `formatRelativeTime(date)` ➔ `"hace 5 minutos"`.
-- **Phone Numbers**: `formatPhoneNumber('8095781234', 'DO')` ➔ `"(809) 578-1234"`; with `'international'` ➔ `"+1 (809) 578-1234"`.
-- **Null Fallbacks**: Always render an em-dash `—` for empty data, never `"null"` or `"undefined"`.
-
-### 4. Mandatory Pagination & Zero Over-Fetching
-
-- **Banned**: Loading unpaginated collections (`SELECT *` or unrestricted `GET /items`).
-- **Required**: Pass server pagination parameters (`page`, `pageSize` or cursor `first`, `after`).
-- **GraphQL Field Selection**: Only query fields rendered in the template using fragment colocation.
-- **Smooth Page Transitions**: Use `placeholderData: (prev) => prev` to prevent layout flashing during page changes.
-
----
-
-## ⚡ Native Slash Commands
-
-Once `devforge init` is run in your repository, you can use native `/` commands across different AI tools:
-
-- **`/kickoff`**: Starts the discovery interview (developer experience calibration, stack advisory, country localization, and MVP scoping).
-- **`/devforge`**: Opens the architectural blueprint and UI/UX standard assistant.
-
----
-
-## 📄 License
-
-MIT © DEVFORGE Team. Built for elite developers.
+Al añadir o renombrar un módulo: regístralo en `src/cli/commands/add.js` (y en `compose-modules.js` si tiene versión Kotlin), documenta su API en `src/ai-templates/standards/module-api.md` y su fila en `../docs/modulos.md`. `test/coherence.test.ts` falla si falta alguno, o si las copias de la raíz del repositorio (`.ai/`, `CLAUDE.md`…) se separan de `src/ai-templates/`.

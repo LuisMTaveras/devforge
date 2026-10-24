@@ -1,79 +1,101 @@
 #!/usr/bin/env node
 
-import { initCommand } from '../src/cli/commands/init.js';
-import { listCommand } from '../src/cli/commands/list.js';
 import { addCommand } from '../src/cli/commands/add.js';
 import { auditCommand } from '../src/cli/commands/audit.js';
-import { logger } from '../src/cli/logger.js';
+import { initCommand } from '../src/cli/commands/init.js';
+import { listCommand } from '../src/cli/commands/list.js';
+import { statusCommand } from '../src/cli/commands/status.js';
+import { updateCommand } from '../src/cli/commands/update.js';
+import { cmd, logger, name } from '../src/cli/logger.js';
+import { VERSION } from '../src/cli/manifest.js';
 
 const args = process.argv.slice(2);
 const command = args[0] || 'help';
+const flag = f => args.includes(f);
+
+/** `--package com.x.app` o `--package=com.x.app`. */
+const VALUED = ['--package', '--module', '--source-dir'];
+function value(option) {
+  const eq = args.find(a => a.startsWith(`${option}=`));
+  if (eq) return eq.slice(option.length + 1);
+  const i = args.indexOf(option);
+  return i >= 0 ? args[i + 1] : undefined;
+}
+
+function help() {
+  logger.banner(VERSION);
+  console.log(`Uso:
+  devforge <comando> [opciones]
+
+Comandos:
+  ${name('init')}                 Instala el contexto para agentes (.ai/, CLAUDE.md, AGENTS.md, .cursorrules,
+                       Copilot, /kickoff y /devforge). No borra lo que ya tenías: añade su bloque.
+                       [--force] reemplaza un DEVFORGE anterior que editaste (deja copia .bak)
+  ${name('add <módulo…>')}        Instala módulos. El framework se detecta (Vue, React o Android);
+                       [--vue | --react | --compose] lo fuerza.
+                       [--force] reemplaza también los archivos que editaste
+                       Android: [--package com.empresa.app] [--module app] [--source-dir …]
+  ${name('status')}               Qué está instalado, qué cambió y qué falta conectar (setFormatCountry,
+                       initTheme, <ToastHost />…)
+  ${name('update')}               Trae la versión nueva de lo instalado; conserva lo que editaste
+  ${name('audit')}                Revisa el código contra las reglas de DEVFORGE (sale con 1 si hay violaciones)
+                       [--baseline] guarda la deuda actual; desde ahí solo fallan las nuevas
+  ${name('list')}                 Blueprints, estándares y módulos disponibles
+  ${name('help')}                 Esta ayuda          ${name('--version')}  La versión
+
+Ejemplos:
+  ${cmd('devforge init')}
+  ${cmd('devforge add formatters theme errors feedback overlays flickerless list-states')}
+  ${cmd('devforge add select dates pagination')}
+  ${cmd('devforge add formatters theme feedback --compose --package com.empresa.app')}
+  ${cmd('devforge status')}
+  ${cmd('devforge audit --baseline')}
+`);
+}
 
 async function main() {
   switch (command) {
-    case 'init': {
-      await initCommand();
+    case 'init':
+      await initCommand({ force: flag('--force') });
       break;
-    }
-    case 'list': {
+    case 'list':
       listCommand();
       break;
-    }
     case 'add': {
-      // devforge add formatters theme errors … --vue|--react|--compose [--package com.x.app] [--module app] [--force]
-      const valued = ['--package', '--module', '--source-dir'];
-      const value = name => {
-        const eq = args.find(a => a.startsWith(`${name}=`));
-        if (eq) return eq.slice(name.length + 1);
-        const i = args.indexOf(name);
-        return i >= 0 ? args[i + 1] : undefined;
-      };
-      const modules = args.slice(1).filter((a, i, rest) => !a.startsWith('--') && !valued.includes(rest[i - 1]));
-      const framework = args.includes('--vue') ? 'vue' : args.includes('--react') ? 'react' : args.includes('--compose') ? 'compose' : undefined;
+      const modules = args.slice(1).filter((a, i, rest) => !a.startsWith('--') && !VALUED.includes(rest[i - 1]));
+      const framework = flag('--vue') ? 'vue' : flag('--react') ? 'react' : flag('--compose') ? 'compose' : undefined;
       await addCommand(modules, {
         framework,
-        force: args.includes('--force'),
+        force: flag('--force'),
         package: value('--package'),
         module: value('--module'),
         sourceDir: value('--source-dir'),
       });
       break;
     }
-    case 'audit': {
-      await auditCommand({ baseline: args.includes('--baseline') });
+    case 'status':
+      await statusCommand();
       break;
-    }
+    case 'update':
+      await updateCommand();
+      break;
+    case 'audit':
+      await auditCommand({ baseline: flag('--baseline') });
+      break;
+    case '--version':
+    case '-v':
+    case 'version':
+      console.log(VERSION);
+      break;
     case 'help':
     case '--help':
     case '-h':
-    default: {
-      logger.banner();
-      console.log(`Usage:
-  devforge <command> [options]
-
-Commands:
-  \x1b[36minit\x1b[0m              Initialize DEVFORGE Universal AI Protocol & Blueprints in current repo
-  \x1b[36maudit\x1b[0m             Audit current repo for hardcoded data, neon classes, and Spanglish
-                    [--baseline] records today's debt; later runs fail only on new violations
-  \x1b[36mlist\x1b[0m              List all available architectural blueprints and modules
-  \x1b[36madd <module...>\x1b[0m  Inject one or more modules (--vue / --react; --force overwrites local edits)
-                    [--vue | --react] installs only that framework's adapter
-                    [--compose] Kotlin / Jetpack Compose (Android) version, into
-                    app/src/main/java/<package>/ (--package com.x.app, --module app)
-  \x1b[36mhelp\x1b[0m              Show this help screen
-
-Examples:
-  \x1b[32mdevforge init\x1b[0m
-  \x1b[32mdevforge audit\x1b[0m
-  \x1b[32mdevforge add auth\x1b[0m
-  \x1b[32mdevforge add formatters\x1b[0m
-  \x1b[32mdevforge add theme\x1b[0m
-  \x1b[32mdevforge add dates --vue\x1b[0m
-  \x1b[32mdevforge add pagination --vue\x1b[0m
-  \x1b[32mdevforge add formatters theme feedback overlays --compose\x1b[0m
-`);
+      help();
       break;
-    }
+    default:
+      logger.error(`Comando desconocido: '${command}'.`);
+      console.log(`  Comandos: init, add, status, update, audit, list, help. ${cmd('devforge help')} los explica.`);
+      process.exitCode = 1;
   }
 }
 

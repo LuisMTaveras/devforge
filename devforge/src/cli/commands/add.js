@@ -1,7 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { logger } from '../logger.js';
+import { FRAMEWORK_LABEL, detectFramework } from '../detect.js';
+import { cmd, logger, name } from '../logger.js';
+import { ROOT_DIR, finishInstall, installContext, posix, writeOwned } from '../manifest.js';
 import {
   COMPOSE_DEPENDENCIES,
   COMPOSE_MODULES,
@@ -10,10 +11,6 @@ import {
   isValidPackage,
   rewriteKotlinPackage,
 } from './compose-modules.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const ROOT_DIR = path.resolve(__dirname, '../../../');
 
 // Shared helpers of the standard components (installed next to them).
 const vueFile = f => ({ src: `src/adapters/vue/components/${f}`, dest: `src/shared/components/${f}`, framework: 'vue' });
@@ -27,9 +24,9 @@ const OVERLAY_HOOKS = [
   { src: 'src/adapters/react/hooks/useOverlay.ts', dest: 'src/shared/hooks/useOverlay.ts', framework: 'react' },
 ];
 
-const MODULE_REGISTRY = {
+export const MODULE_REGISTRY = {
   'auth': {
-    name: 'Authentication & Silent Refresh Queue Engine',
+    name: 'Sesión: token y cola de refresco silencioso (auth.store)',
     files: [
       { src: 'src/core/auth/auth-token.ts', dest: 'src/core/auth/auth-token.ts' },
       { src: 'src/core/auth/silent-refresh-queue.ts', dest: 'src/core/auth/silent-refresh-queue.ts' },
@@ -37,26 +34,26 @@ const MODULE_REGISTRY = {
     ]
   },
   'errors': {
-    name: 'Universal API Error Normalizer (Laravel/Express/FastAPI/Nest)',
+    name: 'normalizeApiError: el mensaje para el usuario de cualquier error del API (Laravel, Express, Nest, FastAPI)',
     files: [
       { src: 'src/core/errors/api-error.ts', dest: 'src/core/errors/api-error.ts' },
     ]
   },
   'export': {
-    name: 'CSV & Excel Export Engine with UTF-8 BOM',
+    name: 'Exportación CSV con BOM UTF-8 (para Excel tipado, usa excel)',
     files: [
       { src: 'src/core/export/export-engine.ts', dest: 'src/core/export/export-engine.ts' },
     ]
   },
   'formatters': {
-    name: 'Localized Data Formatters (Currency, Numbers, Percents, Dates, Phones, Fallbacks)',
+    name: 'Formateadores por país: moneda, números, porcentajes, fechas, teléfonos y «—»',
     files: [
       { src: 'src/core/formatters/formatters.ts', dest: 'src/core/formatters/formatters.ts' },
       { src: 'src/core/formatters/input-masks.ts', dest: 'src/core/formatters/input-masks.ts' },
     ]
   },
   'rbac': {
-    name: 'RBAC / ABAC Permissions Engine',
+    name: 'Permisos (RBAC / ABAC): Ability, <Can /> y v-can',
     files: [
       { src: 'src/core/permissions/ability.ts', dest: 'src/core/permissions/ability.ts' },
       { src: 'src/adapters/react/Can.tsx', dest: 'src/shared/components/Can.tsx', framework: 'react' },
@@ -64,7 +61,7 @@ const MODULE_REGISTRY = {
     ]
   },
   'theme': {
-    name: 'Light / Dark Theme Engine (Tokens, Vue & React hooks, no-flash script)',
+    name: 'Tema Claro / Oscuro / Sistema: tokens Warm Slate, initTheme() y script anti-parpadeo',
     files: [
       { src: 'src/core/theme/theme.ts', dest: 'src/core/theme/theme.ts' },
       { src: 'src/core/theme/tokens.css', dest: 'src/shared/styles/tokens.css' },
@@ -73,7 +70,7 @@ const MODULE_REGISTRY = {
     ]
   },
   'flickerless': {
-    name: 'Flickerless: carga sin skeleton (superficie que conserva, «—» hasta saber)',
+    name: 'Flickerless: lo que había se conserva al recargar y lo que no se sabe es «—»',
     files: [
       ...['types.ts', 'controller.ts', 'query.ts', 'index.ts', 'styles.css'].map(f => ({
         src: `src/vendor/flickerless/core/${f}`, dest: `src/shared/flickerless/core/${f}`,
@@ -91,7 +88,7 @@ const MODULE_REGISTRY = {
     ]
   },
   'select': {
-    name: 'SelectField: combo estándar que reemplaza al <select> nativo (Vue & React)',
+    name: 'SelectField: combo estándar que reemplaza al <select> nativo (Vue y React)',
     requires: ['theme'],
     files: [
       { src: 'src/adapters/vue/components/SelectField.vue', dest: 'src/shared/components/SelectField.vue', framework: 'vue' },
@@ -100,7 +97,7 @@ const MODULE_REGISTRY = {
     ]
   },
   'dates': {
-    name: 'DateField + DateRangeFilter + DatePicker: campo de fecha, filtro de período y rango (Vue & React)',
+    name: 'DateField + DateRangeFilter + DatePicker: campo de fecha, filtro de período y rango (Vue y React)',
     requires: ['theme', 'select'],
     files: [
       { src: 'src/core/dates/date-range.ts', dest: 'src/core/dates/date-range.ts' },
@@ -114,7 +111,7 @@ const MODULE_REGISTRY = {
     ]
   },
   'pagination': {
-    name: 'ListPager: pie de listado paginado («Mostrando 11–20 de 57» + ‹ 2 / 6 ›) (Vue & React)',
+    name: 'ListPager: pie de listado paginado («Mostrando 11–20 de 57» + ‹ 2 / 6 ›) (Vue y React)',
     requires: ['theme', 'formatters', 'flickerless'],
     files: [
       { src: 'src/core/pagination/pagination.ts', dest: 'src/core/pagination/pagination.ts' },
@@ -124,7 +121,7 @@ const MODULE_REGISTRY = {
     ]
   },
   'feedback': {
-    name: 'ConfirmDialog + ToastHost: alertDialog / confirmDialog / promptDialog y notify (Vue & React)',
+    name: 'ConfirmDialog + ToastHost: alertDialog / confirmDialog / promptDialog y notify (Vue y React)',
     requires: ['theme'],
     files: [
       coreFile('feedback/dialog.ts'),
@@ -140,7 +137,7 @@ const MODULE_REGISTRY = {
     ]
   },
   'overlays': {
-    name: 'ModalShell + DrawerShell + RowMenu: capas con Escape apilado y bloqueo de scroll (Vue & React)',
+    name: 'ModalShell + DrawerShell + RowMenu: capas con Escape apilado y bloqueo de scroll (Vue y React)',
     requires: ['theme'],
     files: [
       ...OVERLAY_CORE,
@@ -157,7 +154,7 @@ const MODULE_REGISTRY = {
     ]
   },
   'list-states': {
-    name: 'EmptyState + ListStaleNotice: lista vacía con acción y aviso de cambios (Vue & React)',
+    name: 'EmptyState + ListStaleNotice: lista vacía con acción y aviso de cambios (Vue y React)',
     requires: ['theme'],
     files: [
       ...ICONS_VUE,
@@ -169,7 +166,7 @@ const MODULE_REGISTRY = {
     ]
   },
   'inputs': {
-    name: 'MoneyInput + MaskedInput: monto, cédula, RNC y teléfono enmascarados al escribir (Vue & React)',
+    name: 'MoneyInput + MaskedInput: monto, cédula, RNC y teléfono enmascarados al escribir (Vue y React)',
     requires: ['theme', 'formatters'],
     files: [
       ...ICONS_REACT.filter(f => f.dest.endsWith('usePopover.ts')),
@@ -180,7 +177,7 @@ const MODULE_REGISTRY = {
     ]
   },
   'batch': {
-    name: 'BatchProgressModal: avance en vivo de un lote («3 de 10 · Cliente») (Vue & React)',
+    name: 'BatchProgressModal: avance en vivo de un lote («3 de 10 · Cliente») (Vue y React)',
     requires: ['overlays', 'formatters'],
     files: [
       coreFile('batch/batch-progress.ts'),
@@ -189,7 +186,7 @@ const MODULE_REGISTRY = {
     ]
   },
   'authorizations': {
-    name: 'Autorizaciones: interceptor del 403, AuthorizationDialog y AuthorizationAlerts (Vue & React; backend: blueprint 08)',
+    name: 'Autorizaciones: interceptor del 403, AuthorizationDialog y AuthorizationAlerts (Vue y React; backend: blueprint 08)',
     requires: ['theme', 'formatters', 'errors', 'feedback'],
     files: [
       coreFile('authorizations/authorization.ts'),
@@ -200,7 +197,7 @@ const MODULE_REGISTRY = {
     ]
   },
   'notifications': {
-    name: 'NotificationCenter: la campana con su bandeja y avisos de escritorio (Vue & React; backend: blueprint 09)',
+    name: 'NotificationCenter: la campana con su bandeja y avisos de escritorio (Vue y React; backend: blueprint 09)',
     requires: ['theme', 'formatters', 'flickerless', 'feedback'],
     files: [
       coreFile('notifications/notifications.ts'),
@@ -209,7 +206,7 @@ const MODULE_REGISTRY = {
     ]
   },
   'shells': {
-    name: 'CardShell, DetailShell, TableStates: carga en frío y estados de tabla sin skeleton (Vue & React)',
+    name: 'CardShell, DetailShell, TableStates: carga en frío con la forma real y estados de tabla (Vue y React)',
     requires: ['theme', 'flickerless'],
     files: [
       ...ICONS_VUE,
@@ -223,7 +220,7 @@ const MODULE_REGISTRY = {
     ]
   },
   'list-toolbar': {
-    name: 'ListToolbar, ListTabs, SearchInput, HistoryPeriodFilter: la barra estándar de un listado (Vue & React)',
+    name: 'ListToolbar, ListTabs, SearchInput, HistoryPeriodFilter: la barra estándar de un listado (Vue y React)',
     requires: ['theme', 'formatters', 'flickerless', 'dates'],
     files: [
       ...ICONS_VUE,
@@ -239,7 +236,7 @@ const MODULE_REGISTRY = {
     ]
   },
   'list-cache': {
-    name: 'useCachedList + createTabCache: listas que se conservan al navegar y parchean lo que cambiaste (Vue & React)',
+    name: 'useCachedList + createTabCache: listas que se conservan al navegar y parchean lo que cambiaste (Vue y React)',
     requires: ['list-states'],
     files: [
       coreFile('list-cache/document-changes.ts'),
@@ -253,7 +250,7 @@ const MODULE_REGISTRY = {
     files: [coreFile('export/download.ts'), coreFile('export/excel-report.ts')]
   },
   'pickers': {
-    name: 'RecordPickerModal: elegir cliente / artículo buscando en el servidor (Vue & React)',
+    name: 'RecordPickerModal: elegir cliente / artículo buscando en el servidor (Vue y React)',
     requires: ['theme', 'overlays', 'list-states', 'errors', 'flickerless'],
     files: [
       ...ICONS_VUE,
@@ -268,7 +265,7 @@ const MODULE_REGISTRY = {
     ]
   },
   'command-palette': {
-    name: 'CommandPalette (⌘K): pantallas en el navegador y registros en el servidor (Vue & React)',
+    name: 'CommandPalette (⌘K): pantallas en el navegador y registros en el servidor (Vue y React)',
     requires: ['theme', 'overlays', 'list-states', 'errors'],
     files: [
       ...ICONS_VUE,
@@ -284,7 +281,7 @@ const MODULE_REGISTRY = {
     ]
   },
   'documents': {
-    name: 'DocumentPreviewModal + openPdfInNewTab: ver, imprimir y descargar documentos con la sesión (Vue & React)',
+    name: 'DocumentPreviewModal + openPdfInNewTab: ver, imprimir y descargar documentos con la sesión (Vue y React)',
     requires: ['theme', 'overlays', 'feedback', 'errors'],
     files: [
       ...ICONS_VUE,
@@ -300,7 +297,7 @@ const MODULE_REGISTRY = {
     files: [coreFile('app-update/app-update.ts')]
   },
   'field-help': {
-    name: 'FieldHelp: la ayuda «?» de un campo que también funciona en táctil (Vue & React)',
+    name: 'FieldHelp: la ayuda «?» de un campo que también funciona en táctil (Vue y React)',
     requires: ['theme'],
     files: [...ICONS_VUE, ...ICONS_REACT, vueFile('FieldHelp.vue'), reactFile('FieldHelp.tsx')]
   },
@@ -309,50 +306,52 @@ const MODULE_REGISTRY = {
     files: [coreFile('security/escape-html.ts'), coreFile('security/safe-url.ts'), coreFile('security/sanitize-css.ts')]
   },
   'url-sync': {
-    name: 'URL Search Params Synchronizer',
+    name: 'Filtros y página sincronizados con la URL',
     files: [
       { src: 'src/core/url-sync/url-state.ts', dest: 'src/core/url-sync/url-state.ts' },
     ]
   }
 };
 
+/**
+ * `devforge add <módulo…> [--vue | --react | --compose] [--force]`
+ * Sin bandera, el framework se detecta (package.json / proyecto Android) y solo se instalan sus archivos.
+ */
 export async function addCommand(moduleKeys, options = {}) {
-  logger.banner();
   const targetDir = options.cwd || process.cwd();
-  const keys = (Array.isArray(moduleKeys) ? moduleKeys : [moduleKeys]).filter(Boolean).map(k => k.toLowerCase());
+  const keys = [...new Set((Array.isArray(moduleKeys) ? moduleKeys : [moduleKeys]).filter(Boolean).map(k => k.toLowerCase()))];
   const unknown = keys.filter(k => !MODULE_REGISTRY[k]);
 
   if (!keys.length || unknown.length) {
-    logger.error(keys.length ? `Module(s) not recognized: ${unknown.join(', ')}` : 'Name at least one module.');
-    console.log('\nAvailable modules to add:');
-    Object.keys(MODULE_REGISTRY).forEach(k => {
-      console.log(`  - \x1b[36m${k}\x1b[0m: ${MODULE_REGISTRY[k].name}`);
-    });
+    logger.error(keys.length ? `Módulo(s) que no existen: ${unknown.join(', ')}` : 'Indica al menos un módulo.');
+    console.log(`\nMódulos disponibles (${cmd('devforge list')} los describe):`);
+    console.log(`  ${Object.keys(MODULE_REGISTRY).join(', ')}`);
     process.exitCode = 1;
     return;
   }
 
-  if (options.framework === 'compose') {
-    addComposeModules(keys, targetDir, options);
-    return;
+  let framework = options.framework;
+  if (!framework) {
+    const detected = detectFramework(targetDir);
+    framework = detected.framework || undefined;
+    if (framework) {
+      logger.info(`Detecté ${FRAMEWORK_LABEL[framework]} (${detected.reason}): instalo solo sus archivos. Cámbialo con --vue, --react o --compose.`);
+    } else if (!options.quiet) {
+      logger.warn(`No detecté el framework (${detected.reason}): instalo Vue y React. Usa --vue o --react para instalar solo uno.`);
+    }
   }
 
-  const ctx = { installed: options._installed || new Set(), skipped: [], missing: [], force: !!options.force };
-  for (const key of keys) installModule(key, targetDir, ctx, options.framework);
+  if (framework === 'compose') return addComposeModules(keys, targetDir, options);
 
-  if (ctx.missing.length) {
-    logger.error(`Package is incomplete, these source files are missing: ${ctx.missing.join(', ')}`);
-    process.exitCode = 1;
-  }
-  if (ctx.skipped.length) {
-    logger.warn(`Kept ${ctx.skipped.length} existing file(s) with local changes (re-run with --force to overwrite):`);
-    ctx.skipped.forEach(f => console.log(`  - ${f}`));
-  }
-  logger.success(`\nModule(s) ready to use: ${keys.join(', ')}`);
+  const ctx = installContext(targetDir, { force: !!options.force });
+  const installed = new Set();
+  for (const key of keys) installModule(key, ctx, framework, installed, options);
+  finishInstall(ctx, logger);
+  if (!process.exitCode) logger.success(`Listo: ${keys.join(', ')}${framework ? ` (${FRAMEWORK_LABEL[framework]})` : ''}`);
 }
 
 /** Rewrites source-package imports to the `@/` alias used in the target project. */
-function rewriteImports(content) {
+export function rewriteImports(content) {
   return content
     // ../../vendor/flickerless/vue/index.js -> @/shared/flickerless/vue
     .replace(/from '(?:\.\.\/)+vendor\/flickerless\/([^']+?)(?:\/index)?\.js'/g, "from '@/shared/flickerless/$1'")
@@ -364,53 +363,45 @@ function rewriteImports(content) {
     .replace(/from '(\.\.?\/[^']+)\.(?:js|ts)'/g, "from '$1'");
 }
 
-function installModule(key, targetDir, ctx, framework) {
-  const { installed } = ctx;
+/** El contenido que DEVFORGE instala para un archivo de un módulo web. */
+export function webContent(src) {
+  const srcPath = path.join(ROOT_DIR, src);
+  return /\.(ts|tsx|vue)$/.test(srcPath)
+    ? Buffer.from(rewriteImports(fs.readFileSync(srcPath, 'utf8')), 'utf8')
+    : fs.readFileSync(srcPath);
+}
+
+function installModule(key, ctx, framework, installed, options) {
   if (installed.has(key)) return;
   installed.add(key);
   const mod = MODULE_REGISTRY[key];
 
   for (const dep of mod.requires || []) {
-    if (!installed.has(dep)) {
-      logger.info(`'${key}' requires '${dep}'.`);
-      installModule(dep, targetDir, ctx, framework);
-    }
+    if (!installed.has(dep)) logger.info(`'${key}' necesita '${dep}'.`);
+    installModule(dep, ctx, framework, installed, options);
   }
 
-  logger.info(`Injecting ${mod.name} into ${targetDir}...\n`);
-
-  mod.files.forEach(f => {
-    if (framework && f.framework && f.framework !== framework) return;
-    const srcPath = path.join(ROOT_DIR, f.src);
-    const destPath = path.join(targetDir, f.dest);
-
-    if (!fs.existsSync(srcPath)) {
+  for (const f of mod.files) {
+    if (framework && f.framework && f.framework !== framework) continue;
+    if (!fs.existsSync(path.join(ROOT_DIR, f.src))) {
       ctx.missing.push(f.src);
-      return;
+      continue;
     }
-    // Source modules use relative imports so this package typechecks on its own.
-    // In the target project they live elsewhere, so rewrite them to the `@/` alias
-    // mandated by .ai/standards/project-structure.md.
-    const content = /\.(ts|tsx|vue)$/.test(srcPath)
-      ? Buffer.from(rewriteImports(fs.readFileSync(srcPath, 'utf8')), 'utf8')
-      : fs.readFileSync(srcPath);
-    const existed = fs.existsSync(destPath);
-    if (existed) {
-      if (fs.readFileSync(destPath).equals(content)) return; // already up to date
-      if (!ctx.force) {
-        ctx.skipped.push(f.dest);
-        return;
-      }
-    }
-    fs.mkdirSync(path.dirname(destPath), { recursive: true });
-    fs.writeFileSync(destPath, content);
-    logger.success(`${existed ? 'Updated' : 'Created'}: ${f.dest}`);
-  });
+    // Source modules use relative imports so this package typechecks on its own. In the target
+    // project they live elsewhere, so they are rewritten to the `@/` alias (project-structure.md).
+    writeOwned(ctx, f.dest, webContent(f.src), { module: key, src: f.src, transform: 'web' });
+  }
+  ctx.manifest.modules[key] = { framework: framework || 'vue+react' };
+}
+
+/** El contenido Kotlin de un archivo, con el paquete de la app. */
+export function kotlinContent(src, pkg) {
+  return Buffer.from(rewriteKotlinPackage(fs.readFileSync(path.join(ROOT_DIR, src), 'utf8'), pkg), 'utf8');
 }
 
 /**
- * `devforge add <module...> --compose [--package com.empresa.app] [--module app]`
- * Installs the Kotlin / Jetpack Compose version of each module into an Android module.
+ * `devforge add <módulo…> --compose [--package com.empresa.app] [--module app] [--source-dir …]`
+ * La versión Kotlin / Jetpack Compose de cada módulo, dentro del módulo Android.
  */
 function addComposeModules(keys, targetDir, options) {
   const unported = keys.filter(k => !COMPOSE_MODULES[k]);
@@ -420,66 +411,49 @@ function addComposeModules(keys, targetDir, options) {
     process.exitCode = 1;
     return;
   }
-  const moduleDir = options.module || 'app';
-  const pkg = options.package || detectAndroidPackage(fs, path, targetDir, moduleDir);
+  const ctx = installContext(targetDir, { force: !!options.force });
+  const saved = ctx.manifest.compose || {};
+  const moduleDir = options.module || saved.module || 'app';
+  const pkg = options.package || saved.package || detectAndroidPackage(fs, path, targetDir, moduleDir);
   if (!isValidPackage(pkg)) {
     logger.error(pkg
       ? `Paquete inválido: '${pkg}'.`
       : `No encontré el paquete de la app (namespace en ${moduleDir}/build.gradle.kts ni package en el AndroidManifest).`);
-    console.log('  Indícalo: devforge add <módulo> --compose --package com.empresa.app');
+    console.log(`  Indícalo: ${cmd('devforge add <módulo> --compose --package com.empresa.app')}`);
     process.exitCode = 1;
     return;
   }
-  const sourceRoot = options.sourceDir || detectSourceRoot(fs, path, targetDir, moduleDir);
-  const base = path.join(sourceRoot, ...pkg.split('.'));
-  const ctx = { installed: new Set(), skipped: [], missing: [], deps: new Set(), force: !!options.force };
+  const sourceDir = options.sourceDir || saved.sourceDir || detectSourceRoot(fs, path, targetDir, moduleDir);
+  const base = path.join(sourceDir, ...pkg.split('.'));
+  ctx.manifest.compose = { package: pkg, module: moduleDir, sourceDir: posix(sourceDir) };
+  const deps = new Set();
+  const installed = new Set();
 
   const install = key => {
-    if (ctx.installed.has(key)) return;
-    ctx.installed.add(key);
+    if (installed.has(key)) return;
+    installed.add(key);
     const mod = COMPOSE_MODULES[key];
     for (const dep of mod.requires || []) {
-      if (!ctx.installed.has(dep)) logger.info(`'${key}' requiere '${dep}'.`);
+      if (!installed.has(dep)) logger.info(`'${key}' necesita '${dep}'.`);
       install(dep);
     }
-    (mod.deps || []).forEach(d => ctx.deps.add(d));
+    (mod.deps || []).forEach(d => deps.add(d));
     for (const f of mod.files) {
-      const srcPath = path.join(ROOT_DIR, f.src);
-      const dest = path.join(base, f.dest);
-      if (!fs.existsSync(srcPath)) {
+      if (!fs.existsSync(path.join(ROOT_DIR, f.src))) {
         ctx.missing.push(f.src);
         continue;
       }
-      const content = Buffer.from(rewriteKotlinPackage(fs.readFileSync(srcPath, 'utf8'), pkg), 'utf8');
-      const destPath = path.join(targetDir, dest);
-      const existed = fs.existsSync(destPath);
-      if (existed) {
-        if (fs.readFileSync(destPath).equals(content)) continue;
-        if (!ctx.force) {
-          ctx.skipped.push(dest);
-          continue;
-        }
-      }
-      fs.mkdirSync(path.dirname(destPath), { recursive: true });
-      fs.writeFileSync(destPath, content);
-      logger.success(`${existed ? 'Updated' : 'Created'}: ${dest}`);
+      writeOwned(ctx, path.join(base, f.dest), kotlinContent(f.src, pkg), { module: key, src: f.src, transform: 'kotlin' });
     }
+    ctx.manifest.modules[key] = { framework: 'compose' };
   };
 
-  logger.info(`Compose -> ${base} (paquete ${pkg})\n`);
+  logger.info(`Compose -> ${posix(base)} (paquete ${name(pkg)})`);
   keys.forEach(install);
-
-  if (ctx.missing.length) {
-    logger.error(`Package is incomplete, these source files are missing: ${ctx.missing.join(', ')}`);
-    process.exitCode = 1;
+  finishInstall(ctx, logger);
+  if (deps.size) {
+    logger.info('Dependencias de Gradle que necesitan estos módulos (con la versión de tu gradle/libs.versions.toml):');
+    [...deps].forEach(d => console.log(`  - implementation("${COMPOSE_DEPENDENCIES[d]}:<versión>")`));
   }
-  if (ctx.skipped.length) {
-    logger.warn(`Kept ${ctx.skipped.length} existing file(s) with local changes (re-run with --force to overwrite):`);
-    ctx.skipped.forEach(f => console.log(`  - ${f}`));
-  }
-  if (ctx.deps.size) {
-    logger.info('Dependencias de Gradle que necesitan estos módulos (usa la versión de tu catálogo libs.versions.toml):');
-    [...ctx.deps].forEach(d => console.log(`  - implementation("${COMPOSE_DEPENDENCIES[d]}:<versión>")`));
-  }
-  logger.success(`\nModule(s) ready to use (Compose): ${keys.join(', ')}`);
+  if (!process.exitCode) logger.success(`Listo (Compose): ${keys.join(', ')}`);
 }

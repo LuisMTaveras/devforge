@@ -17,188 +17,42 @@
 Los modelos de IA generativa suelen ser inconsistentes: inventan estructuras de carpetas, incrustan listas de datos falsos (*mock data*) directamente en los componentes, usan colores neón poco profesionales, mezclan inglés y español en la interfaz (*Spanglish*) y realizan consultas a bases de datos sin paginación.
 
 **DEVFORGE resuelve esto de raíz proporcionando:**
-1. **Un CLI determinista**: Comandos instantáneos para inicializar proyectos (`devforge init`), inyectar módulos de arquitectura (`devforge add <modulo...>`, varios a la vez; no pisa archivos que modificaste salvo con `--force`) y auditar el código fuente en 1 segundo (`devforge audit`).
+1. **Un CLI determinista**: inicializa proyectos sin borrar lo que ya tenían (`devforge init`), instala módulos detectando el framework (`devforge add <módulo…>`; nunca pisa lo que editaste), dice qué está instalado y qué falta conectar (`devforge status`), actualiza (`devforge update`) y audita el código en un segundo (`devforge audit`).
 2. **Capa Multi-Agente Universal**: Archivos de contexto y configuración nativos para Antigravity (`AGENTS.md`, `.agents/skills/`), Claude Code (`CLAUDE.md`, `.claude/commands/`), Cursor (`.cursorrules`) y Copilot (`.github/copilot-instructions.md`).
-3. **9 Blueprints de Producción**: Recetas de arquitectura probadas en batalla (OpenAPI SDK, Formularios Zod, Tablas sincronizadas con URL, RBAC CASL, In-App DevTools, Auth Silent Refresh, GraphQL Pagination, Autorizaciones y Notificaciones).
+3. **16 Blueprints de Producción**: Recetas de arquitectura probadas en batalla (OpenAPI SDK, formularios Zod, tablas sincronizadas con la URL, RBAC, DevTools, sesión con refresco silencioso, paginación GraphQL, autorizaciones, notificaciones, reportes Excel, historial y entrega de documentos, límites de peticiones, idempotencia, sesiones y sockets).
 4. **Estándares de Diseño y Gobernanza**: Reglas estrictas de UI/UX Pro Max, paleta «Warm Slate» (grafito en claro, marfil en oscuro), tipografía moderna, formateo localizado de datos y cero Spanglish.
 5. **Componentes UI estándar (Vue, React y Android / Jetpack Compose)**: Flickerless en lugar de skeletons, combo `SelectField`, fechas `DateField` / `DateRangeFilter`, paginación `ListPager`, diálogos y avisos, modales, menú de fila, estados de lista, campos de monto y cédula, y avance de lotes, iguales en todos los proyectos.
 
 ---
 
-## 📸 Cómo se ve
-
-Capturas reales de los módulos instalados con `devforge add` en un proyecto Vue 3 + Tailwind v4, en tema **Claro** y **Oscuro**. La versión React es idéntica (mismas clases y mismos tokens). Las reglas de uso de cada pieza están en `.ai/standards/ui-components.md`.
-
-### Listado: filtro de período, aviso de cambios, menú de fila y paginación
-
-`DateRangeFilter`, `ListStaleNotice`, `RowMenu`, `ListPager` y Flickerless («—» en lo que aún no se sabe). — `devforge add dates` · `devforge add list-states` · `devforge add overlays` · `devforge add pagination` · `devforge add flickerless`
-
-| Claro | Oscuro |
-| :---: | :---: |
-| ![Listado: filtro de período, aviso de cambios, menú de fila y paginación — tema claro](docs/screenshots/listado-light.png) | ![Listado: filtro de período, aviso de cambios, menú de fila y paginación — tema oscuro](docs/screenshots/listado-dark.png) |
-
-### Menú ⋮ de una fila
-
-Vive fuera de la tabla (no se recorta), abre hacia arriba si no cabe y muestra apagada la acción no disponible con su motivo. — `devforge add overlays`
-
-| Claro | Oscuro |
-| :---: | :---: |
-| ![Menú ⋮ de una fila — tema claro](docs/screenshots/menu-fila-light.png) | ![Menú ⋮ de una fila — tema oscuro](docs/screenshots/menu-fila-dark.png) |
-
-### Combo `SelectField`
-
-Reemplaza al `<select>` nativo: sigue el tema, no se recorta en modales y se maneja con el teclado. — `devforge add select`
-
-| Claro | Oscuro |
-| :---: | :---: |
-| ![Combo `SelectField` — tema claro](docs/screenshots/filtro-periodo-light.png) | ![Combo `SelectField` — tema oscuro](docs/screenshots/filtro-periodo-dark.png) |
-
-### Campo de fecha `DateField`
-
-La fecha de un formulario: rótulo dentro del campo, `dd/mm/aaaa`, días pasados apagados con `min` y «Hoy» en la hora de RD. — `devforge add dates`
-
-| Claro | Oscuro |
-| :---: | :---: |
-| ![Campo de fecha `DateField` — tema claro](docs/screenshots/campo-fecha-light.png) | ![Campo de fecha `DateField` — tema oscuro](docs/screenshots/campo-fecha-dark.png) |
-
-### Rango de fechas
-
-«Rango personalizado» del filtro: dos meses lado a lado y previsualización del rango al pasar el cursor. — `devforge add dates`
-
-| Claro | Oscuro |
-| :---: | :---: |
-| ![Rango de fechas — tema claro](docs/screenshots/rango-fechas-light.png) | ![Rango de fechas — tema oscuro](docs/screenshots/rango-fechas-dark.png) |
-
-### Diálogo del sistema
-
-`confirmDialog()` en lugar de `window.confirm`, aquí encima de un modal: tono destructivo y foco en «Cancelar». Escape cierra solo la capa de arriba. — `devforge add feedback` · `devforge add overlays`
-
-| Claro | Oscuro |
-| :---: | :---: |
-| ![Diálogo del sistema — tema claro](docs/screenshots/dialogo-confirmar-light.png) | ![Diálogo del sistema — tema oscuro](docs/screenshots/dialogo-confirmar-dark.png) |
-
-### Monto, cédula y estado vacío
-
-`MoneyInput` (el valor es un número) y `MaskedInput` (cédula, teléfono, RNC / cédula mientras se escribe); `EmptyState` con su acción. — `devforge add inputs` · `devforge add list-states`
-
-| Claro | Oscuro |
-| :---: | :---: |
-| ![Monto, cédula y estado vacío — tema claro](docs/screenshots/campos-y-vacio-light.png) | ![Monto, cédula y estado vacío — tema oscuro](docs/screenshots/campos-y-vacio-dark.png) |
-
-### Avance de un lote
-
-`BatchProgressModal`: «Procesando 3 de 10…», barra y el resultado de cada registro con su motivo. — `devforge add batch`
-
-| Claro | Oscuro |
-| :---: | :---: |
-| ![Avance de un lote — tema claro](docs/screenshots/lote-light.png) | ![Avance de un lote — tema oscuro](docs/screenshots/lote-dark.png) |
-
-### Autorización: quien pide
-
-El servidor respondió 403 `AUTHORIZATION_REQUIRED`: el modal pide la contraseña propia (o la de otra persona) y el motivo, y la pantalla sigue sola al obtener la llave. — `devforge add authorizations`
-
-| Claro | Oscuro |
-| :---: | :---: |
-| ![Autorización: quien pide — tema claro](docs/screenshots/autorizacion-light.png) | ![Autorización: quien pide — tema oscuro](docs/screenshots/autorizacion-dark.png) |
-
-### Autorización: esperando la firma
-
-Solicitud a distancia: la operación continúa sola cuando alguien aprueba. — `devforge add authorizations`
-
-| Claro | Oscuro |
-| :---: | :---: |
-| ![Autorización: esperando la firma — tema claro](docs/screenshots/autorizacion-espera-light.png) | ![Autorización: esperando la firma — tema oscuro](docs/screenshots/autorizacion-espera-dark.png) |
-
-### Autorización: quien firma
-
-`AuthorizationAlerts`: la tarjeta en vivo con cuenta regresiva, resuelta ahí mismo. — `devforge add authorizations`
-
-| Claro | Oscuro |
-| :---: | :---: |
-| ![Autorización: quien firma — tema claro](docs/screenshots/autorizacion-firmante-light.png) | ![Autorización: quien firma — tema oscuro](docs/screenshots/autorizacion-firmante-dark.png) |
-
-### La campana
-
-`NotificationCenter`: contador real, filtros, agrupada por día en la hora del negocio y avisos de escritorio activados con un clic. — `devforge add notifications`
-
-| Claro | Oscuro |
-| :---: | :---: |
-| ![La campana — tema claro](docs/screenshots/campana-light.png) | ![La campana — tema oscuro](docs/screenshots/campana-dark.png) |
-
-### Barra de listado
-
-`ListToolbar` con `ListTabs` (conteo del servidor; «—» mientras no se sabe), `SearchInput` y el período. — `devforge add list-toolbar`
-
-| Claro | Oscuro |
-| :---: | :---: |
-| ![Barra de listado — tema claro](docs/screenshots/barra-listado-light.png) | ![Barra de listado — tema oscuro](docs/screenshots/barra-listado-dark.png) |
-
-### Tabla: carga en frío y error
-
-`TableStates`: antes de la primera respuesta, las filas reales con «—»; si la consulta falla, el motivo y «Reintentar» (nunca «sin resultados»). — `devforge add shells`
-
-| Claro | Oscuro |
-| :---: | :---: |
-| ![Tabla en carga en frío — tema claro](docs/screenshots/tabla-carga-fria-light.png) | ![Tabla en carga en frío — tema oscuro](docs/screenshots/tabla-carga-fria-dark.png) |
-
-### Tabla: la consulta falló
-
-El error de carga no se confunde con una lista vacía. — `devforge add shells`
-
-| Claro | Oscuro |
-| :---: | :---: |
-| ![Tabla con error — tema claro](docs/screenshots/tabla-error-light.png) | ![Tabla con error — tema oscuro](docs/screenshots/tabla-error-dark.png) |
-
-### Tarjetas y detalle antes de responder
-
-`CardShell` y `DetailShell`: la forma real de la pantalla con «—» donde va cada dato, sin skeleton. — `devforge add shells`
-
-| Claro | Oscuro |
-| :---: | :---: |
-| ![Tarjetas en carga — tema claro](docs/screenshots/tarjetas-carga-light.png) | ![Tarjetas en carga — tema oscuro](docs/screenshots/tarjetas-carga-dark.png) |
-
-### Detalle antes de responder
-
-`DetailShell`: cabecera, fichas de resumen y líneas reales con «—». — `devforge add shells`
-
-| Claro | Oscuro |
-| :---: | :---: |
-| ![Detalle en carga — tema claro](docs/screenshots/detalle-carga-light.png) | ![Detalle en carga — tema oscuro](docs/screenshots/detalle-carga-dark.png) |
-
-### Selector de registros
-
-`RecordPickerModal`: búsqueda en el servidor desde la primera letra, ↑/↓ + Enter y «Mostrar más». — `devforge add pickers`
-
-| Claro | Oscuro |
-| :---: | :---: |
-| ![Selector de registros — tema claro](docs/screenshots/selector-registros-light.png) | ![Selector de registros — tema oscuro](docs/screenshots/selector-registros-dark.png) |
-
-### Command palette (⌘K)
-
-`CommandPalette`: pantallas (sin acentos y con un error de dedo) y registros del servidor, con lo que casó resaltado. — `devforge add command-palette`
-
-| Claro | Oscuro |
-| :---: | :---: |
-| ![Command palette — tema claro](docs/screenshots/command-palette-light.png) | ![Command palette — tema oscuro](docs/screenshots/command-palette-dark.png) |
-
-### Ayuda de un campo
-
-`FieldHelp`: el «?» que se abre al tocar (también en el teléfono) y se queda pegado al campo. — `devforge add field-help`
-
-| Claro | Oscuro |
-| :---: | :---: |
-| ![Ayuda de un campo — tema claro](docs/screenshots/ayuda-campo-light.png) | ![Ayuda de un campo — tema oscuro](docs/screenshots/ayuda-campo-dark.png) |
-
-### Vista previa de un documento
-
-`DocumentPreviewModal`: la maqueta en un iframe sin scripts, lista para imprimir. — `devforge add documents`
-
-| Claro | Oscuro |
-| :---: | :---: |
-| ![Vista previa de un documento — tema claro](docs/screenshots/vista-previa-light.png) | ![Vista previa de un documento — tema oscuro](docs/screenshots/vista-previa-dark.png) |
+## ⚡ Inicio rápido
+
+```bash
+# Una vez en tu máquina
+git clone https://github.com/LuisMTaveras/devforge.git && cd devforge/devforge
+pnpm install && pnpm link --global          # el comando `devforge` (nunca npx devforge: es otro paquete)
+
+# En cada proyecto
+cd ~/mi-proyecto
+devforge init                                # contexto para agentes; no borra tu CLAUDE.md
+devforge add formatters theme errors feedback overlays flickerless list-states   # la base (detecta Vue, React o Android)
+devforge status                              # qué está instalado y qué falta conectar
+devforge audit                               # las reglas, en un segundo (código 1 si algo falla)
+```
+
+Después, en tu agente: **`/kickoff`** para un proyecto nuevo, **`/devforge`** para consultar los blueprints y estándares. Los detalles de cada paso están más abajo, en [Instalación](#-instalación-y-configuración-inicial) y en la [referencia de comandos](#-referencia-completa-de-comandos-cli).
 
 ---
 
+## 📸 Cómo se ve
+
+Capturas reales de cada módulo en tema **Claro** y **Oscuro** (Vue 3 + Tailwind v4; React es idéntico): **[docs/galeria.md](docs/galeria.md)**.
+
+| Claro | Oscuro |
+| :---: | :---: |
+| ![Listado — tema claro](docs/screenshots/listado-light.png) | ![Listado — tema oscuro](docs/screenshots/listado-dark.png) |
+
+---
 
 ## 🚨 Los 11 Mandamientos DEVFORGE (Pre-Flight Checklist)
 
@@ -231,7 +85,7 @@ tu-proyecto/
 │   ├── CLAUDE.md                         # Contexto para Claude Code
 │   ├── .cursorrules                      # Reglas de contexto para Cursor IDE
 │   ├── copilot-instructions.md           # Instrucciones para GitHub Copilot
-│   ├── blueprints/                       # 📐 9 Blueprints de Arquitectura Empresarial
+│   ├── blueprints/                       # 📐 16 Blueprints de Arquitectura Empresarial
 │   │   ├── 01-openapi-sdk.md             # SDK y hooks tipados desde Swagger/OpenAPI
 │   │   ├── 02-schema-forms.md            # Formularios dinámicos con validación Zod
 │   │   ├── 03-datagrid-url-sync.md       # Tablas sincronizadas con query params de URL
@@ -319,14 +173,11 @@ Una vez ejecutado `devforge init`, la capa de IA ya está activa. Ahora abre tu 
    - **Delimitación del MVP**: Definirá el alcance funcional mínimo antes de escribir una sola línea de código.
 3. **Inyecta los módulos iniciales requeridos**:
    ```bash
-   devforge add formatters   # Moneda, números, porcentajes, fechas y teléfonos por país
-   devforge add theme        # Tema claro + oscuro (tokens, initTheme, useTheme)
-   devforge add auth         # Autenticación segura con cola de refresco
-   devforge add rbac         # Permisos por rol y directivas UI
-   devforge add dates --vue       # (o --react) Selector de fecha/rango y filtro de período (instala select)
-   devforge add pagination --vue  # Pie de paginación estándar (instala flickerless)
-   devforge add feedback --vue    # Diálogos del sistema y avisos (confirmDialog, notify)
-   devforge add overlays --vue    # ModalShell, DrawerShell y RowMenu
+   # El framework (Vue, React o Android) se detecta solo
+   devforge add formatters theme errors feedback overlays flickerless list-states   # la base de toda pantalla
+   devforge add dates pagination select   # período, paginación y combo (lo que use la primera pantalla)
+   devforge add auth rbac                 # sesión con refresco silencioso y permisos
+   devforge status                        # confirma que está instalado y qué falta conectar
    ```
 4. **Comienza a codificar asistido por los blueprints** en `.ai/blueprints/`.
 5. **Antes de subir tus cambios a Git, audita tu código**:
@@ -349,8 +200,8 @@ devforge init
 ```
 
 **¿Qué ocurre al ejecutar esto?**
-- `devforge init` **no sobrescribe** tu código de negocio ni borra tus archivos existentes.
-- Inyecta de forma segura los directorios `.ai/`, `.claude/`, `.agents/`, `.github/` y los archivos de contexto raíz (`AGENTS.md`, `CLAUDE.md`, `.cursorrules`).
+- `devforge init` **no borra nada tuyo**: si ya tienes `CLAUDE.md`, `AGENTS.md`, `.cursorrules` o `.github/copilot-instructions.md`, los conserva y les añade el bloque de DEVFORGE al final (entre `<!-- devforge:start -->` y `<!-- devforge:end -->`).
+- Crea `.ai/`, `.claude/commands/`, `.agents/skills/` y `.devforge/manifest.json` (el registro de lo instalado; súbelo al repositorio).
 - Tus asistentes de IA (Antigravity, Cursor, Claude, Copilot) entenderán de inmediato las reglas de calidad del proyecto.
 
 **Siguientes pasos recomendados en proyectos existentes:**
@@ -358,7 +209,7 @@ devforge init
    ```bash
    devforge audit
    ```
-   El CLI escaneará tus archivos `.vue`, `.tsx`, `.jsx` y `.ts`, mostrando si tienes datos ficticios quemados en plantillas, palabras en inglés no traducidas o colores neón.
+   El CLI escaneará tus archivos `.vue`, `.tsx`, `.jsx`, `.ts` y `.kt` (sin pruebas ni lo que ignora `.gitignore`), mostrando si tienes datos ficticios quemados en plantillas, palabras en inglés no traducidas o colores neón. Para adoptar DEVFORGE sin arreglarlo todo de golpe: `devforge audit --baseline`.
 2. **Inyecta utilidades estándar para reemplazar código repetitivo**:
    ```bash
    # Si tu API maneja errores de forma desordenada:
@@ -383,10 +234,10 @@ devforge <comando> [opciones]
 
 ### 1. `devforge init`
 Despliega la capa universal de IA en el repositorio actual:
-- Copia las plantillas de agentes (`AGENTS.md`, `CLAUDE.md`, `.cursorrules`, `copilot-instructions.md`).
-- Instala los 9 Blueprints en `.ai/blueprints/`.
-- Instala las guías de ingeniería y diseño en `.ai/standards/`.
-- Configura comandos slash en `.claude/commands/` y el skill en `.agents/skills/`.
+- Instala las instrucciones de los agentes (`AGENTS.md`, `CLAUDE.md`, `.cursorrules`, `.github/copilot-instructions.md`). **Si ya tenías alguno, no se borra**: DEVFORGE añade su bloque al final, entre `<!-- devforge:start -->` y `<!-- devforge:end -->`, y en adelante solo actualiza ese bloque.
+- Instala los 16 blueprints en `.ai/blueprints/`, los estándares en `.ai/standards/` y una copia de referencia de las instrucciones en `.ai/`.
+- Configura los comandos `/kickoff` y `/devforge` en `.claude/commands/` y el skill en `.agents/skills/`.
+- Se puede volver a correr: actualiza lo que no editaste. Un `CLAUDE.md` de una versión anterior de DEVFORGE que editaste se conserva; `--force` lo reemplaza dejando una copia `.bak`.
 
 ### 2. `devforge audit`
 Realiza un escaneo estático ultra rápido (en menos de un segundo) sobre todos los archivos del proyecto analizando el cumplimiento de los mandamientos DEVFORGE:
@@ -403,47 +254,34 @@ Realiza un escaneo estático ultra rápido (en menos de un segundo) sobre todos 
 - **Notificaciones nativas**: `new Notification()`, `Notification.requestPermission()` o `showNotification` fuera del service worker.
 - **Puntuación de Salud Arquitectónica**: Calcula el porcentaje de cumplimiento de 0% a 100%.
 
+No revisa pruebas, mocks (MSW) ni fixtures (`*.test.*`, `*.spec.*`, `tests/`, `__tests__/`, `mocks/`, `fixtures/`…) ni lo que ignora `.gitignore`. Para excluir otras rutas, `devforge.config.json`:
+
+```json
+{ "audit": { "ignore": ["src/generated/**"], "includeTests": false } }
+```
+
+Una línea que de verdad debe quedarse así se justifica en el mismo sitio, con motivo: `// devforge-ignore: <motivo>` (en esa línea o en la de arriba; en plantillas, `<!-- devforge-ignore: <motivo> -->`). Sin motivo no cuenta.
+
 Termina con código de salida `1` si hay violaciones, así que sirve para bloquear en CI. En un **proyecto existente**, `devforge audit --baseline` guarda la deuda de hoy en `.devforge-audit-baseline.json` (por archivo y regla); desde ahí la auditoría solo falla con violaciones **nuevas**, y cada arreglo reduce la línea base sola. La deuda solo puede bajar.
 
 ### 3. `devforge list`
-Muestra en consola el catálogo interactivo de todos los Blueprints, estándares y módulos de código disponibles para consultar o inyectar.
+Muestra los blueprints, los estándares y los módulos (con los que también existen para Android).
 
-### 4. `devforge add <módulo>`
-Inyecta módulos de código limpios, probados y con TypeScript estricto en la estructura de tu proyecto:
+### 4. `devforge status` y `devforge update`
+- `status`: qué módulos hay instalados y con qué framework, qué archivos están al día, cuáles tienen versión nueva, cuáles editaste y cuáles faltan, y lo que falta **conectar** una vez por proyecto (`setFormatCountry`, `initTheme()`, el script anti-parpadeo, `<ConfirmDialog />` / `<ToastHost />`; en Android `ThemeEngine.init`, `ConfirmDialogHost()`…).
+- `update`: después de actualizar DEVFORGE, trae la versión nueva de todo lo instalado (y de `.ai/`), repone lo que falta y conserva lo que editaste.
+- `devforge --version` muestra la versión de la CLI.
 
-| Módulo | Comando | Archivos Generados en tu Proyecto | Propósito |
-| :--- | :--- | :--- | :--- |
-| **Autenticación** | `devforge add auth` | `src/core/auth/auth-token.ts`<br>`src/core/auth/silent-refresh-queue.ts`<br>`src/modules/auth/stores/auth.store.ts` | Gestión de tokens JWT, almacenamiento seguro y cola anti-colisión para refresco de sesión en peticiones paralelas. |
-| **Errores de API** | `devforge add errors` | `src/core/errors/api-error.ts` | Normalizador universal de errores HTTP compatible con Laravel, Express, NestJS, FastAPI y Spring. |
-| **Exportación** | `devforge add export` | `src/core/export/export-engine.ts` | Exportación de datos a CSV y Excel con cabecera UTF-8 BOM para soporte total de tildes y caracteres especiales. |
-| **Formateadores** | `devforge add formatters` | `src/core/formatters/formatters.ts`<br>`src/core/formatters/input-masks.ts` | Motores de formato localizado por país (República Dominicana por defecto; `setFormatCountry('CO')` para cambiarlo): moneda (`RD$1,500.00`), números con comas y puntos (`1,234,567.89`), porcentajes, fechas relativas, teléfonos (`(809) 578-1234`) y reemplazo de nulos por `—`. |
-| **Tema Claro / Oscuro** | `devforge add theme` | `src/core/theme/theme.ts`<br>`src/shared/styles/tokens.css`<br>`src/shared/composables/useTheme.ts` (Vue)<br>`src/shared/hooks/useTheme.ts` (React) | Motor de temas Claro / Oscuro / Sistema con persistencia, tokens semánticos para Tailwind v4 y script anti-parpadeo. |
-| **Permisos RBAC** | `devforge add rbac` | `src/core/permissions/ability.ts`<br>`src/shared/components/Can.tsx` (React)<br>`src/shared/directives/v-can.ts` (Vue) | Motor de permisos declarativo basado en habilidades (estilo CASL), directiva `v-can` para Vue 3 y componente `<Can />` para React. |
-| **Sincronización URL** | `devforge add url-sync` | `src/core/url-sync/url-state.ts` | Sincronización bidireccional entre estados de filtros/paginación y los `URLSearchParams` del navegador. |
-| **Flickerless** | `devforge add flickerless` | `src/shared/flickerless/core/*`<br>`src/shared/flickerless/vue/*`<br>`src/shared/flickerless/react/*`<br>`src/shared/flickerless/flickerless.css` | Reemplazo del skeleton ([github.com/LuisMTaveras/flickerless](https://github.com/LuisMTaveras/flickerless)): lo que estaba se queda atenuado con una barra de 2 px, lo que no se sabe es «—», y la carga en frío pinta la tabla real. |
-| **Combo** | `devforge add select` | `src/shared/components/SelectField.vue` (Vue)<br>`src/shared/components/SelectField.tsx` (React) | Desplegable estándar que reemplaza al `<select>` nativo: menú teleportado (no se recorta en modales), tema claro/oscuro, grupos, opciones deshabilitadas y teclado. |
-| **Fechas** | `devforge add dates` | `src/core/dates/date-range.ts`<br>`DateField`, `DateRangeFilter`, `DatePicker` (`.vue` / `.tsx`) | `DateField` para la fecha de un formulario, `DateRangeFilter` para el período de un listado (Hoy, Ayer, Este mes…, flechas de día y rango personalizado) y `DatePicker range` para un rango suelto. El valor es la clave `'2026-10-15'`; «Hoy» se calcula en la zona de RD. |
-| **Diálogos y avisos** | `devforge add feedback` | `src/core/feedback/dialog.ts`<br>`src/core/feedback/toast.ts`<br>`ConfirmDialog` y `ToastHost` (`.vue` / `.tsx`) | `confirmDialog()`, `alertDialog()`, `promptDialog()` y `notify()`: el diálogo del sistema que reemplaza a `window.confirm`, con tono destructivo, Escape y Enter. |
-| **Modales** | `devforge add overlays` | `src/core/overlay/*.ts`<br>`ModalShell`, `DrawerShell`, `RowMenu` (`.vue` / `.tsx`)<br>`useOverlay` | Armazón de modal y panel lateral (el telón no cierra, Escape cierra la capa de arriba, fondo sin scroll) y menú «⋮» de fila que no se recorta. |
-| **Estados de lista** | `devforge add list-states` | `EmptyState`, `ListStaleNotice` (`.vue` / `.tsx`) | Lista vacía con acción directa y aviso de cambios nuevos sin recargar sola. |
-| **Campos** | `devforge add inputs` | `src/core/formatters/input-masks.ts`<br>`MoneyInput`, `MaskedInput` (`.vue` / `.tsx`) | Monto con los separadores del país (valor numérico) y cédula `001-1234567-8`, RNC `1-01-23456-7` y teléfono `(809) 578-1234` mientras se escribe. |
-| **Lotes** | `devforge add batch` | `src/core/batch/batch-progress.ts`<br>`BatchProgressModal` (`.vue` / `.tsx`) | Avance en vivo de un proceso uno a uno: «Procesando 3 de 10…», barra y resultado de cada registro. |
-| **Autorizaciones** | `devforge add authorizations` | `src/core/authorizations/authorization.ts`<br>`AuthorizationDialog`, `AuthorizationAlerts` (`.vue` / `.tsx`) | El interceptor reconoce el 403 `AUTHORIZATION_REQUIRED`, abre el modal (mi contraseña, credenciales de otro o solicitud a distancia) y reintenta la misma petición con la llave. Quien firma recibe una tarjeta en vivo con cuenta regresiva. El backend es el blueprint 08. |
-| **Notificaciones** | `devforge add notifications` | `src/core/notifications/notifications.ts`<br>`NotificationCenter` (`.vue` / `.tsx`) | La campana: contador real, filtros, agrupada por día en la hora del negocio, acuse reversible y avisos de escritorio activados con un clic. El backend es el blueprint 09. |
-| **Paginación** | `devforge add pagination` | `src/core/pagination/pagination.ts`<br>`src/shared/components/ListPager.vue`<br>`ListPager.tsx` (React) | Pie de listado estándar: «Mostrando 11–20 de 57 facturas» y ‹ 2 / 6 ›, con «—» hasta la primera respuesta. |
-| **Estados de tabla** | `devforge add shells` | `CardShell`, `DetailShell`, `TableStates` (`.vue` / `.tsx`) | Carga en frío con la forma real («—»), error con «Reintentar» que nunca se confunde con una lista vacía, y el vacío solo con respuesta en la mano. |
-| **Barra de listado** | `devforge add list-toolbar` | `ListToolbar`, `ListTabs`, `SearchInput`, `HistoryPeriodFilter` (`.vue` / `.tsx`) | Pestañas con conteo del servidor, búsqueda con pausa, período (los pendientes se ven enteros) y acciones, siempre en el mismo orden. |
-| **Listas conservadas** | `devforge add list-cache` | `src/core/list-cache/*`<br>`useCachedList` | Volver de un detalle devuelve la lista como estaba sin ir al servidor; se parchea lo que cambiaste y se ofrece recargar si hay filas nuevas. |
-| **Excel** | `devforge add excel` | `src/core/export/excel-report.ts`<br>`src/core/export/download.ts` | `downloadExcelReport()`: columnas tipadas, membrete y totales que no suman pesos con dólares. El servidor es el blueprint 10. |
-| **Selector de registros** | `devforge add pickers` | `src/core/search/record-search.ts`<br>`RecordPickerModal` (`.vue` / `.tsx`) | Elegir cliente o artículo buscando en el servidor: cancela la búsqueda anterior, conserva los resultados mientras llega la nueva y pagina. |
-| **Command palette** | `devforge add command-palette` | `src/core/search/nav-search.ts`<br>`CommandPalette` (`.vue` / `.tsx`) | ⌘K / Ctrl+K: pantallas buscadas sin acentos y con tolerancia a un error de dedo, y registros del servidor. |
-| **Documentos** | `devforge add documents` | `src/core/documents/print.ts`<br>`DocumentPreviewModal` (`.vue` / `.tsx`) | Vista previa e impresión de PDF o maqueta HTML traídos con la sesión (nunca `window.open('/api/…')`), en un iframe sin scripts. |
-| **Ayuda de campo** | `devforge add field-help` | `FieldHelp` (`.vue` / `.tsx`) | El «?» junto a la etiqueta que funciona también en el teléfono, donde el `title` no existe. |
-| **Versión nueva** | `devforge add app-update` | `src/core/app-update/app-update.ts` | Despliegue nuevo con la pestaña abierta: se aplica en la próxima navegación (no se pierde lo que se estaba tecleando) y se recupera la pantalla que no carga. |
-| **Seguridad** | `devforge add security` | `src/core/security/*` | `escapeHtml`, `safeLinkUrl` y `sanitizeTenantCss` para el texto, los enlaces y el CSS que escriben terceros. |
+### 5. `devforge add <módulo…>`
+Instala módulos probados y con TypeScript estricto. Varios a la vez: `devforge add select dates pagination`.
 
+- **El framework se detecta solo**: `package.json` con Vue → solo los archivos de Vue; con React → solo los de React; un proyecto Android → la versión Kotlin / Jetpack Compose. `--vue`, `--react` o `--compose` lo fuerzan.
+- **Nunca pisa lo que editaste**: lo que instala queda registrado con su hash en `.devforge/manifest.json` (súbelo al repositorio). Si un archivo sigue igual al instalado, una versión nueva de DEVFORGE lo puede actualizar; si lo editaste, se conserva y se te dice cuál (`--force` lo reemplaza).
+- Los `requires` se instalan solos (`pagination` trae `theme`, `formatters` y `flickerless`).
 
-### 5. `devforge add <módulo> --compose` (Android: Kotlin + Jetpack Compose)
+Qué instala cada módulo: **[docs/modulos.md](docs/modulos.md)** (28 módulos). API exacta: `.ai/standards/module-api.md`.
+
+### 6. `devforge add <módulo> --compose` (Android: Kotlin + Jetpack Compose)
 
 Los mismos módulos para una app Android en Kotlin con Jetpack Compose (Material 3 como base, la apariencia es «Warm Slate»): mismos tokens Claro / Oscuro, mismos textos en español, mismos formatos de RD y los mismos componentes. Reglas: `.ai/standards/compose.md`; API exacta: `.ai/standards/module-api.md` §27.
 

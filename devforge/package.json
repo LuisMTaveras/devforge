@@ -1,9 +1,8 @@
 {
   "name": "devforge",
-  "version": "1.0.0",
-  "description": "⚡ DEVFORGE: The Universal Architecture & AI Orchestration Toolkit for Modern Developers",
+  "version": "1.1.0",
+  "description": "⚡ DEVFORGE: arquitectura, componentes estándar y contexto para agentes de IA (Vue, React y Android / Jetpack Compose)",
   "type": "module",
-  "main": "./src/index.js",
   "bin": {
     "devforge": "./bin/devforge.js"
   },

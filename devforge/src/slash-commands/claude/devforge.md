@@ -24,6 +24,6 @@ Consult DEVFORGE architectural specifications:
    - `15-auth-sessions.md` (Session rows, rotation, revoke)
    - `16-realtime-sockets.md` (Tenant-safe rooms, events as hints)
 3. Check `.ai/standards/project-structure.md` for feature-first code organization.
-4. Check `.ai/standards/module-api.md` before importing any DEVFORGE function; if the module is not in `src/`, tell the user to run `devforge add <module>`.
+4. Check `.ai/standards/module-api.md` before importing any DEVFORGE function; if the module is not in `src/`, tell the user to run `devforge add <module>`. `devforge status` shows what is installed and the one-time wiring still missing (Android: `.ai/standards/compose.md`).
 5. Close every task with checkpoint 11 (Definition of Done) of `CLAUDE.md`.
 6. Assist the user in implementing clean, production-grade, human-crafted code.

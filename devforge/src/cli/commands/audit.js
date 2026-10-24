@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { logger } from '../logger.js';
+import { colors, logger } from '../logger.js';
 
 const BASELINE_FILE = '.devforge-audit-baseline.json';
 
@@ -451,11 +451,12 @@ const AUDIT_RULES = [
 
 export async function auditCommand(options = {}) {
   const targetDir = options.cwd || process.cwd();
-  logger.banner();
-  logger.info(`Auditing repository for DEVFORGE compliance in: ${targetDir}\n`);
+  logger.info(`Auditoría DEVFORGE en: ${targetDir}\n`);
 
+  const config = readAuditConfig(targetDir);
+  const ignore = buildIgnore(targetDir, config);
   const filesToScan = [];
-  collectFiles(targetDir, filesToScan);
+  collectFiles(targetDir, targetDir, filesToScan, ignore);
 
   if (filesToScan.length === 0) {
     logger.warn('No hay archivos .vue, .tsx, .ts, .jsx o .kt para auditar.');
@@ -473,6 +474,8 @@ export async function auditCommand(options = {}) {
 
     lines.forEach((line, idx) => {
       const lineNum = idx + 1;
+      // `// devforge-ignore: <motivo>` en la misma línea o en la de arriba. Sin motivo no cuenta.
+      if (IGNORE_RE.test(line) || (idx > 0 && IGNORE_RE.test(lines[idx - 1]) && isComment(lines[idx - 1]))) return;
       AUDIT_RULES.forEach(rule => {
         const issue = rule.check(content, line, lineNum, ext, filePath);
         if (issue) {
@@ -523,10 +526,10 @@ export async function auditCommand(options = {}) {
     }
   }
 
-  console.log(`\x1b[1mArchivos escaneados:\x1b[0m ${filesToScan.length}`);
+  console.log(`${colors.bright}Archivos escaneados:${colors.reset} ${filesToScan.length}`);
   const known = violations.length - newViolations.length;
   if (baseline && known > 0) {
-    console.log(`\x1b[2mDeuda conocida (${BASELINE_FILE}):\x1b[0m ${known} violación(es); solo puede bajar.`);
+    console.log(`${colors.dim}Deuda conocida (${BASELINE_FILE}):${colors.reset} ${known} violación(es); solo puede bajar.`);
   }
 
   if (newViolations.length === 0) {
@@ -547,19 +550,19 @@ export async function auditCommand(options = {}) {
   }
 
   const issueFiles = new Set(newViolations.map(v => v.file)).size;
-  console.log(`\x1b[31mProblemas ${baseline ? 'nuevos' : 'encontrados'}:\x1b[0m ${newViolations.length} en ${issueFiles} archivo(s)\n`);
+  console.log(`${colors.red}Problemas ${baseline ? 'nuevos' : 'encontrados'}:${colors.reset} ${newViolations.length} en ${issueFiles} archivo(s)\n`);
 
   newViolations.forEach((v, i) => {
-    console.log(`  \x1b[31m[${i + 1}]\x1b[0m \x1b[1m${v.file}:${v.line}\x1b[0m (\x1b[33m${v.rule}\x1b[0m)`);
-    console.log(`      \x1b[36mDetalle:\x1b[0m ${v.message}`);
-    console.log(`      \x1b[2mCódigo:\x1b[0m  ${v.snippet.slice(0, 80)}`);
+    console.log(`  ${colors.red}[${i + 1}]${colors.reset} ${colors.bright}${v.file}:${v.line}${colors.reset} (${colors.yellow}${v.rule}${colors.reset})`);
+    console.log(`      ${colors.cyan}Detalle:${colors.reset} ${v.message}`);
+    console.log(`      ${colors.dim}Código:${colors.reset}  ${v.snippet.slice(0, 80)}`);
     console.log();
   });
 
   const healthScore = Math.max(0, Math.round(((filesToScan.length - filesWithIssues) / filesToScan.length) * 100));
-  console.log(`\x1b[1mPuntuación de Salud Arquitectónica:\x1b[0m ${healthScore >= 80 ? '\x1b[32m' : '\x1b[31m'}${healthScore}%\x1b[0m\n`);
+  console.log(`${colors.bright}Puntuación de Salud Arquitectónica:${colors.reset} ${healthScore >= 80 ? colors.green : colors.red}${healthScore}%${colors.reset}\n`);
   if (!baseline) {
-    console.log(`\x1b[2mProyecto existente: «devforge audit --baseline» guarda la deuda actual y desde ahí solo se exige que no crezca.\x1b[0m\n`);
+    console.log(`${colors.dim}Proyecto existente: «devforge audit --baseline» guarda la deuda actual y desde ahí solo se exige que no crezca.${colors.reset}\n`);
   }
   // Non-zero exit so CI can block new violations.
   process.exitCode = 1;
@@ -608,24 +611,94 @@ function shrinkBaseline(baseline, counts) {
   return { baseline: next, removed };
 }
 
-function collectFiles(dir, fileList) {
-  const ignoreDirs = ['node_modules', '.git', 'dist', '.ai', '.next', '.nuxt', 'coverage', 'build', '.gradle', '.kotlin', '.idea'];
+const CODE_EXTS = ['.vue', '.tsx', '.ts', '.jsx', '.js', '.kt'];
+const ALWAYS_SKIPPED = ['node_modules', '.git', 'dist', '.ai', '.next', '.nuxt', 'coverage', 'build', '.gradle', '.kotlin', '.idea', '.devforge'];
+const IGNORE_RE = /devforge-ignore:\s*\S/;
+
+/**
+ * Pruebas, mocks (MSW) y fixtures llevan datos de ejemplo y textos en inglés A PROPÓSITO: no son
+ * pantallas. `{ "audit": { "includeTests": true } }` en devforge.config.json los vuelve a revisar.
+ */
+const TEST_DIRS = ['test', 'tests', '__tests__', '__mocks__', 'mocks', 'fixtures', 'e2e', 'cypress', 'androidTest'];
+const isTestFile = rel => {
+  const parts = rel.split('/');
+  const file = parts[parts.length - 1];
+  return parts.slice(0, -1).some(p => TEST_DIRS.includes(p)) || /\.(test|spec)\.[cm]?[jt]sx?$/.test(file) || /Test\.kt$/.test(file);
+};
+
+/** `devforge.config.json` → `{ audit: { ignore: ["glob", …], includeTests: false } }`. */
+export function readAuditConfig(targetDir) {
+  const file = path.join(targetDir, 'devforge.config.json');
+  if (!fs.existsSync(file)) return { ignore: [], includeTests: false };
   try {
-    const entries = fs.readdirSync(dir, { withFileTypes: true });
-    for (const entry of entries) {
-      const fullPath = path.join(dir, entry.name);
-      if (entry.isDirectory()) {
-        if (!ignoreDirs.includes(entry.name)) {
-          collectFiles(fullPath, fileList);
-        }
-      } else if (entry.isFile()) {
-        const ext = path.extname(entry.name);
-        if (['.vue', '.tsx', '.ts', '.jsx', '.js', '.kt'].includes(ext) && !entry.name.endsWith('.d.ts')) {
-          fileList.push(fullPath);
-        }
-      }
-    }
+    const audit = JSON.parse(fs.readFileSync(file, 'utf8')).audit || {};
+    return { ignore: Array.isArray(audit.ignore) ? audit.ignore : [], includeTests: audit.includeTests === true };
   } catch {
-    // Ignore permissions or missing folders
+    logger.error('devforge.config.json no es JSON válido; se ignora.');
+    return { ignore: [], includeTests: false };
+  }
+}
+
+/** Un patrón estilo .gitignore → función sobre la ruta relativa (con `/`). */
+export function globMatcher(pattern) {
+  let p = pattern.trim();
+  if (!p || p.startsWith('#') || p.startsWith('!')) return null; // la negación no se soporta: se ignora el patrón
+  const anchored = p.startsWith('/') || p.slice(0, -1).includes('/');
+  p = p.replace(/^\//, '').replace(/\/$/, '');
+  let body = '';
+  for (let i = 0; i < p.length; i++) {
+    const c = p[i];
+    if (c === '*' && p[i + 1] === '*') {
+      if (p[i + 2] === '/') {
+        body += '(?:.*/)?'; // `**/` = cero o más carpetas
+        i += 2;
+      } else {
+        body += '.*';
+        i += 1;
+      }
+    } else if (c === '*') body += '[^/]*';
+    else if (c === '?') body += '[^/]';
+    else body += c.replace(/[.+^${}()|[\]\\]/g, '\\$&');
+  }
+  const regex = new RegExp(`${anchored ? '^' : '(?:^|/)'}${body}(?:/|$)`);
+  return rel => regex.test(rel);
+}
+
+function buildIgnore(targetDir, config) {
+  const matchers = config.ignore.map(globMatcher).filter(Boolean);
+  return rel => matchers.some(m => m(rel)) || (!config.includeTests && isTestFile(rel));
+}
+
+/** Los patrones del `.gitignore` de una carpeta, sobre rutas relativas a esa carpeta. */
+function gitignoreOf(dir) {
+  const file = path.join(dir, '.gitignore');
+  if (!fs.existsSync(file)) return null;
+  const matchers = fs.readFileSync(file, 'utf8').split('\n').map(globMatcher).filter(Boolean);
+  return matchers.length ? { dir, matchers } : null;
+}
+
+function collectFiles(root, dir, fileList, ignore, gitignores = []) {
+  let entries;
+  try {
+    entries = fs.readdirSync(dir, { withFileTypes: true });
+  } catch {
+    return; // sin permiso o carpeta que desapareció
+  }
+  const own = gitignoreOf(dir);
+  const scopes = own ? [...gitignores, own] : gitignores;
+  const ignored = fullPath =>
+    scopes.some(g => {
+      const relToScope = path.relative(g.dir, fullPath).split(path.sep).join('/');
+      return g.matchers.some(m => m(relToScope));
+    });
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry.name);
+    const rel = path.relative(root, fullPath).split(path.sep).join('/');
+    if (ignored(fullPath) || ignore(rel)) continue;
+    if (entry.isDirectory()) {
+      if (!ALWAYS_SKIPPED.includes(entry.name)) collectFiles(root, fullPath, fileList, ignore, scopes);
+    } else if (entry.isFile() && CODE_EXTS.includes(path.extname(entry.name)) && !entry.name.endsWith('.d.ts')) {
+      fileList.push(fullPath);
+    }
   }
 }

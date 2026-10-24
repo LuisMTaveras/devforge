@@ -1,0 +1,5 @@
+{
+  "audit": {
+    "ignore": ["src/cli/commands/audit.js"]
+  }
+}
